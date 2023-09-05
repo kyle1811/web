@@ -1,0 +1,521 @@
+﻿
+@model PT.BusinessLogic.Entities.CDP
+
+@{
+    //Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+@*<!DOCTYPE html>
+<html>
+    <head>
+         <title>@ViewBag.Title</title>
+        <!-- 인코딩 -->
+        <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+        <!-- 문서모드 -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <!-- 파비콘 -->
+        <link rel="shortcut icon" type="text/css" href="/Contents/images/icon/portal.ico"  />
+        <!-- css -->
+        <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+        <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+        <!-- script -->
+        <script type="text/javascript" src="/Contents/js/common.js"></script>
+        <script type="text/javascript" src="/Contents/js/component.js"></script>
+        <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    </head>
+    <body>*@
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 버튼박스 -->
+    <div class="box_btn_right margin_top10">
+        <a id="btn_list" class="btn1">목 록</a>
+    </div>
+    <!-- //버튼박스 -->
+
+        <h1 class="title8">인사정보</h1>
+        @*<h1 style="margin: 30px 0px 0px 0px; padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:18px;color:#121212;">인사정보</h1>*@
+        
+        @*.title1{margin:20px 0;padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:18px;color:#121212;}*@
+
+        <div class ="box_input">
+            <table>
+                <colgroup>
+                    <col style="width:14.2%" />
+                    <col style="width:14.2%" /> 
+                    <col style="width:14.2%" />
+                    <col style="width:14.2%" />
+                    <col style="width:14.2%" />
+                    <col style="width:14.2%" />
+                    <col style="width:14.2%" />
+                    <col />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td rowspan="4" class="td_center"><img src="@Model.PhotoUrl" style="width:114px;height:135px;" /></td>
+                        <th>사    번</th>
+                        <td class="td_center">@Model.EMP</td>
+                        <th>성    명</th>
+                        <td class="td_center">@Model.EMP_NM</td>
+                        <th>입사일자</th>
+                        <td class="td_center">@Model.ENTER_DATE</td>
+                    </tr>
+                    <tr>
+                        <th>소속부서</th>
+                        <td class="td_left" colspan ="3" style="padding-left:10px;">@Model.FULL_DEPT_NM</td>
+                        <th>승진일자</th>
+                        <td class="td_center">@Model.PRMT_DATE</td>
+                    </tr>
+                    <tr>
+                        <th>직    급</th>
+                        <td class="td_center">@Model.EMP_CLASS</td>
+                        <th>직    위</th>
+                        <td class="td_center">@Model.EMP_RANK</td>
+                        <th>직    무</th>
+                        <td class="td_center">@Model.POSITION</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <BR>
+        @*<h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title8.png) no-repeat left center;font-size:15px;color:#121212;">발령기준 경력사항</h1>*@
+
+        <h1 class="title8">발령기준 경력사항</h1>
+        <table style="border-color:white;">
+            <tbody>
+                <tr>
+                    <td style="height:150px;border-color:white;"><div id="grid_AppointCareer" class="grid4" style="height:204px;"></div></td>
+                </tr>
+           </tbody>
+        </table>
+        
+  
+            <div id="pager_AppointCareer"  class="pager1" ></div>
+
+        <BR>
+        @*<h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title8.png) no-repeat left center;font-size:15px;color:#121212;">공사경력사항</h1>*@
+        <h1 class="title8">공사경력사항</h1>
+        <table style="border-color:white;">
+            <tbody>
+                <tr>
+                    <td style="height:150px;border-color:white;"><div id="grid_Career" class="grid4" style="height:204px;"></div></td>
+                </tr>
+
+
+
+            </tbody>
+                
+        </table>
+        <div id="pager_ConCareer"  class="pager1" ></div>
+
+        <BR>
+        <table style="border-color:white;">
+            <colgroup>
+                <col style="width:38%" />
+                <col style="width:24%" /> 
+                <col style="width:38%" /> 
+            </colgroup>
+            <tbody >
+                <tr >
+@*                    <td><h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title8.png) no-repeat left center;font-size:15px;color:#121212;">자격면허</h1></td>
+                    <td><h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title8.png) no-repeat left center;font-size:15px;color:#121212;">등급사항</h1></td>
+                    <td><h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title8.png) no-repeat left center;font-size:15px;color:#121212;">학력사항</h1></td>*@
+                    
+                    
+
+                    <td><h1 class="title8">자격면허</h1></td>
+                    <td><h1 class="title8">등급사항</h1></td>
+                    <td><h1 class="title8">학력사항</h1></td>
+                </tr>
+                <tr>
+                    <td style="height:150px;border-color:white;"><div id="grid_License" class="grid4" style="height:150px;"></div></td>
+                    <td style="height:150px;border-color:white;"><div id="grid_Grade"   class="grid4" style="height:150px;"></div></td>
+                    <td style="height:150px;border-color:white;"><div id="grid_EduBgr"  class="grid4" style="height:150px;"></div></td>
+                </tr>
+                <!--
+                <tr>
+                    <td id="pager_License" class="pager1"></td>
+                    <td id="pager_Grade"   class="pager1"></td>
+                    <td id="pager_EduBgr"  class="pager1"></td>
+                </tr>
+                -->
+            </tbody>
+        </table>
+        
+        <BR>
+        @*<h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title8.png) no-repeat left center;font-size:15px;color:#121212;">입사전 경력사항</h1>*@
+        <h1 class="title8">입사전 경력사항</h1>
+        <table style="border-color:white;">
+            <tbody>
+                <tr>
+                    <td style="height:150px;border-color:white;"><div id="grid_BefCareer" class="grid4" style="height:204px;"></div></td>
+                </tr>
+                <tr>
+                    <td style="height:150px;border-color:white;"><div id="grid_BefCareer2" class="grid4" style="height:204px;"></div></td>
+                </tr>
+                <tr>
+                    <td id="pager_BefCareer"  class="pager1" ></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 페이지 -->
+        <div id="pager_BefCareer2" class="pager1" style="height:0px;"></div>
+        <!-- //페이지 -->
+
+@*        <div class="box_Close">
+            <div class="box_Close_Center">
+                    <a id="btn_Close" class="btn">닫 기</a>
+            </div>     
+        </div>*@
+
+
+ </div>
+@*    </body>
+
+</html>*@
+
+
+
+<script type="text/javascript">
+    //************ 변수 ************//
+
+    var pEmpNo =  "@Model.EMP";
+
+    //************ 로드 ************//
+    
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        ListAppointCareerGrid("Y", 1, 5, "Y", pEmpNo);
+
+        ListCareerGrid("Y",  1, 5, "Y", pEmpNo);
+        ListLicenseGrid("Y", 1, 10, "Y", pEmpNo);
+        ListGradeGrid("Y",   1, 10, "Y", pEmpNo);
+        ListEduBgrGrid("Y", 1, 10, "Y", pEmpNo);
+        ListBefCareerGrid("Y", 1, 5, "Y", pEmpNo);
+        ListBefCareergrid4("Y", 1, 5, "Y", pEmpNo);
+        ApplyDisplayColor();
+    });
+
+
+    // 페이지 번호 클릭 이벤트
+    //발령기준경력사항
+    $(document).on("click", "#pager_AppointCareer a", function (e) {
+        ListAppointCareerGrid("Y", GetPagerValue($(this).attr("id"), $(this).text()), 5, "Y", pEmpNo);
+    });
+    //공사경력사항
+    $(document).on("click", "#pager_ConCareer a", function (e) {
+        ListCareerGrid("Y", GetPagerValue($(this).attr("id"), $(this).text()), 5, "Y", pEmpNo);
+    });
+    //입사전경력사항
+    $(document).on("click", "#pager_BefCareer a", function (e) {
+        ListBefCareerGrid("Y", GetPagerValue($(this).attr("id"), $(this).text()), 5, "Y", pEmpNo);
+        ListBefCareergrid4("Y", GetPagerValue($(this).attr("id"), $(this).text()), 5, "Y", pEmpNo);
+    });
+
+    //************ Ajax ************//
+
+    function ApplyDisplayColor() {
+        $("#grid_AppointCareer tr").each(function (e) {
+
+
+                //$(this).css("background-color", "#eaeaea");
+            if ($(this).children().eq(1).text() != "발령일") {
+                $(this).children().each(function (e) {
+                    $(this).css("font-size", "12px");
+
+                });
+            }
+        });
+
+        $("#grid_Career tr").each(function (e) {
+
+
+            //$(this).css("background-color", "#eaeaea");
+            if ($(this).children().eq(0).text() != "근무회사") {
+                $(this).children().each(function (e) {
+                    $(this).css("font-size", "12px");
+
+                });
+            }
+        });
+
+
+        $("#grid_BefCareer tr").each(function (e) {
+
+
+            //$(this).css("background-color", "#eaeaea");
+            if ($(this).children().eq(0).text() != "회사명") {
+                $(this).children().each(function (e) {
+                    $(this).css("font-size", "12px");
+
+                });
+            }
+        });
+        $("#grid_BefCareer2 tr").each(function (e) {
+
+
+            //$(this).css("background-color", "#eaeaea");
+            if ($(this).children().eq(0).text() != "회사명") {
+                $(this).children().each(function (e) {
+                    $(this).css("font-size", "12px");
+
+                });
+            }
+        });
+
+
+        $("#grid_License tr").each(function (e) {
+
+
+            //$(this).css("background-color", "#eaeaea");
+            if ($(this).children().eq(0).text() != "자격증명") {
+                $(this).children().each(function (e) {
+                    $(this).css("font-size", "12px");
+
+                });
+            }
+        });
+
+
+        $("#grid_Grade tr").each(function (e) {
+
+
+            //$(this).css("background-color", "#eaeaea");
+            if ($(this).children().eq(0).text() != "등급") {
+                $(this).children().each(function (e) {
+                    $(this).css("font-size", "12px");
+
+                });
+            }
+        });
+
+
+        $("#grid_EduBgr tr").each(function (e) {
+
+
+            //$(this).css("background-color", "#eaeaea");
+            if ($(this).children().eq(0).text() != "학교명") {
+                $(this).children().each(function (e) {
+                    $(this).css("font-size", "12px");
+
+                });
+            }
+        });
+
+    }
+
+    
+
+
+    // 사내 경력사항 그리드 조회
+    function ListAppointCareerGrid(pPagerUseYn, pCurPage, pListCnt, pTreeYn, pEmpNo) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/ListAppointCareerGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pTreeYn": pTreeYn, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_AppointCareer").empty();
+                $("#grid_AppointCareer").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_AppointCareer", 20, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnTreeYn").val(data[3]);
+                $("#HdnEmpNo").val(data[4]);
+                //  $("#HdnSearchTypeCd").val(data[5]);
+                // $("#HdnSearchWord").val(data[6]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 경력사항 그리드 조회
+    function ListCareerGrid(pPagerUseYn, pCurPage, pListCnt, pTreeYn, pEmpNo) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/ListCareerGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pTreeYn": pTreeYn, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_Career").empty();
+                $("#grid_Career").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_ConCareer", 20, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnTreeYn").val(data[3]);
+                $("#HdnEmpNo").val(data[4]);
+              //  $("#HdnSearchTypeCd").val(data[5]);
+               // $("#HdnSearchWord").val(data[6]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 자격면허 그리드 조회
+    function ListLicenseGrid(pPagerUseYn, pCurPage, pListCnt, pTreeYn, pEmpNo) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/ListLicenseGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pTreeYn": pTreeYn, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_License").empty();
+                $("#grid_License").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_License", 5, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnTreeYn").val(data[3]);
+                $("#HdnEmpNo").val(data[4]);
+                $("#HdnSearchTypeCd").val(data[5]);
+                $("#HdnSearchWord").val(data[6]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+    
+    // 등급 그리드 조회
+    function ListGradeGrid(pPagerUseYn, pCurPage, pListCnt, pTreeYn, pEmpNo) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/ListGradeGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pTreeYn": pTreeYn, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_Grade").empty();
+                $("#grid_Grade").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_Grade", 5, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnTreeYn").val(data[3]);
+                $("#HdnEmpNo").val(data[4]);
+                $("#HdnSearchTypeCd").val(data[5]);
+                $("#HdnSearchWord").val(data[6]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 학력사항 그리드 조회
+    function ListEduBgrGrid(pPagerUseYn, pCurPage, pListCnt, pTreeYn, pEmpNo) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/ListEduBgrGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pTreeYn": pTreeYn, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_EduBgr").empty();
+                $("#grid_EduBgr").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_EduBgr", 5, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnTreeYn").val(data[3]);
+                $("#HdnEmpNo").val(data[4]);
+                $("#HdnSearchTypeCd").val(data[5]);
+                $("#HdnSearchWord").val(data[6]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+
+    // 입사전 경력사항 그리드 조회
+    function ListBefCareerGrid(pPagerUseYn, pCurPage, pListCnt, pTreeYn, pEmpNo) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/ListBefCareerGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pTreeYn": pTreeYn, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_BefCareer").empty();
+                $("#grid_BefCareer").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_BefCareer", 15, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnTreeYn").val(data[3]);
+                $("#HdnEmpNo").val(data[4]);
+                //  $("#HdnSearchTypeCd").val(data[5]);
+                // $("#HdnSearchWord").val(data[6]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+    // 입사전 경력사항 그리드 조회2
+    function ListBefCareergrid4(pPagerUseYn, pCurPage, pListCnt, pTreeYn, pEmpNo) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/ListBefCareergrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pTreeYn": pTreeYn, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_BefCareer2").empty();
+                $("#grid_BefCareer2").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_BefCareer2", 15, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnTreeYn").val(data[3]);
+                $("#HdnEmpNo").val(data[4]);
+                //  $("#HdnSearchTypeCd").val(data[5]);
+                // $("#HdnSearchWord").val(data[6]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 닫기버튼 이벤트
+    //$(document).on("click", "#btn_Close", function (e) {
+    //    self.close();
+    //});
+
+    $(document).on("click", "#btn_list", function (e) {
+        history.go(-1);
+    });
+
+</script>
+

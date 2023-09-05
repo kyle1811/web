@@ -1,0 +1,118 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+        <!-- 검색 및 버튼박스 -->
+        <br>
+        <div class="box_search3">
+
+         <span>업체명</span> <input type="text" id="TxtSubject" name="TxtSubject">
+ 
+        <a id="btn_search" class="btn1">검 색</a>
+                
+        </div>
+        <!-- //검색 및 버튼박스 -->
+        <!-- 그리드 -->
+        <div id="grid_cooperator" class="grid2" style="height:714px;"></div>
+        <!-- //그리드 -->
+        <!-- 페이지 -->
+        <div id="pager_cooperator" class="pager1"></div>
+        <br>
+        <!-- //페이지 -->
+        <!-- 숨김정보 -->
+        <input type="hidden" id="HdnCooperator" name="HdnCooperator" />
+        <input type="hidden" id="HdnSubject" name="HdnSubject" />
+        <!-- //숨김정보 -->
+    
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var Cooperator = "@ViewBag.Cooperator";
+
+    $(document).ready(function (e) {
+        ListSearchVendor("Y", 1, 20, Cooperator, $("#TxtSubject").val());
+    });
+
+    // 협력업체현황 조회
+    function ListSearchVendor(pPagerUseYn, pCurPage, pListCnt, pCooperator, pVendornm) {
+        $.ajax({
+            type: "POST",
+            url: "/Control/ListSearchVendor",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pCooperator": pCooperator, "pVendornm": pVendornm },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_cooperator").empty();
+                $("#grid_cooperator").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_cooperator", 10, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnCooperator").val(data[3]);
+                $("#HdnSubject").val(data[4]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    //************ 이벤트 ************//
+
+    // 조회버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        if ($("#TxtSubject").val() == "") {
+            alert("검색어를 입력하세요");
+            $("#TxtSubject").focus();
+            return false;
+        }
+       
+        ListSearchVendor("Y", 1, 20, Cooperator, $("#TxtSubject").val());
+    });
+
+    // 제목박스 엔터 이벤트
+    $(document).on("keypress", "#TxtSubject", function (e) {
+        if (e.which == 13) {
+            ListSearchVendor("Y", 1, 20, Cooperator, $("#TxtSubject").val());
+            return false;
+        }
+    });
+
+    // 페이지 번호 클릭 이벤트
+    $(document).on("click", "#pager_cooperator a", function (e) {
+        ListSearchVendor("Y", GetPagerValue($(this).attr("id"), $(this).text()), 20, $("#HdnCooperator").val(), $("#HdnSubject").val());
+    });
+
+    // 그리드 TR 클릭 이벤트
+    $(document).on("click", "#grid_cooperator tr", function (e) {
+        if (GetGridTrValue("grid_cooperator", "h_VendorNm", $(this).children()) != "거래처명") {
+            location.href = "/Control/CooperatorDetail?pVendorCd=" + GetGridTrValue("grid_cooperator", "h_VendorCd", $(this).children());
+        }
+    });
+
+    // 그리드 TR 클릭 이벤트
+    /*$(document).on("click", "#grid_cooperator tr", function (e) {
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 960) / 2;
+        var popY = winY + (winHeight - 750) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=960,height=750,top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/CooperatorDetail?pVendorCd=" + GetGridTrValue("grid_cooperator", "h_VendorCd", $(this).children());
+        window.open(location,"CoorperatorDetail",setting);
+    });*/
+
+</script>

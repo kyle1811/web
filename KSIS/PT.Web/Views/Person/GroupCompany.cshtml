@@ -1,0 +1,99 @@
+﻿
+
+
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+        <!-- 검색 및 버튼박스 -->
+        <br>
+        <div class="box_search3">
+
+         <span>사우 이름  </span> <input type="text" id="TxtSubject" name="TxtSubject">
+ 
+        <a id="btn_search" class="btn1">검 색</a>
+                
+        </div>
+        <!-- //검색 및 버튼박스 -->
+        <!-- 그리드 -->
+        <div id="grid_listgroupcompany" class="grid1" style="height:714px;"></div>
+        <!-- //그리드 -->
+        <!-- 페이지 -->
+        <div id="pager_cooperator" class="pager1"></div>
+        <br>
+        <!-- //페이지 -->
+        <!-- 숨김정보 -->
+        <input type="hidden" id="HdnCooperator" name="HdnCooperator" />
+        <input type="hidden" id="HdnSubject" name="HdnSubject" />
+        <!-- //숨김정보 -->
+    
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var Usernm = "@ViewBag.Usernm";
+
+    $(document).ready(function (e) {
+        ListGroupCompany("Y", 1, 20, Usernm, $("#TxtSubject").val());
+    });
+
+    // 협력업체현황 조회
+    function ListGroupCompany(pPagerUseYn, pCurPage, pListCnt, pCooperator, pUsernm) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/ListGroupCompany",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pCooperator": pCooperator, "pUsernm": pUsernm },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_listgroupcompany").empty();
+                $("#grid_listgroupcompany").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_cooperator", 10, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnCooperator").val(data[3]);
+                $("#HdnSubject").val(data[4]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    //************ 이벤트 ************//
+
+    // 조회버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        if ($("#TxtSubject").val() == "") {
+            alert("검색어를 입력하세요");
+            $("#TxtSubject").focus();
+            return false;
+        }
+
+        ListGroupCompany("Y", 1, 20, Usernm, $("#TxtSubject").val());
+    });
+
+    // 제목박스 엔터 이벤트
+    $(document).on("keypress", "#TxtSubject", function (e) {
+        if (e.which == 13) {
+            ListGroupCompany("Y", 1, 20, Usernm, $("#TxtSubject").val());
+            return false;
+        }
+    });
+
+    // 페이지 번호 클릭 이벤트
+    $(document).on("click", "#pager_cooperator a", function (e) {
+        ListGroupCompany("Y", GetPagerValue($(this).attr("id"), $(this).text()), 20, $("#HdnCooperator").val(), $("#HdnSubject").val());
+    });
+
+
+</script>

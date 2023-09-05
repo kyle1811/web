@@ -1,0 +1,173 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left2">
+        <div id="tree_dept_chart" class="tree_type1" style="width:255px;height:450px;">
+            @MvcHtmlString.Create(ViewBag.TreeData)
+        </div>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right2">
+        <!-- 검색 및 버튼박스 -->
+        <div class="box_search4">
+                @Html.DropDownList("SearchTypeCd", (List<SelectListItem>)ViewBag.ddlSearchTypeCd)  <input type="text" id="TxtSearchWord" name="TxtSearchWord" />
+                <a id="btn_search" class="btn1">검색</a>
+        </div>
+        <!-- //검색 및 버튼박스 -->
+        <!-- 그리드 -->
+        <div id="grid_user" class="grid2" style="height:385px;"></div>
+        <!-- //그리드 -->
+        <!-- 페이지 -->
+        <div id="pager_user" class="pager1"></div>
+        <!-- //페이지 -->
+        <!-- 숨김정보 -->
+        <input type="hidden" id="HdnTreeYn" name="HdnTreeYn" />
+        <input type="hidden" id="HdnDeptCd" name="HdnDeptCd" />
+        <input type="hidden" id="HdnSearchTypeCd" name="HdnSearchTypeCd" />
+        <input type="hidden" id="HdnSearchWord" name="HdnSearchWord" />
+        <!-- //숨김정보 -->
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var deptCd = "@ViewBag.DeptCd";
+
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        $("#" + deptCd).children().eq(0).css("color", "#ff0000");
+        ListUserGrid("Y", 1, 10, "Y", deptCd, "", "");
+       
+        var myDiv = $("#tree_dept_chart");
+        myDiv.animate({ scrollTop: $("#" + deptCd).offset().top - (myDiv.offset().top + 200) }, 300);
+
+        ApplyDisplayCursor();
+    });
+    
+
+    //************ Ajax ************//
+
+    //테이블 항목제어
+    function ApplyDisplayCursor() {
+
+        $("#grid_user tr").each(function (e) {
+
+            if (($(this).children().eq(1).text() == "이름")) {
+                $(this).css("cursor", "default");
+
+            }
+
+        });
+    }
+
+    // 사용자목록 그리드 조회
+    function ListUserGrid(pPagerUseYn, pCurPage, pListCnt, pTreeYn, pDeptCd, pSearchTypeCd, pSearchWord) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListUserGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pTreeYn": pTreeYn, "pDeptCd": pDeptCd, "pSearchTypeCd": pSearchTypeCd, "pSearchWord": pSearchWord },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_user").empty();
+                $("#grid_user").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_user", 10, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnTreeYn").val(data[3]);
+                $("#HdnDeptCd").val(data[4]);
+                $("#HdnSearchTypeCd").val(data[5]);
+                $("#HdnSearchWord").val(data[6]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    //************ 이벤트 ************//
+
+    // 트리뷰 클릭 이벤트
+    $(document).on("click", "#tree_dept_chart a", function (e) {
+
+        $("#tree_dept_chart a").css("color", "#5f5f5f");
+        $(this).css("color", "#d82728");
+
+        if ($(this).attr("class") == "sub_open") {
+            $(this).attr("class", "sub_none");
+            $(this).next().css("display", "none");
+        }
+        else if ($(this).attr("class") == "sub_none") {
+            $(this).attr("class", "sub_open");
+            $(this).next().css("display", "block");
+        }
+
+        ListUserGrid("Y", 1, 10, "Y", $(this).parent().attr("id"), "", "");
+    });
+
+    // 페이지 번호 클릭 이벤트
+    $(document).on("click", "#pager_user a", function (e) {
+        ListUserGrid("Y", GetPagerValue($(this).attr("id"), $(this).text()), 10, $("#HdnTreeYn").val(), $("#HdnDeptCd").val(), $("#HdnSearchTypeCd").val(), $("#HdnSearchWord").val());
+    });
+
+    // 검색버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        if ($("#TxtSearchWord").val() == "") {
+            alert("검색 단어를 입력하지 않았습니다.");
+            $("#TxtSearchWord").focus();
+            return false;
+        }
+
+        ListUserGrid("Y", 1, 10, "", "", $("#SearchTypeCd").val(), $("#TxtSearchWord").val());
+    });
+
+    // 검색박스 엔터 이벤트
+    $(document).on("keypress", "#TxtSearchWord", function (e) {
+        if (e.which == 13) {
+            $("#btn_search").trigger("click");
+            return false;
+        }
+    });
+
+    // 그리드 TR 클릭 이벤트
+    $(document).on("click", "#grid_user tr", function (e) {
+
+        if (GetGridTrValue("grid_user", "h_UserId", $(this).children()) != "사용자ID") {
+
+            var winHeight = document.body.clientHeight; //현재창의 높이
+            var winWidth = document.body.clientWidth; // 현재창의 너비
+
+            var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+            var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+            //X축 1090 Y축 640
+            var popX = winX + (winWidth - 920) / 2;
+            var popY = winY + (winHeight - 320) / 2;
+
+            var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=920,height=320,top=" + popY + ",left=" + popX + "";
+            var location = "/PopUp/ListUserDetail?pSEQ=" + GetGridTrValue("grid_user", "h_SEQ", $(this).children()) + "&pUserId=" + GetGridTrValue("grid_user", "h_UserId", $(this).children());
+            window.open(location, "사우정보상세", setting);
+
+            //location.href = "/Person/OrganizeChartDetail?pSEQ=" + GetGridTrValue("grid_user", "h_SEQ", $(this).children()) + "&pUserId=" + GetGridTrValue("grid_user", "h_UserId", $(this).children());
+        }
+            
+    });
+
+</script>

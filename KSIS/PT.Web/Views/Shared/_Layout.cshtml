@@ -1,0 +1,476 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/jquery-ui-1.9.2.custom.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/flexslider.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/ticker-style.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/library/schedule/schedule.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-ui-1.9.1.custom.js"></script>
+    <script type="text/javascript" src="/Contents/Chart/Highcharts-5.0.6/code/highcharts.js"></script>
+    <script type="text/javascript" src="/Contents/Chart/Highcharts-5.0.6/code/highcharts-3d.js"></script>
+    <script type="text/javascript" src="/Contents/Chart/Highcharts-5.0.6/code/highcharts-more.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery.easy-ticker.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery.easy-ticker.min.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery.ticker.js"></script>
+    <script type="text/javascript" src="/Contents/js/leaflet.js"></script>
+    <script type="text/javascript" src="/Contents/js/libBoot.js"></script>
+    <script type="text/javascript" src="/Contents/library/schedule/schedule.min.js"></script>
+
+    @*<script type="text/javascript" src="/Contents/Chart/Highcharts-5.0.6/code/highmaps.js"></script>
+        <script type="text/javascript" src="/Contents/Chart/Highcharts-5.0.6/code/highmaps.src.js"></script>
+        <script type="text/javascript" src="/Contents/Chart/Highcharts-5.0.6/code/highstock.js"></script>
+        <script type="text/javascript" src="/Contents/Chart/Highcharts-5.0.6/code/highstock.src.js"></script>*@
+
+
+    <script type="text/javascript" src="/Contents/Chart/Highcharts-5.0.6/code/modules/exporting.js"></script>
+
+    <script type="text/javascript" src="/Contents/js/lazyload.min.js"></script>
+    <script type="text/javascript" src="/Contents/js/lazyload.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery.flexslider-min.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery.flexslider.js"></script>
+    <script type="text/javascript" src="/Contents/js/Calendar.js"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=4cde394900a01fc186534dbd6bdd20c0"></script>
+    <style>
+        #windy {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #878787;
+        }
+    </style>
+</head>
+<body>
+    <!-- 전체 -->
+    <div id="wrap">
+        <!-- 머리글 -->
+        <div id="header">
+            <div class="gnb">
+                <div class="gnb_info">
+                    <a href="/Portal/Home" class="logo"></a><a href="/Account/Logout">로그아웃</a><label>|</label><span>(@Session["DeptNm"])</span><span>@Session["DutyNm"]</span><span>@Session["UserNm"]</span><label>|</label><span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
+                    <div id="AdminConfirm" style="display:none;"><a href="/Admin/AuthControl"><img src="/Contents/images/button/ico_admin.gif" /></a></div>
+                </div>
+                
+            </div>
+            <div class="lnb" id="lnb">
+                <a id="Manage" class="btn_menu">경영정보</a>
+                <a id="Site" class="btn_menu">현장정보</a>
+                <a id="Person" class="btn_menu">인사정보</a>
+                <a id="Control" class="btn_menu">관리정보</a>
+                <a id="Resource" class="btn_menu">자료실</a>
+                <a id="Information" class="btn_menu">사우마당</a>
+            </div>
+            <div id="Manage_Sub" class="snb">
+                <a href="/Manage/OrderResult" id="OrderResult" class="btn_sub_menu">수주현황</a><span>|</span>
+                <a href="/Manage/SalesPromotions" id="SalesPromotions" class="btn_sub_menu">분양현황</a><span>|</span>
+                <a href="/Manage/CreditGrade" id="CreditGrade" class="btn_sub_menu">신용등급현황</a>
+                <div style="display:none;">
+                    <span>|</span><a href="/Manage/FinancialInformation" id="FinanInfo" class="btn_sub_menu">재무정보</a>
+                </div>
+                    <!--<span>|</span><a href="/Manage/PLAnalysis" id="PLAnalysis" class="btn_sub_menu">손익현황</a>-->
+                </div>
+                <div id="Site_Sub" class="snb" style="text-align:center;">
+                    <div style="display:inline-block;">
+                        @*<a href="/Site/SiteStateTreeView" id="SiteState" class="btn_sub_menu">현장현황</a>*@
+                        <a href="/Site/SiteState" id="SiteState" class="btn_sub_menu">현장현황</a><span>|</span>
+                        <a href="/Site/SiteWeatherCivil?pBizPartCd=SA020101" id="SiteWeatherCivil" class="btn_sub_menu">현장날씨정보</a><span>|</span>
+                        <a href="/Site/Map" id="MapView" class="btn_sub_menu">지도로보기</a><span>|</span>
+                        <a href="/Site/CompletionSite" id="CompletionSite" class="btn_sub_menu">준공현황</a>
+                        @*<div id="SE100000" style="display:block;">*@
+                        <span>|</span>
+                        <a href="/Site/AsManage" id="AsManage" class="btn_sub_menu">CS관리현황</a>
+                        @*20181127.suyeon26*@
+                        @*</div>*@
+                    </div>
+                    <!--<div id="SE090000" style="display:none;">
+                 <span>|</span><a href="/Site/CompletionSite" id="CompletionSite" class="btn_sub_menu">준공현황</a>
+             </div>-->
+                </div>
+                <div id="Control_Sub" class="snb" style="text-align:center;">
+                    <div style="display:inline-block;">
+                        <a href="/Control/Cooperator" id="Cooperator" class="btn_sub_menu">협력업체현황</a><span>|</span>
+                        <a href="/Control/Budget" id="Budget" class="btn_sub_menu">가용예산</a><span>|</span>
+                        <a href="/Control/DailyDeposit" id="DailyDeposit" class="btn_sub_menu">일일입금현황</a><span>|</span>
+                        <a href="/Control/BizCost" id="BizCost" class="btn_sub_menu">업무추진비신청현황</a>
+                    </div>
+                    <div id="CL040000" style="display:none;">
+                        <span>|</span><a id="KSISSU" href="/Control/KSISUsageStatistics" class="btn_sub_menu">사용통계</a>
+                    </div>
+                </div>
+                <div id="Resource_Sub" class="snb">
+                    <a id="Meeting" class="btn_sub_menu">회의자료</a>
+                    @*<span>|</span>
+                    <a id="CoronaMap" href="https://coronamap.site/" target="_blank" class="btn_sub_menu">코로나맵</a>*@
+                    <!--a href="/Resource/Meeting?pMeetTypeCd=PT00101" id="Meeting" class="btn_sub_menu">회의자료</a>-->
+                    <!--<span>|</span><a href="/Portal/test" id="test" class="btn_sub_menu">테스트페이지</a>>-->
+                </div>
+                <div id="Person_Sub" class="snb">
+                    <!-- 개발필요메뉴 <a class="btn_sub_menu">근무현황</a><span>|</span><a class="btn_sub_menu">연차현황</a><span>|</span>-->
+                    <div style="display:inline-block;">
+                        <a href="/Person/CDP" id="CDP" class="btn_sub_menu">경력개발</a><span>|</span>
+                        <a href="/Person/OrganizeChart" id="OrganizeChart" class="btn_sub_menu">조직도</a><span>|</span>
+                        <a href="/Person/VacationState" id="VacationState" class="btn_sub_menu">연차사용현황</a>
+                    </div>
+                    <div id="PN070000" style="display:none;">
+                        <span>|</span><a href="/Person/DiligenceState" id="DiligenceState" class="btn_sub_menu">월별연차현황</a>
+                    </div>
+                    <div id="PN050000" style="display:none;">
+                        <span>|</span><a href="/Person/GetOffWorkTime" id="GetOffWorkTime" class="btn_sub_menu">본사퇴근현황</a>
+                    </div>
+                    <!--|</span><a href="/Person/GroupCompany" id="GroupCompany" class="btn_sub_menu"">그룹사 사우정보</a>-->
+                </div>
+                <div id="Information_Sub" class="snb">
+                    <a href="/Information/Magazine" id="Magazine" class="btn_sub_menu">사 보</a><span>|</span>
+                    <a href="/Information/Auction" id="Auction" class="btn_sub_menu">경 매</a>
+                    <div id="IN050000" style="display:none;">
+                        <span>|</span><a href="/Information/UsedSale" id="UsedSale" class="btn_sub_menu">물품나눔</a>
+                    </div>
+                </div>
+                <!--<div id="Information_Sub" class="snb">
+        <a href="/Information/Auction" id="Auction" class="btn_sub_menu">경 매</a>
+    </div>-->
+                <!--하위메뉴
+            <div class="tnb" id="rdmenu">
+                <a id="PT00101" href="/Resource/Meeting?pMeetTypeCd=PT00101" class="btn_thd_menu">전사운영회의</a>
+
+                <a id="PT00103" href="/Resource/Meeting?pMeetTypeCd=PT00103" class="btn_thd_menu">손익회의</a>
+
+                <a id="PT00102" href="/Resource/Meeting?pMeetTypeCd=PT00102" class="btn_thd_menu">주간업무회의</a>
+
+                <a id="PT00104" href="/Resource/Meeting?pMeetTypeCd=PT00104" class="btn_thd_menu">자금회의</a>
+
+                <a id="PT00105" href="/Resource/Meeting?pMeetTypeCd=PT00105" class="btn_thd_menu">영업회의</a>
+
+                <a id="PT00106" href="/Resource/Meeting?pMeetTypeCd=PT00106" class="btn_thd_menu">건축회의</a>
+
+                <a id="PT00107" href="/Resource/Meeting?pMeetTypeCd=PT00107" class="btn_thd_menu">관리회의</a>
+            </div>
+    -->
+            </div>
+            <!-- //머리글 -->
+            <!-- 본문 -->
+            <div id="container">
+                @RenderBody()
+            </div>
+            <!-- //본문 -->
+            <!-- 바닥글 -->
+            <div id="footer">
+                <span>COPYRIGHT(C) 2017 KCC ENGINEERING & CONSTRUCTION CO., LTD. ALL RIGHT RESERVED.</span>
+            </div>
+            <!-- //바닥글 -->
+        </div>
+    <!-- //전체 -->
+    <script type="text/javascript">
+            //************ 로드 ************//
+             // 페이지 로드 시
+            $(document).ready(function (e) {
+                var jsonData1 = ListChkAuth("CL040000", "@Session["EmpNo"]");
+                var jsonData2 = ListChkAuth("PN050000", "@Session["EmpNo"]");
+                var jsonData3 = ListChkAuth("SE100000", "@Session["EmpNo"]");
+                var jsonData4 = ListChkAuth("PN070000", "@Session["EmpNo"]");
+                var jsonData5 = ListChkAuth("IN050000", "@Session["EmpNo"]");
+                
+                for (var i = 0; i < jsonData1.length; i++) {
+                    //$("#Menu").css("display", "block");
+                    $("#" + jsonData1[i].AuthType).css("display", "inline-block");
+
+                }
+                for (var i = 0; i < jsonData2.length; i++) {
+                    //$("#Menu").css("display", "block");
+
+                    $("#" + jsonData2[i].AuthType).css("display", "inline-block");
+                }
+
+                if ("@Session["AdminConfirm"]" == "Admin") {
+                    $("#AdminConfirm").css("display", "block");
+                }
+                for (var i = 0; i < jsonData3.length; i++) {
+
+
+                    $("#" + jsonData3[i].AuthType).css("display", "inline-block");
+                }
+                for (var i = 0; i < jsonData4.length; i++) {
+
+
+                    $("#" + jsonData4[i].AuthType).css("display", "inline-block");
+                }
+                for (var i = 0; i < jsonData5.length; i++) {                  
+
+                    $("#" + jsonData5[i].AuthType).css("display", "inline-block");
+                }
+            });
+
+            ChangeCategory(); // 페이지 카테고리 선택 처리
+
+
+            //************ 함수 ************//
+            //************ Ajax ************//
+            function ListChkAuth(pMeetTypeCd, pEmpNo) {
+
+                var jsonData = [];
+
+                $.ajax({
+                    type: "POST",
+                    url: "/AjaxAuth/ListChkAuth",
+                    dataType: "json",
+                    data: { "pMeetTypeCd": pMeetTypeCd, "pEmpNo": pEmpNo },
+                    async: false,   // 동기식 처리EHDDLTHSAEHDDLTH
+                    success: function (data) {
+                        for (i = 0; i < data.length; i++) {
+
+                            var arrData = {};
+                            arrData.AuthType = data[i].AuthType;
+
+                            jsonData.push(arrData);
+                        }
+                    },
+                    error: function (e) {
+                        alert("에러 발생.");
+                        return false;
+                    }
+                });
+
+                return jsonData;
+            }
+
+            // 페이지 카테고리 선택 처리
+            function ChangeCategory() {
+                // 전체 페이지 배열
+                var arrFullUrl = location.href.toString().split("/");
+                $("#" + arrFullUrl[3]).css("color", "#d82728");
+                $("#" + arrFullUrl[3] + "_Sub").show();
+                // 페이지 배열
+                var arrUrl = arrFullUrl[4].split("?");
+                $("#" + GetSubCategory(arrUrl[0])).css("border-bottom", "2px solid #d82728");
+                $("#" + GetSubCategory(arrUrl[0])).css("font-weight", "bold");
+            }
+
+            // 페이지 카테고리 리턴
+            function GetSubCategory(pPage) {
+                var jsonCategory = {
+                     // 경영정보
+                    "OrderResult": "OrderResult",
+                    "OrderResultDept": "OrderResult",
+                    "OrderState": "OrderResult",
+                    "OrderStateDetail": "OrderResult",
+                    "OrderStateEdit": "OrderResult",
+                    "SalesPromotions": "SalesPromotions",
+                    "CreditGrade": "CreditGrade",
+                    "PLAnalysis": "PLAnalysis",
+                    "PLAnalysisSC": "PLAnalysis",
+                    "PLAnalysisPR": "PLAnalysis",
+                    "PLAnalysisTerm": "PLAnalysis",
+                    "PLAnalysisMember": "PLAnalysis",
+                    "FinancialInformation": "FinanInfo",
+                    //현장현황
+                    "SiteState": "SiteState",
+                    "SiteStateListCivil": "SiteState",
+                    "SiteStateListConstruct": "SiteState",
+                    "SiteStateListOverseas": "SiteState",
+                    "SiteStateListPlant": "SiteState",
+                    "SiteStateDetail": "SiteState",
+                    "SiteWeatherCivil": "SiteWeatherCivil",
+                    "SiteWeatherConstruct": "SiteWeatherCivil",
+                    "SiteWeatherPlant": "SiteWeatherCivil",
+                    "SiteWeatherDetail": "SiteWeatherCivil",
+                    "SiteStateTreeView": "SiteState",
+                    "SiteStateTreeViewDetail": "SiteState",
+                    "Map": "MapView",
+                    "CompletionSite": "CompletionSite",
+                    "AsManage": "AsManage",
+                    "AsManageDetail": "AsManage",
+
+                     //인사정보
+                    "OrganizeChart": "OrganizeChart",
+                    "OrganizeChartDetail": "OrganizeChart",
+                    "VacationState": "VacationState",
+                    "CDP": "CDP",
+                    "CDPSearch": "CDP",
+                    "CDPSearchDetail": "CDP",
+                    "DiligenceState": "DiligenceState",
+                    "GroupCompany": "GroupCompany",
+                    "GetOffWorkTime": "GetOffWorkTime",
+                     //관리정보
+                    "Budget": "Budget",
+                    "DailyDeposit": "DailyDeposit",
+                    "DailyDepositRealTime": "DailyDepositRealTime",
+                    "Cooperator": "Cooperator",
+                    "CooperatorDetail": "Cooperator",
+                    "BizCost": "BizCost",
+                    "BizCostDetail": "BizCost",
+                    "KSISUsageStatistics": "KSISSU",
+                     //자료실
+                    "CompanyManageMeeting": "CompanyManageMeeting",
+                    "CompanyManageMeetingDetail": "CompanyManageMeeting",
+                    "CompanyManageMeetingEdit": "CompanyManageMeeting",
+                    "DepartmentLeaderMeeting": "CompanyManageMeeting",
+                    "DepartmentLeaderMeetingDetail": "CompanyManageMeeting",
+                    "DepartmentLeaderMeetingEdit": "CompanyManageMeeting",
+                    "DirectorsMeeting": "CompanyManageMeeting",
+                    "DirectorsMeetingDetail": "CompanyManageMeeting",
+                    "DirectorsMeetingEdit": "CompanyManageMeeting",
+                    "Meeting": "Meeting",
+                    "MeetingEdit": "Meeting",
+                    "MeetingDetail": "Meeting",
+                     //사우정보
+                    "Magazine": "Magazine",
+                    "Auction": "Auction",
+                    "AuctionComplete": "Auction",
+                    "AuctionBidding": "Auction",
+                    "AuctionDetail": "Auction",
+                    "AuctionRegistration": "Auction",
+                    "AuctionSelling": "Auction",
+                    "UsedSale": "UsedSale",
+                    "UsedSaleCompleted": "UsedSale",
+                    "UsedSaleDetail": "UsedSale",
+                    "UsedSaleRegistration": "UsedSale"
+
+
+                }
+                var returnVal = jsonCategory[pPage];
+                return returnVal;
+            }
+
+
+
+
+            $(document).on("click", "#Manage", function (e) {
+
+                    $("#Manage_Sub").slideToggle();
+                    $("#Site_Sub").slideUp();
+                    $("#Person_Sub").slideUp();
+                    $("#Control_Sub").slideUp();
+                    $("#Resource_Sub").slideUp();
+                    $("#Information_Sub").slideUp();
+                    $("#rdmenu").slideUp();
+
+            });
+
+            $(document).on("click", "#Site", function (e) {
+
+                $("#Manage_Sub").slideUp();
+                $("#Site_Sub").slideToggle();
+                $("#Person_Sub").slideUp();
+                $("#Control_Sub").slideUp();
+                $("#Resource_Sub").slideUp();
+                $("#Information_Sub").slideUp();
+                $("#rdmenu").slideUp();
+
+            });
+
+            $(document).on("click", "#Person", function (e) {
+
+                    $("#Person_Sub").slideToggle();
+                    $("#Manage_Sub").slideUp();
+                    $("#Site_Sub").slideUp();
+                    $("#Control_Sub").slideUp();
+                    $("#Resource_Sub").slideUp();
+                    $("#Information_Sub").slideUp();
+                    $("#rdmenu").slideUp();
+
+            });
+
+            $(document).on("click", "#Control", function (e) {
+
+                    $("#Control_Sub").slideToggle();
+                    $("#Manage_Sub").slideUp();
+                    $("#Site_Sub").slideUp();
+                    $("#Person_Sub").slideUp();
+                    $("#Resource_Sub").slideUp();
+                    $("#Information_Sub").slideUp();
+                    $("#rdmenu").slideUp();
+
+            });
+
+            $(document).on("click", "#Resource", function (e) {
+
+                    $("#Resource_Sub").slideToggle();
+                    $("#Manage_Sub").slideUp();
+                    $("#Site_Sub").slideUp();
+                    $("#Person_Sub").slideUp();
+                    $("#Control_Sub").slideUp();
+                    $("#Information_Sub").slideUp();
+                    $("#rdmenu").slideUp();
+
+            });
+
+            $(document).on("click", "#Information", function (e) {
+
+                    $("#Information_Sub").slideToggle();
+                    $("#Manage_Sub").slideUp();
+                    $("#Site_Sub").slideUp();
+                    $("#Person_Sub").slideUp();
+                    $("#Resource_Sub").slideUp();
+                    $("#Control_Sub").slideUp();
+                    $("#rdmenu").slideUp();
+
+            });
+
+            $(document).on("click", "#Meeting", function (e) {
+
+                var jsonData = ListChkAuth("Meeting", "@Session["EmpNo"]");
+
+            if (jsonData[0].AuthType=='N') {
+                alert('권한이 없습니다');
+                return;
+            }
+
+                for (var i = 0; i < jsonData.length; i++) {
+                    if (jsonData[i].AuthType != null) {
+                        location.href = '/Resource/Meeting?pMeetTypeCd=' + jsonData[i].AuthType;
+                        break;
+                    }
+                }
+
+
+            });
+
+
+            $(document).on("click", "#SiteState", function (e) {
+                var code = "";
+                code = "@Session["DeptCd"]";
+                code = code.substring(0,1);
+
+                if ("@Session["TitleCd"]" == "EKP00217" && code == "D") {
+
+                    $("#SiteState").attr('href', '/Site/SiteStateListCivil?pBizPartCd=SA020101');
+                }
+                else if ("@Session["TitleCd"]" == "EKP00217" && (code == "C" || code == "E")) {
+
+                    $("#SiteState").attr('href','/Site/SiteStateListConstruct?pBizPartCd=SA020102');
+                }
+
+            });
+
+            //$(document).on("click", "#CoronaMap", function (e) {
+
+                                  
+            //        var location = "https://coronamap.site/";
+            //        window.open(location, 'title', 'height=' + screen.height + ',width=' + screen.width + 'fullscreen=yes');
+                    
+                
+
+            //});
+
+
+
+    </script>
+</body>
+</html>

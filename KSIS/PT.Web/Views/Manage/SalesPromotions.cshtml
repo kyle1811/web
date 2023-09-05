@@ -1,0 +1,499 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div class ="box margin_right40">
+    <h1 class="title1">전체분양현황</h1>
+    <div id="chart_Sales_rate" class="chart" style="height:400px;"></div>
+    <div class="box_area_bottom">
+            <div id="grid_Sales_rate" class="grid1" style="height:150px;"></div>
+    </div>
+</div>
+<div class ="box">
+    <h1 class="title1">전체입주현황</h1>
+    <div id="chart_Move_rate" class="chart" style="height:400px;"></div>
+    <div class="box_area_bottom">
+            <div id="grid_Move_rate" class="grid1" style="height:150px;"></div>
+    </div>
+</div>
+<div class ="boxother3">
+    <h1 class="title1">분양입주현황</h1>
+     <div id="chart_month_SalesMovein_rate" class="chart" style="height:400px;"></div>
+</div>
+<div class="boxother4">
+            <div id="grid_SalesMovein_detail" class="grid2" style="height:auto;"></div>
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        CreateChartSalesRate();
+        ListSalesRateGrid("N", 0, 0);
+        CreateChartMoveInRate();
+        ListMoveinRateGrid("N", 0, 0);
+        CreateChartmonthSalesMoveinrate();
+        ListSalesMoveinGrid("N", 0, 0);
+        ApplyDisplayColor();
+    });
+
+    //************ 함수 ************//
+
+    function ApplyDisplayColor() {
+        $("#grid_SalesMovein_detail tr").each(function (e) {
+            if (($(this).children().eq(2).text() == "준공 계") || ($(this).children().eq(2).text() == "진행 계")) {
+                $(this).css("background-color", "#eaeaea");
+                
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+                    
+                });           
+            }
+
+            if ($(this).children().eq(2).text() == "합 계") {
+                $(this).css("background-color", "#BDBDBD");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+
+                $(this).children().each(function (e) {
+                    $(this).css("color", "#191919");
+
+                });
+            }
+        });
+    }
+
+    //************ Ajax ************//
+
+    //분양현황 조회    
+    function ListSalesRate() {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSalesRate",
+            dataType: "json",
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리 
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.name = data[i].ViewSale;
+                    arrData.y = parseInt(data[i].UNSALERATE);
+                    arrData.color = data[i].SalesColor;
+                    arrData.sliced = data[i].slice;
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    //입주현황 조회
+    function ListMoveInRate() {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListMoveInRate",
+            dataType: "json",
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리 
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.name = data[i].ViewMove;
+                    arrData.y = parseInt(data[i].UNMOVERATE);
+                    arrData.color = data[i].MoveinColor;
+                    arrData.sliced = data[i].slice;
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;   
+            }
+        });
+
+        return jsonData;
+    }
+
+    //월별 분양 입주현황 조회
+    function ListSalesMoveInState(pGubun) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSalesMoveInState",
+            dataType: "json",
+            data: { "pGubun": pGubun },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+
+                if (pGubun == "S") {
+                    for (i = 0; i < data.length; i++) {
+                        var arrData = {};
+                        arrData.y = parseInt(data[i].MonSaleCnt);
+                        jsonData.push(arrData);
+                    }
+                }
+                else {
+                    for (i = 0; i < data.length; i++) {
+                        var arrData = {};
+                        //arrData.name = data[i].Movein;
+                        arrData.y = parseInt(data[i].MonMoveinCnt);
+                        //arrData.color = data[i].MoveinColor;
+                        jsonData.push(arrData);
+                    }
+                }
+
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    // 분양현황 테이블
+    function ListSalesRateGrid(pPagerUseYn, pCurPage, pListCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSalesRateGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_Sales_rate").empty();
+                $("#grid_Sales_rate").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    // 입주현황 테이블
+    function ListMoveinRateGrid(pPagerUseYn, pCurPage, pListCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListMoveinRateGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_Move_rate").empty();
+                $("#grid_Move_rate").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    // 분양입주 상세현황 테이블
+    function ListSalesMoveinGrid(pPagerUseYn, pCurPage, pListCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSalesMoveinGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_SalesMovein_detail").empty();
+                $("#grid_SalesMovein_detail").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+    //************ 함수 ************//
+
+    // 분양현황 차트 생성
+    function CreateChartSalesRate() {
+        // 그래프 데이터 조회
+        var jsonData = ListSalesRate();
+
+        var cnt = 0;
+        var set = "";        
+
+        for (cnt = 0; cnt < jsonData.length; cnt++) {
+            if (jsonData[cnt].y == 0) {
+                set = false;
+            }
+            else {
+                set = true;
+            }
+
+        }
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("분양현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_Sales_rate").highcharts({
+            chart: {
+                type: "pie",
+                options3d: {
+                    enabled: true,
+                    alpha: 45,
+                    beta: 0
+                }
+            },
+            title: {
+                text: '당사 분양율',
+                style: {
+                fontfamily: "NanumGothic",
+                fontSize: "13px",
+                color: "#6d6d6d"
+                }
+            },
+
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    depth: 35,
+                    dataLabels: {
+                        enabled: set,
+                        formatter: function () {
+                            return this.point.name ;
+                        },
+                        style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                    },
+                    enableMouseTracking: false             
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                type: 'pie',
+                name: '분양율',
+                data: jsonData,
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            }]
+
+        });
+    }
+
+    // 입주현황 차트 생성
+    function CreateChartMoveInRate() {
+        // 그래프 데이터 조회
+        var jsonData = ListMoveInRate();
+        var cnt = 0;
+        var set = "";
+        //var Categori = ListSiteStateRateALL("ALL");
+
+        for (cnt = 0; cnt < jsonData.length; cnt++)
+        {
+            if (jsonData[cnt].y == 0) {
+                set = false;
+            }
+            else {
+                set = true;
+            }
+                    
+        }
+        
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("입주현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_Move_rate").highcharts({
+            chart: {
+                type: "pie",
+                options3d: {
+                    enabled: true,
+                    alpha: 45,
+                    beta: 0
+                }
+            },
+            title: {
+                text: '당사 입주율',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+               
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    depth: 35,
+                    dataLabels: {
+                        enabled: set,
+                        formatter: function () {
+                            return this.point.name ;
+                        },
+                        style: {
+                            fontfamily: "NanumGothic",
+                            fontSize: "10px",
+                            color: "#6d6d6d"
+                        }
+                    },
+                    enableMouseTracking: false
+                }               
+
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                type: 'pie',
+                name: '입주율',
+                data: jsonData,
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            }]
+
+        });
+    }
+
+    // 월별 분양입주차트 생성
+    function CreateChartmonthSalesMoveinrate() {
+        // 그래프 데이터 조회
+        var ingjsonData = ListSalesMoveInState("S");
+        var movejsonData = ListSalesMoveInState("M");
+
+        // 그래프 데이터가 없는 경우
+        if (ingjsonData == null || movejsonData == null) {
+            alert("데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_month_SalesMovein_rate").highcharts({
+            chart: {
+                type: 'column',
+                options3d: {
+                    enabled: true,
+                    alpha: 15,
+                    beta: 15,
+                    viewDistance: 25,
+                    depth: 40
+                }
+            },
+            title: {
+                text: '월별 통계',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+            xAxis: {
+                categories: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            yAxis: {
+                allowDecimals: false,
+                min: 0,
+                title: {
+                    text: '세대'
+                }
+            },
+
+            tooltip: {
+                headerFormat: '<b>※ {point.key}</b> <br>',
+                pointFormat: '<span style="color:{series.color}">\u25CF</span> <b>{series.name}: {point.y}</b>'
+            },
+
+            plotOptions: {
+                column: {
+                    stacking: 'normal',
+                    depth: 40
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: '분양',
+                data: ingjsonData,
+                stack: 'male',
+                color: '#1cadac'
+            }, {
+                name: '입주',
+                data: movejsonData,
+                stack: 'female',
+                color: '#ffa800'
+            }]
+        });
+
+    }
+
+    //그리드 클릭 이벤트
+    $(document).on("click", "#grid_SalesMovein_detail tr", function (e) {
+        if (GetGridTrValue("grid_SalesMovein_detail", "h_ProjectNm", $(this).children()) != "현장명")
+            {
+            if (GetGridTrValue("grid_SalesMovein_detail", "h_ProjectNm", $(this).children()) != "준공 계")
+            {
+                if (GetGridTrValue("grid_SalesMovein_detail", "h_ProjectNm", $(this).children()) != "진행 계")
+                {
+                    if (GetGridTrValue("grid_SalesMovein_detail", "h_ProjectNm", $(this).children()) != "합 계") {
+                        location.href = "/Site/SiteStateDetail?pBizPartCd=SA020102&pSiteCd=" + GetGridTrValue("grid_SalesMovein_detail", "h_ProjectId", $(this).children());
+                    }
+                    }
+                }
+        }
+    });
+
+</script>

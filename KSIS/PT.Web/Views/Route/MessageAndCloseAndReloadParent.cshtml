@@ -1,0 +1,22 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>MessageAndCloseAndReloadParent</title>
+        <meta http-equiv="Contents-Type" content="text/html; charset=utf-8" />
+        <script type="text/javascript" src="/Contents/js/common.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var message = ChangeEscape("@ViewBag.Message");
+
+            alert(message);
+            window.opener.location.reload(true);
+            window.close();
+        </script>
+    </body>
+</html>

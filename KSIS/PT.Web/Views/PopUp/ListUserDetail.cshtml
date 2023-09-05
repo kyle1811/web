@@ -1,0 +1,113 @@
+﻿@model PT.BusinessLogic.Entities.User
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+    <head>
+         <title>@ViewBag.Title</title>
+        <!-- 인코딩 -->
+        <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+        <!-- 문서모드 -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <!-- 파비콘 -->
+        <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+        <!-- css -->
+        <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+        <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+        <!-- script -->
+        <script type="text/javascript" src="/Contents/js/common.js"></script>
+        <script type="text/javascript" src="/Contents/js/component.js"></script>
+        <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    </head>
+    <body>
+        <!-- 콘텐츠 -->
+        <div id="contents">
+            <!-- 입력박스 -->
+            <div class="box_input" style="margin-top:10px;">
+                <table>
+                    <colgroup>
+                        <col style="width:12%" />
+                        <col style="width:15%" />
+                        <col style="width:29%" />
+                        <col style="width:15%" />
+                        <col />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td rowspan="4"><img src="@ViewBag.ImageData" style="width:114px;height:135px;" /></td>
+                            <th>성명</th>
+                            <td class="td_center">@Model.UserNm</td>
+                            <th>이메일</th>
+                            <td class="td_center">@Model.Email</td>
+                        </tr>
+                        <tr>
+                            <th>직급</th>
+                            <td class="td_center">@Model.DutyNm</td>
+                            <th>사번</th>
+                            <td class="td_center">@Model.EmpNo</td>
+                        </tr>
+                        <tr>
+                            <th>회사전화</th>
+                            <td class="td_center">@Model.CompTel</td>
+                            <th>휴대폰</th>
+                            <td class="td_center">@Model.Mobile</td>
+                        </tr>
+                        <tr>
+                            <th>부서</th>
+                            <td class="td_center">@Model.DeptNm</td>
+                            <th>담당업무</th>
+                            <td class="td_center">@Model.JobNm</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- //입력박스 -->
+            <!-- 입력박스 -->
+            <div class="box_input margin_tb20">
+                <table>
+                    <colgroup>
+                        <col style="width:27%" />
+                        <col style="width:35%" />
+                        <col style="width:15%" />
+                        <col />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th>회사주소</th>
+                            <td colspan="3" class="td_left">@Model.CompAddress</td>
+                        </tr>
+                        <tr>
+                            <th>자택주소</th>
+                            <td colspan="3" class="td_left">@Model.Address</td>
+                        </tr>
+                        <tr>
+                            <th>자택전화</th>
+                            <td colspan="3" class="td_left">@Model.Tel</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- //입력박스 -->
+            <!-- 버튼박스 -->
+            <div style="text-align:center;">
+                <a id="btn_close" class="btn1">닫기</a>
+            </div>
+            <!-- //버튼박스 -->
+        </div>
+
+        <!-- //콘텐츠 -->
+    </body>
+</html>
+
+<script type="text/javascript">
+
+    //그리드 TR 클릭 이벤트
+    $(document).on("click", "#btn_close", function (e) {
+        self.close();
+    });
+
+</script>

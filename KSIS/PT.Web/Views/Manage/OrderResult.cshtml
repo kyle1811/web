@@ -1,0 +1,350 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Manage/OrderResult?pSujuTypeCd=PT00104" id="PT00104" class="txt_red">수주실적(전체)</a>
+        <a href="/Manage/OrderResultDept?pSujuDeptTypeCd=PT00105" id="PT00105">수주실적(부서)</a>
+        <a href="/Manage/OrderState?pOrderStateTypeCd=PT00106" id="PT00106">신규수주현황</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        
+        <div class="box_titletop">
+            <h1 class="title7">수주계획 대 실적 현황</h1>
+        </div>
+        <div class="box_titlebottom">
+            <h1>(단위:백만)</h1>
+        </div>
+
+        <div id="grid_order_result" class="grid5" style="height:auto;"></div>
+        <br />
+        <h1 class="title1">월별 수주 실적</h1>
+        <div style="padding-bottom:20px;">
+            <label>•회계년월</label>
+            <input type="text" id="From" class="box_dateinput" autocomplete="off">
+            <a id="btn_search" class="btn1">조회</a>
+        </div>
+
+
+        <div class="box_titlebottom">
+            <h1>(단위:백만)</h1>
+        </div>
+        <div id="chart_order_rate" class="chart" style="height:300px;position:relative;"></div>
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+    var time = new Date();
+    var Month = "";
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        Month = (time.getMonth() + 1);
+        if (Month < 10) {
+            Month = '0' + (time.getMonth() + 1);
+        }
+
+        CreateChartOrderRate("");
+        ListOrderResultAllGrid("N", 0, 0, "");
+        ApplyDisplayColor();
+        /*ListSiteAccidentGrid("N", 0, 0);*/
+
+        /*년월표기*/      
+        $("#From").datepicker({
+            showOn: "both",
+            buttonImage: "/Contents/images/button/icon_calender.gif",
+            buttonImageOnly: true,
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "yy-mm",
+            showButtonPanel: true,
+            currentText: "이번달",
+            closeText: '닫기',
+            monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            showMonthAfterYear: true,
+            onChangeMonthYear: function (year, month, inst) {
+                $("#From").val($.datepicker.formatDate('yy-mm', new Date(year, month - 1, 1)));
+            },
+            onClose: function (dateText, inst) {
+                var month = $(".ui-datepicker-month :selected").val();
+                var year = $(".ui-datepicker-year :selected").val();
+                $("#From").val($.datepicker.formatDate('yy-mm', new Date(year, month, 1)));
+            }
+        }).focus(function () {
+            $(".ui-datepicker-calendar").hide();
+        });
+
+        $("#datepickFrom").css("display", "block");
+        document.getElementById("From").value = time.getFullYear() + '-' + Month;
+        $("#From").css("width", "70px");
+
+        /*년월일표기*/
+        //$("#From").datepicker({
+        //    showOn: "both",
+        //    buttonImage: "/Contents/images/button/icon_calender.gif",
+        //    buttonImageOnly: true,
+        //    changeMonth: true,
+        //    changeYear: true,
+        //    nextText: '다음 달',
+        //    prevText: '이전 달',
+        //    showButtonPanel: true,
+        //    currentText: '오늘 날짜',
+        //    closeText: '닫기',
+        //    dateFormat: "yy-mm",
+        //    changeMonth: true,
+        //    dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
+        //    dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+        //    monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+        //    monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+        //    showMonthAfterYear: true
+        //});
+       
+    });
+
+    //************ 함수 ************//
+
+    function ApplyDisplayColor() {
+        $("#grid_order_result tr").each(function (e) {
+
+            if (($(this).children().eq(1).text() == "토목 계") || ($(this).children().eq(1).text() == "건축 계") || ($(this).children().eq(1).text() == "해외 계")) {
+                $(this).css("background-color", "#eaeaea");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+            }
+
+            if ($(this).children().eq(1).text() == "총    합") {
+                $(this).css("background-color", "#BDBDBD");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+
+                $(this).children().each(function (e) {
+                    $(this).css("color", "#191919");
+
+                });
+            }
+        });
+    }
+
+    //************ Ajax ************//
+
+    // 수주실적(전체) 조회 그래프
+    function ListOrderResultAll(pDate) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListOrderResultAll",
+            data: { "pDate": pDate },
+            dataType: "json",
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리 
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    /*arrData.PlanFixAmt = parseInt(data[i].PlanFixAmt);
+                    arrData.RsltFixAmt = parseInt(data[i].RsltFixAmt);*/
+                    arrData.y = parseInt(data[i].RsltFixAmt);
+                    arrData.value = data[i].RsltFixAmtComma;
+                    arrData.name = data[i].FiscalMonth;
+
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    // 수주실적(전체) 조회 테이블
+    function ListOrderResultAllGrid(pPagerUseYn, pCurPage, pListCnt, pDate) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListOrderResultAllGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pDate": pDate },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_order_result").empty();
+                $("#grid_order_result").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 수주실적(전체) 차트 생성 함수
+    function CreateChartOrderRate(pDate) {
+        // 그래프 데이터 조회
+        var jsonData = ListOrderResultAll(pDate);
+        
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("수주실적(전체) 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+        
+     
+        // 차트 생성
+        $("#chart_order_rate").highcharts({
+            chart: {
+                type: "column"
+            },
+            title: {
+                text: ""
+            },
+            subtitle: {
+                text: ""
+            },
+            xAxis: {
+                title: {
+                    text: ""
+                },
+                type: 'category',
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "13px",
+                        color: "#6d6d6d"
+                    }
+                },
+                gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1
+            },
+            yAxis: {
+                title: {
+                    text: ""
+                },
+                labels: '',
+                tickInterval: 100000,
+                gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1
+            },
+            tooltip: {
+                showInLegend: false
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.value}',
+                        color: "black",
+                        style: {
+                            fontfamily: "NanumGothic",
+                            fontSize: "12px",
+                            testShadow: false,
+                            textOutline: false
+                        }
+                    },
+                    pointWidth: 30
+                },
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                ListOrderResultPopUp($("#From").val().substring(0, 4) + this.name.replace("월", "") + "POP");
+                            }
+                        }
+                    },
+                                       
+                    /*stacking: "normal",*/
+                    enableMouseTracking: true,
+                   
+             
+                },
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            label: {
+                enabled: false,
+            },
+            tooltip: {
+                enabled: false,
+            },            
+            series: [{
+                name: "수주실적(%)",                
+                showInLegend: false,                
+                data: jsonData
+            }
+
+            /*,{
+                name: "실적금액",
+                data: jsonData.pop()
+            },
+            {
+                name: "달성율(%)",
+                data: jsonData.pop()
+            }*/
+            ]
+        });
+    }
+
+    $(document).on("click", "#btn_search", function (e) {         
+        CreateChartOrderRate($("#From").val().replace("-", ""));
+        ListOrderResultAllGrid("N", 0, 0, $("#From").val().replace("-", ""));
+        ApplyDisplayColor();        
+        //$("#From").val().substring(0, 4);
+    });
+
+    $(document).on("click", "#grid_order_result td", function (e) {
+
+        location.href = "/Manage/OrderResultDept?pSujuDeptTypeCd=PT00105";
+
+        //if ((this.parentNode.parentNode.firstChild.children[this.cellIndex].innerText == "부서") && ((this.innerText != "토목 계") && (this.innerText != "건축 계") && (this.innerText != "해외 계") && (this.innerText != "총 합"))) {
+        //    location.href = "/Manage/OrderResultDept?pSujuDeptTypeCd=PT00105";
+        //}
+        
+    });
+
+    function ListOrderResultPopUp(pYearMon) {
+       
+          var winHeight = document.body.clientHeight; //현재창의 높이
+          var winWidth = document.body.clientWidth; // 현재창의 너비
+
+          var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+          var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+        
+          var popX = winX + (winWidth - 600) / 2;
+          var popY = winY + (winHeight - 300) / 2;
+
+          var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=600,height=300,top=" + popY + ",left=" + popX + "";
+          var location = "/PopUp/SujuStatePopUp?pYearMon=" + pYearMon;
+          window.open(location, "수주정보", setting);       
+
+    }
+
+    
+</script>

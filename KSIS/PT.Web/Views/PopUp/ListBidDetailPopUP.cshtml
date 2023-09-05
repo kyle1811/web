@@ -1,0 +1,154 @@
+@using PT.Web.WebUtil
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+    <head>
+         <title>@ViewBag.Title</title>
+        <!-- 인코딩 -->
+        <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+        <!-- 문서모드 -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+            <!-- 파비콘 -->
+        <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+        <!-- css -->
+        <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+        <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+        <!-- script -->
+        <script type="text/javascript" src="/Contents/js/common.js"></script>
+        <script type="text/javascript" src="/Contents/js/component.js"></script>
+        <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    </head>
+    <body>
+
+        <h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:15px;color:#121212;">입찰내역(경매기록) 정보</h1>
+        <br>
+        <table>
+            <colgroup>
+                <col style="width:20%" />
+                <col style="width:28%" />
+                <col style="width:28%" />
+                <col style="width:5%" />
+                <col />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td><a id="btn_BidDetail1" class="btn2">나의 입찰내역       </a>  </td>
+                    <td><a id="btn_BidDetail2" class="btn2">전체 입찰내역 금액순</a>  </td>
+                    <td><a id="btn_BidDetail3" class="btn2">전체 입찰내역 시간순</a>  </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <h1 id="h1_text" style="padding-left:5px;font-size:14px;color:orangered;">
+            전체 입찰내역(금액순)
+        </h1>
+
+        <br />
+
+        <!-- 그리드 -->
+        <div id="grid_listBidDetail" class="grid1" style="padding-left:5px;height:400px;width:460px;">
+            @MvcHtmlString.Create(ViewBag.table)
+        </div>
+        <!-- //그리드 -->
+        <div id="pager_BidDetail" class="pager1"></div>
+        <br />
+        <div class="box_Close">
+            <div class="box_Close_Center">
+                <a id="btn_Close" class="btn">닫 기</a>
+            </div>
+        </div>
+
+    </body>
+
+</html>
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var pAuctionNo = "@ViewBag.pAuctionNo";
+    var pUserId    = "@ViewBag.pUserId"
+    var pListType  = "@ViewBag.pListType"
+
+    var pTypeCd = "A";
+
+    if (pListType == "P") {
+        pTypeCd = "AP";
+    }
+
+    $(document).ready(function (e) {
+        ListBidDetailPopUP("Y", 1, 10, pAuctionNo, pUserId, pTypeCd);
+    });
+
+
+    // 나의 입찰내역 버튼 클릭 이벤트
+    $(document).on("click", "#btn_BidDetail1", function (e) {
+        pTypeCd = "C";
+        ListBidDetailPopUP("Y", 1, 10, pAuctionNo, pUserId, pTypeCd);
+        $("#h1_text").empty();
+        $("#h1_text").append("나의 입찰내역");
+    });
+
+    // 전체 입찰내역 금액순 버튼 클릭 이벤트
+    $(document).on("click", "#btn_BidDetail2", function (e) {
+        pTypeCd = "A";
+        if (pListType == "P") {
+            pTypeCd = "AP";
+        }
+        ListBidDetailPopUP("Y", 1, 10, pAuctionNo, pUserId, pTypeCd);
+        $("#h1_text").empty();
+        $("#h1_text").append("전체 입찰내역(금액순)");
+    });
+
+    // 전체 입찰내역 시간순 버튼 클릭 이벤트
+    $(document).on("click", "#btn_BidDetail3", function (e) {
+        pTypeCd = "B";
+        if (pListType == "P") {
+            pTypeCd = "BP";
+        }
+        ListBidDetailPopUP("Y", 1, 10, pAuctionNo, pUserId, pTypeCd);
+        $("#h1_text").empty();
+        $("#h1_text").append("전체 입찰내역(시간순)");
+    });
+
+    // 페이지 번호 클릭 이벤트
+    $(document).on("click", "#pager_BidDetail a", function (e) {
+        ListBidDetailPopUP("Y", GetPagerValue($(this).attr("id"), $(this).text()), 10, pAuctionNo, pUserId, pTypeCd);
+    });
+
+    // 입찰내역(경매기록) 조회
+    function ListBidDetailPopUP(pPagerUseYn, pCurPage, pListCnt, pAuctionNo, pUserId, pListType) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListBidDetailPopUP",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pAuctionNo": pAuctionNo, "pUserId": pUserId, "pListType": pListType },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_listBidDetail").empty();
+                $("#grid_listBidDetail").html(data[0]);
+
+                // 페이지 생성
+                CreatePager("pager_BidDetail", 10, data[1], data[2]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 닫기버튼 이벤트
+    $(document).on("click", "#btn_Close", function (e) {
+        self.close();
+    });
+
+</script>

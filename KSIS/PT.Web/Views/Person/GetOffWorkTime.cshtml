@@ -1,0 +1,448 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+
+<div id="GW00001" class="boxother5">
+    <h1 class="title1">월별 개인 퇴근현황</h1>
+    <div id="chart_person_offworktime" class="chart" style="height:400px;width:960px;"></div>
+</div>
+
+<div id="GW00002" class="boxother5">
+    <h1 class="title1">부서별 평균 퇴근현황</h1>
+    <div id="chart_dept_offworktime" class="chart" style="height:400px;width:960px;"></div>
+</div>
+
+<div id="GW00003" class="boxother5">
+    <h1 class="title1">부서원 평균 퇴근현황</h1>
+    <div id="chart_deptperson_offworktime" class="chart" style="height:auto;width:960px"></div>
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+    var text1 = "", text2 = "", text3 = "", text4 = "";
+    var DeptCd = ""
+    var BizPartCd = "KCCENC"
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        CreateChartPersonGetOffWorkTime("", "");
+        CreateChartDeptGetOffWorkTime("", "");
+        if ("@Session["DutyCd"]" == "EKP00310" || "@Session["DutyCd"]" == "EKP00311" || "@Session["DutyCd"]" == "EKP00312" || "@Session["DutyCd"]" == "EKP00313"
+            || "@Session["DutyCd"]" == "EKP00314" || "@Session["DutyCd"]" == "EKP00315" || "@Session["DutyCd"]" == "EKP00316" || "@Session["DutyCd"]" == "EKP00317"
+            || "@Session["DutyCd"]" == "EKP00318" || "@Session["DutyCd"]" == "EKP00319"){
+             CreateChartDeptPersonGetOffWorkTime("E20021", "");
+        }
+        else {
+            CreateChartDeptPersonGetOffWorkTime("@Session["DeptCd"]", "");
+        }
+
+
+    });
+
+    //************ Ajax ************//
+
+    function ListPersonGetOffWorkTime(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListPersonGetOffWorkTime",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].ChartCntGubun1);
+                    arrData.name = data[i].Mon;
+                    arrData.color = data[i].Color;
+                    arrData.value = data[i].AVRTIMEP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    function ListDeptGetOffWorkTime(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListDeptGetOffWorkTime",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].ChartCntGubun2);
+                    arrData.name = data[i].DEPT_NAME;
+                    arrData.color = data[i].DEPT_COLOR;
+                    arrData.value = data[i].AVRTIME;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    function ListDeptPersonGetOffWorkTime(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListDeptPersonGetOffWorkTime",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo},
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].ChartCntGubun3);
+                    arrData.name = data[i].USER_NAME;
+                    arrData.color = data[i].DEPT_COLOR;
+                    arrData.value = data[i].AVRTIMEDP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+    //************ 함수 ************//
+
+    function CreateChartPersonGetOffWorkTime(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = ListPersonGetOffWorkTime("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_person_offworktime").highcharts({
+
+
+            title: {
+                text: '',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                type: 'column',
+            },
+
+            xAxis: {
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            yAxis: {
+                title: {
+                    text: '시',
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                }
+            },
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.value}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    fontweight : "bold",
+                    color: "#6d6d6d"
+                },
+            },
+
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                text3 = this.name;
+                                //CreateChartDeptVacationCnt(this.name);
+                            }
+                        }
+                    }
+                },
+                column: {
+                    
+                    pointPadding: 0,
+                    borderWidth: 0
+                },
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                data: jsonData,
+                showInLegend: false,
+                color: '#d42c2c',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                },
+                marker: {
+                    lineWidth: 2,
+                    lineColor: '#ec4fa0',
+                    fillColor: 'white'
+
+                }
+            }]
+
+
+        });
+
+    }
+
+    function CreateChartDeptGetOffWorkTime(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = ListDeptGetOffWorkTime("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_dept_offworktime").highcharts({
+
+
+            title: {
+                text: '',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                type: 'column',
+            },
+
+            xAxis: {
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            yAxis: {
+                title: {
+                    text: '시',
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                }
+            },
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.name}<br>{point.value}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    fontweight : "bold",
+                    color: "#6d6d6d"
+                },
+            },
+
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                text3 = this.name;
+                                CreateChartDeptPersonGetOffWorkTime(this.name, "");
+                            }
+                        }
+                    }
+                },
+                column: {
+                   
+                    pointPadding: 0,
+                    borderWidth: 0
+                },
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                data: jsonData,
+                showInLegend: false,
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                },
+            }]
+
+
+        });
+
+    }
+
+    function CreateChartDeptPersonGetOffWorkTime(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = ListDeptPersonGetOffWorkTime(pDeptCd, "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_deptperson_offworktime").highcharts({
+
+
+            title: {
+                text: '',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                type: 'column',
+            },
+
+            xAxis: {
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            yAxis: {
+                title: {
+                    text: '시',
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                }
+            },
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.name}<br>{point.value}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    fontweight: "bold",
+                    color: "#6d6d6d"
+                },
+            },
+
+            plotOptions: {
+
+                column: {
+                   
+                    pointPadding: 0,
+                    borderWidth: 0
+                },
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                data: jsonData,
+                showInLegend: false,
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                },
+            }]
+
+
+        });
+
+    }
+</script>

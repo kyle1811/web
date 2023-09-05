@@ -1,0 +1,595 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Manage/PLAnalysis">현장별</a>
+        <a href="/Manage/PLAnalysisSC">외주</a>
+        <a href="/Manage/PLAnalysisPR">자재</a>
+        <a href="/Manage/PLAnalysisTerm" class="txt_red">기간별</a>
+        <a href="/Manage/PLAnalysisMember">인원별</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <div id="GW00001" class="boxother8">
+            <h1 class="title1">차트#1 예제</h1>
+            <div id="chart_ex1" class="chart" style="height:400px;width:auto;"></div>
+        </div>
+
+        <div id="GW00002" class="boxother8">
+            <h1 class="title1">차트#2 예제</h1>
+            <div id="chart_ex2" class="chart" style="height:400px;width:auto;"></div>
+        </div>
+
+        <div id="GW00003" class="boxother8">
+            <h1 class="title1">차트#3 예제</h1>
+            <div id="chart_ex3" class="chart" style="height:400px;width:auto"></div>
+        </div>
+        <div id="GW00003" class="boxother8">
+            <h1 class="title1">차트#4 예제</h1>
+            <div id="chart_ex4" class="chart" style="height:400px;width:auto"></div>
+        </div>
+    </div>
+
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+    var text1 = "", text2 = "", text3 = "", text4 = "";
+    var DeptCd = ""
+    var BizPartCd = "KCCENC"
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        chart_ex1("", "");
+        chart_ex2("", "");
+        chart_ex3("", "");
+        chart_ex4("", "");
+    });
+
+    //************ Ajax ************//
+
+    function Listchart_ex1(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListPLAnalysis",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].TOTAMT);
+                    arrData.name = data[i].NUM;
+                    //arrData.color = data[i].Color;
+                    arrData.value = data[i].AVRTIMEP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    function Listchart_ex2(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListPLAnalysis",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].TOTAMT);
+                    arrData.name = data[i].NUM;
+                    //arrData.color = data[i].Color;
+                    arrData.value = data[i].AVRTIMEP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    function Listchart_ex3(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListPLAnalysis",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].TOTAMT);
+                    arrData.name = data[i].NUM;
+                    //arrData.color = data[i].Color;
+                    arrData.value = data[i].AVRTIMEP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    function Listchart_ex4(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListPLAnalysis",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].TOTAMT);
+                    arrData.name = data[i].NUM;
+                    //arrData.color = data[i].Color;
+                    arrData.value = data[i].AVRTIMEP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+
+    //************ 함수 ************//
+
+    function chart_ex1(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = Listchart_ex1("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_ex1").highcharts({
+
+
+             chart: {
+        type: 'scatter3d',
+        options3d: {
+            enabled: true,
+            alpha: 20,
+            beta: 30,
+            depth: 200,
+            viewDistance: 10,
+            frame: {
+                bottom: {
+                    size: 1,
+                    color: 'rgba(0,0,0,0.05)'
+                }
+            }
+        }
+    },
+    title: {
+        text: 'a 3D Scatter Chart'
+    },
+    subtitle: {
+        text: 'using x y z coordinates'
+    },
+    yAxis: {
+        min: 0,
+        max: 10
+    },
+    xAxis: {
+        min: 0,
+        max: 10,
+        gridLineWidth: 1
+    },
+    zAxis: {
+        min: 0,
+        max: 10,
+        showFirstLabel: false
+    },
+    series: [{
+        data: [
+            // [X, Y, Z]
+            [1, 1, 1],
+            [1, 1, 2],
+            [1, 1, 5],
+            [2, 3, 2],
+            [2, 6, 4],
+            [4, 5, 7],
+            [4, 2, 8],
+            [7, 1, 3],
+            [7, 1, 5],
+            [8, 1, 5]
+        ]
+    }]
+
+
+        });
+
+    }
+
+
+
+    function chart_ex2(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = Listchart_ex2("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_ex2").highcharts({
+
+
+            title: {
+                text: '',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                type: 'line',
+            },
+
+            xAxis: {
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            yAxis: {
+                title: {
+                    text: ''
+                },
+                labels: {
+                    //format: "{value}",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "12px",
+                        color: "#6d6d6d"
+                    }
+                }
+            },
+
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.value}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    fontweight : "bold",
+                    color: "#6d6d6d"
+                },
+            },
+
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                text3 = this.name;
+                                //CreateChartDeptVacationCnt(this.name);
+                            }
+                        }
+                    }
+                },
+                column: {
+
+                    pointPadding: 0,
+                    borderWidth: 0
+                },
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                data: jsonData,
+                showInLegend: false,
+                color: '#d42c2c',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                },
+                marker: {
+                    lineWidth: 2,
+                    lineColor: '#ec4fa0',
+                    fillColor: 'white'
+
+                }
+            }]
+
+
+        });
+
+    }
+
+
+
+
+
+    function chart_ex3(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = Listchart_ex3("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_ex3").highcharts({
+
+
+            title: {
+                text: '',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                type: "pie",
+                options3d: {
+                    enabled: true,
+                    alpha: 45,
+                    beta: 0
+                }
+            },
+
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    depth: 35,
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function () {
+                            return this.point.name;
+                        },
+                        style: {
+                            fontfamily: "NanumGothic",
+                            fontSize: "10px",
+                            color: "#6d6d6d"
+                        }
+                    },
+                    enableMouseTracking: false
+                }
+            },
+
+
+
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.value}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    fontweight : "bold",
+                    color: "#6d6d6d"
+                },
+            },
+
+
+            credits: {
+                enabled: false
+            },
+            series: [{
+                data: jsonData,
+                showInLegend: false,
+                color: '#d42c2c',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                },
+                marker: {
+                    lineWidth: 2,
+                    lineColor: '#ec4fa0',
+                    fillColor: 'white'
+
+                }
+            }]
+
+
+        });
+
+    }
+
+    function chart_ex4(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = Listchart_ex4("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_ex4").highcharts({
+
+
+            title: {
+                text: '',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                type: 'column',
+            },
+
+            xAxis: {
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            yAxis: {
+                title: {
+                    text: ''
+                },
+                labels: {
+                    //format: "{value}",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "12px",
+                        color: "#6d6d6d"
+                    }
+                }
+            },
+
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.value}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    fontweight : "bold",
+                    color: "#6d6d6d"
+                },
+            },
+
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                text3 = this.name;
+                                //CreateChartDeptVacationCnt(this.name);
+                            }
+                        }
+                    }
+                },
+                column: {
+
+                    pointPadding: 0,
+                    borderWidth: 0
+                },
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                data: jsonData,
+                showInLegend: false,
+                color: '#d42c2c',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                },
+                marker: {
+                    lineWidth: 2,
+                    lineColor: '#ec4fa0',
+                    fillColor: 'white'
+
+                }
+            }]
+
+
+        });
+
+    }
+
+
+
+</script>

@@ -1,0 +1,173 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html; charset=utf-8" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />    
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+</head>
+    <body>
+        <!-- 전체 -->
+        <div id="wrap">
+            <!-- 본문 -->
+            <div id="container">
+                <!-- 콘텐츠 -->
+                <div id="contents">
+                    <!-- 로그인 -->
+                    <form id="frm" name="frm" action="/Account/Login" method="post">
+                        <div class="login">
+                            <input type="text" id="UserId" name="UserId" value="@ViewBag.userId" maxlength="20" style="box-shadow:0 0 0 1000px #ffffff inset;" />
+                            <input type="password" id="Pwd" name="Pwd" maxlength="16" style="box-shadow:0 0 0 1000px #ffffff inset;" />
+                            <input id="idSaveChk" type="checkbox"><span>ID 저장하기</span>                            
+                            <input type="hidden" id="Device" name="Device" />
+                            <a id ="btn_login">
+                            <img src="/Contents/images/button/btn_login.png" /></a>
+                        </div>
+                    </form>
+                    <!-- //로그인 -->
+                </div>
+                <!-- //콘텐츠 -->
+            </div>
+            <!-- //본문 -->
+        </div>
+        <!-- //전체 -->
+        <script type="text/javascript">            
+
+            //************ 로드 ************//
+            
+            // 페이지 로드 시
+            $(document).ready(function (e) {             
+                
+                $("#UserId").focus();
+
+                var userInputId = getCookie("userInputId");
+
+                $("input[name='UserId']").val(userInputId);
+
+                if ($("input[name='UserId']").val() != "") {
+                    $("#idSaveChk").attr("checked", true);
+                }
+
+                $("#idSaveChk").change(function(){
+                    if($("#idSaveChk").is(":checked")){
+                        var userInputId = $("input[name='UserId']").val();
+                        setCookie("userInputId",userInputId, 7);
+                    }else{
+                        deleteCookie("userInputId");
+                    }
+                });
+
+                $("input[name='UserId']").keyup(function(){
+                     if($("#idSaveChk").is(":checked")){
+                        var userInputId = $("input[name='UserId']").val();
+                        setCookie("userInputId",userInputId, 7);
+                }
+                });
+
+                if (navigator.platform == 'MacIntel' && navigator.maxTouchPoints > 1) {                    
+                    $("#Device").val("ipad");
+                }
+                else {
+                    $("#Device").val("other");
+                }
+
+            });
+
+
+
+
+            //************ 이벤트 ************//
+
+            // 로그인 버튼 클릭 이벤트
+            $(document).on("click", "#btn_login", function (e) {
+                // 아이디 입력여부 확인
+                if (IsBlank($("#UserId").val()) == true) {
+                    alert("아이디를 입력하세요.");
+                    $("#UserId").focus();
+                    return false;
+                }
+                // 비밀번호 입력여부 확인
+                if (IsBlank($("#Pwd").val()) == true) {
+                    alert("비밀번호를 입력하세요.");
+                    $("#Pwd").focus();
+                    return false;
+                }
+
+                $("#frm").submit();
+            });
+
+            // 비밀번호 박스 엔터 이벤트
+            $(document).on("keypress", "#Pwd", function (e) {
+                if (e.which == 13) {
+                    $("#btn_login").trigger("click");
+                    return false;
+                }
+            });
+
+            function setCookie(cookieName, value, exdays) {
+
+                var exdate = new Date();
+
+                exdate.setDate(exdate.getDate() + exdays);
+
+                var cookieValue = escape(value) + ((exdays == null) ? "" : "; expires=" + exdate.toGMTString());
+
+                document.cookie = cookieName + "=" + cookieValue;
+
+            }
+
+
+
+            function deleteCookie(cookieName) {
+
+                var expireDate = new Date();
+
+                expireDate.setDate(expireDate.getDate() - 1);
+
+                document.cookie = cookieName + "= " + "; expires=" + expireDate.toGMTString();
+
+            }
+
+
+
+            function getCookie(cookieName) {
+
+                cookieName = cookieName + '=';
+
+                var cookieData = document.cookie;
+
+                var start = cookieData.indexOf(cookieName);
+
+                var cookieValue = '';
+
+                if (start != -1) {
+
+                    start += cookieName.length;
+
+                    var end = cookieData.indexOf(';', start);
+
+                    if (end == -1) end = cookieData.length;
+
+                    cookieValue = cookieData.substring(start, end);
+
+                }
+
+                return unescape(cookieValue);
+
+            }
+
+        </script>
+    </body>
+</html>

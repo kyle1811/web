@@ -1,0 +1,57 @@
+@using PT.Web.WebUtil
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+    <head>
+         <title>@ViewBag.Title</title>
+        <!-- ÀÎÄÚµù -->
+        <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+        <!-- ¹®¼­¸ðµå -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <!-- ÆÄºñÄÜ -->
+        <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+        <!-- css -->
+        <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+        <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+        <!-- script -->
+        <script type="text/javascript" src="/Contents/js/common.js"></script>
+        <script type="text/javascript" src="/Contents/js/component.js"></script>
+        <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    </head>
+    <body>
+    <div id="container">  
+        <!-- ÄÜÅÙÃ÷ -->
+        <div id="contents">
+            <!-- ÄÜÅÙÃ÷(»ó¼¼) -->
+                <!-- ±×¸®µå -->
+                <div id="grid_Site" class="grid2" style="height:385px;">
+                    @MvcHtmlString.Create(ViewBag.table)
+                </div>
+                <!-- //±×¸®µå -->
+                <!-- ¼û±èÁ¤º¸ -->
+                <input type="hidden" id="HdnSearchWord" name="HdnSearchWord" />
+                <!-- //¼û±èÁ¤º¸ -->
+            <!-- //ÄÜÅÙÃ÷(»ó¼¼) -->
+        </div>
+        <!-- //ÄÜÅÙÃ÷ -->
+     </div>
+    </body>
+</html>
+
+<script type="text/javascript">
+
+    //ÇöÀåÄÚµå Å¬¸¯ ÀÌº¥Æ®
+    $(document).on("click", "#grid_Site tr", function (e) {
+
+        opener.document.getElementById("cInput").value = GetGridTrValue("grid_Site", "h_ProjectCode", $(this).children());
+        opener.document.getElementById("TxtSearchWord").value = GetGridTrValue("grid_Site", "h_ProjectName", $(this).children());
+        self.close();
+    });
+
+
+</script>

@@ -1,0 +1,981 @@
+﻿@model PT.BusinessLogic.Entities.Site
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Site/SiteState">전체</a>
+        <a href="/Site/SiteStateListCivil?pBizPartCd=SA020101" id="SA020101">토목</a>
+        <a href="/Site/SiteStateListConstruct?pBizPartCd=SA020102" id="SA020102">건축</a>
+        <!--<a href="/Site/SiteStateListOverseas?pBizPartCd=SA020105" id="SA020105">해외</a>-->
+        <a href="/Site/SiteStateListPlant?pBizPartCd=SA020104" id="SA020104">플랜트</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <h1 class="title1">현장사진</h1>
+        <h1 style="width:400px;margin:0 auto;font-family:NanumGothic;font-size:13px;text-align:center;">@Model.SiteNm</h1>
+        <div class="box_btn_right2">
+            <a id="btn_Reg" class="btn1">사진등록</a>
+            <a id="btn_All" class="btn1">전체사진보기</a>
+        </div>
+
+        <div class="bn">
+            <a id="bn_box1" class=bn_box2>
+                <img id="img1" src="/Contents/images/ex/noFile.png" oncontextmenu="return false" style="-webkit-touch-callout:none" />
+                <span></span>
+            </a>
+            <a id="bn_box2" class=bn_box2>
+                <img id="img2" src="/Contents/images/ex/noFile.png" oncontextmenu="return false" style="-webkit-touch-callout:none" />
+                <span></span>
+            </a>
+            <a id="bn_box3" class=bn_box2>
+                <img id="img3" src="/Contents/images/ex/noFile.png" oncontextmenu="return false" style="-webkit-touch-callout:none" />
+                <span></span>
+            </a>
+            <a id="bn_box4" class=bn_box2>
+                <img id="img4" src="/Contents/images/ex/noFile.png" oncontextmenu="return false" style="-webkit-touch-callout:none" />
+                <span></span>
+            </a>
+        </div>
+        <div class="box_area">
+            <h1 class="title1">공사진행현황</h1>
+            @*<div id="finishDate" style="display:block;text-align:right;margin-right:10px;font-weight:bold;font-family:NanumGothic;font-size:12px;color:black;"></div>*@
+            <div id="chart_site_Amt" class="chart" style="height:auto;"></div>
+            <!--<div id="chart_site_rate" class="chart" style="height:300px;"></div>-->
+
+        </div>
+        <div class="box_area">
+            <h1 class="title1">공사개요</h1>
+            <p>·공사기간(도급) : @Model.Period </p>
+            <br />
+            <p>·발주처 : @Model.VendorNm </p>
+            <br />
+            <p>·공동도급 : @Model.Share </p>
+            <br />
+            <p>·계약금액 : @Model.TotSupplyAmt </p>
+            <br />
+            <p>·당사지분금액 : @Model.KCCSupplyAmt </p>
+            <br />
+            <p>·현장소장 : @Model.JobClassNm </p>
+            <br />
+            <div class="box_btn_left">
+                <a id="btn_detail" class="btn1">더보기+</a>
+                <a id="btn_close" class="btn1" style="display:none">접  기↑</a>
+            </div>
+        </div>
+        <div id="Detail" class="box_area" style="display:none;">
+            <div style="white-space:pre-line;"><p>@Model.Land</p></div>
+        </div>
+        <div id="box_load_data" class="box_area">
+            <h1 class="title1">현장위치</h1>
+            <div id="map" class="map" style="height:400px;"></div>
+            <div class="map_control">
+                <a id="btn_view_road">로드뷰</a><label>|</label><a id="btn_find_road">길찾기</a>
+            </div>
+            <div class="box_site_info">
+                <span>@Model.Addr</span><label>|</label><span>@Model.Tel</span>
+            </div>
+            <h1 class="title1">현장인원현황</h1>
+            <br>
+            <div id="grid_site_user" class="grid2" style="height:auto;"></div>
+            @*<div id="pager_site_user"  class="pager1" ></div>*@
+            <!--<h1 class="title1">현장날씨</h1>
+            <div class="box_weather">
+                <div class="box_weather_left">
+                    <span id="sky"></span><span id="pty"></span><span id="lgt"></span>
+                </div>
+                <div class="box_weather_right">
+                    <span id="t1h"></span><span id="reh"></span><span id="rn1"></span><span id="time"></span>
+                </div>
+            </div> -->
+        </div>
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+    
+    var mapLat = 0; // 위도
+    var mapLng = 0; // 경도
+    // LCC DFS 좌표변환을 위한 기초 자료
+    var RE = 6371.00877; // 지구 반경(km)
+    var GRID = 5.0; // 격자 간격(km)
+    var SLAT1 = 30.0; // 투영 위도1(degree)
+    var SLAT2 = 60.0; // 투영 위도2(degree)
+    var OLON = 126.0; // 기준점 경도(degree)
+    var OLAT = 38.0; // 기준점 위도(degree)
+    var XO = 43; // 기준점 X좌표(GRID)
+    var YO = 136; // 기1준점 Y좌표(GRID)
+
+    var bizPartCd = "@ViewBag.BizPartCd";
+    var siteCd = "@Model.SiteCd";
+    var siteNm = "@Model.SiteNm";
+    var addr = "@Model.Addr";
+    var dirLat = "@Model.Latitude";
+    var dirLong = "@Model.Longitude";
+    var arr = {};
+    var lange = 0, area = 10, compare = 0;
+    var finishdate = "";
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        ChangeMenuList(bizPartCd);
+        ListSitePhotoDetailUrl(siteCd, 0);
+        CreateChartSiteAmtDetail(siteCd);
+        CreateChartSiteRateDetail(siteCd);
+        ListConstructionSiteWorkersInfo("N", 1, 10, siteCd);
+        MakeMap(addr, dirLat, dirLong);
+        $("#Detail").css("display", "none");
+        //$("#finishDate").text(finishdate);
+        
+    });
+    
+
+    //************ Ajax ************//
+
+    // 현장사진 목록 조회
+    function ListSitePhotoDetailUrl(pSiteCd,pNumber) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSitePhotoDetailUrl",
+            dataType: "json",
+            data: { "pSiteCd": pSiteCd, "pNumber": pNumber },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                for (i = 0; i < data.length; i++) {
+
+                    $("#bn_box" + (i + 1) + " img").attr("src", data[i].SitePhotoUrl);
+                    $("#bn_box" + (i + 1) + " span").text(data[i].RegDate);
+                    arr[i] = data[i].Number;
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생1.");
+                    return false;
+            }
+        });
+    }
+
+    // 현장전체사진 목록 조회 체크
+    function ListSitePhotoAllCheck(pSiteCd) {
+
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/ListSitePhotoAllCheck",
+            dataType: "json",
+            data: { "pSiteCd": pSiteCd },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+
+                    arrData.RowNum = data[i].RowNum;
+                    jsonData.push(arrData);
+              
+                   
+                }
+            },
+            error: function (e) {
+                //  사진 데이터가 없는 경우  
+                alert("에러 발생1.");                
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    // 현장별(실행율,공정율,원가율) 목록 조회
+    function ListSiteStateRateDetail(pSiteCd, pHome) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSiteStateRateDetail",
+            dataType: "json",
+            data: { "pSiteCd": pSiteCd, "pHome": pHome },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+
+                    if (pHome == "Home") {
+                        arrData.y = parseInt(data[i].SiteRate);
+                        arrData.color = data[i].GraphColor;
+                        //arrData.FinishDate = data[i].FinishDate;
+                        jsonData.push(arrData);
+                    }
+                    else if (pHome == "Year") {
+                        arrData.y = parseInt(data[i].Amout);
+                        arrData.value = data[i].value;
+                        arrData.name = data[i].SEQ;
+                        arrData.color = data[i].GraphColor;
+                        //arrData.FinishDate = data[i].FinishDate;
+                        jsonData.push(arrData);
+                        if (lange <= parseInt(data[i].Amout)) {
+                            lange = data[i].Amout;
+                        }
+                    }
+                    else if (pHome == "Con") {
+                        arrData.y = parseInt(data[i].Amout);
+                        arrData.value = data[i].value;
+                        arrData.name = data[i].SEQ;
+                        arrData.color = data[i].GraphColor;
+                        //arrData.FinishDate = data[i].FinishDate;
+                        jsonData.push(arrData);
+                        if (lange <= parseInt(data[i].Amout)) {
+                            lange = data[i].Amout;
+                        }
+                    }
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생2.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    // 기상청 기상정보 조회
+    function GetWeatherInfo(pLatticeX, pLatticeY) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/GetWeatherInfo",
+            dataType: "json",
+            data: { "pLatticeX": pLatticeX, "pLatticeY": pLatticeY },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                $("#sky").addClass("spn_sky" + data.sky);
+                $("#pty").addClass("spn_pty" + data.pty);
+                $("#lgt").addClass("spn_lgt" + data.lgt);
+                $("#t1h").text("기온 : " + data.t1h);
+                $("#reh").text("습도 : " + data.reh);
+                $("#rn1").text("강수량 : " + data.rn1);
+                $("#time").text("기준시간 : " + data.time);
+            },
+            error: function (e) {
+                    alert("에러 발생3.");
+                    return false;
+            }
+        });
+    }
+
+    //현장인원 현황 테이블
+    function ListConstructionSiteWorkersInfo(pPagerUseYn, pCurPage, pListCnt, psiteCd) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListConstructionSiteWorkersInfo",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "psiteCd": psiteCd },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_site_user").empty();
+                $("#grid_site_user").html(data[0]);
+                //페이지 생성
+                //CreatePager("pager_site_user", 10, data[1], data[2]);
+            },
+            error: function (e) {
+                alert("에러 발생4.");
+                return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 현재 페이지 왼쪽메뉴 선택처리
+    function ChangeMenuList(pBizPartCd) {
+        $("#" + pBizPartCd).addClass("txt_red");
+    }
+
+    // 차트 현장현황 계획, 실적 금액
+    function CreateChartSiteAmtDetail(pSiteCd) {
+
+        var YearData = ListSiteStateRateDetail(pSiteCd, "Year");
+        var ConData = ListSiteStateRateDetail(pSiteCd, "Con");
+
+        //if (finishdate == "") {
+        //    finishdate = YearData[0].FinishDate;
+        //}
+        
+        // 그래프 데이터가 없는 경우
+        if (YearData == null || ConData == null) {
+            alert("현장현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        for (j = 1; j < lange.length - 8; j++) {
+            area = area * 10;
+        }
+
+        compare = lange;
+        lange = lange * 1.6;
+        lange = parseInt(lange.toString().substr(0, 1));
+
+        if (area * lange < compare) {
+            area = area * 10;
+        }
+
+        $("#chart_site_Amt").highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: '공정 및 수금현황',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d",
+                    fontweight : "bold"
+                }
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                categories: ["공정(년간)", "수금(년간)", "공정(전체)", "수금(전체)"],
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "13px",
+                        color: "#6d6d6d"
+                    }
+                },
+            },
+            yAxis: {
+                title: {
+                    text: '단위(억)'
+                },
+                labels: {
+                    format: "{value}",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                max: area * lange,
+                /*tickInterval: 1000,*/
+                gridLineWidth: 1,
+                gridLineColor: "#d8d8d8"
+            },
+            plotOptions: {
+                series: {
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.value}',
+                        style: {
+                            fontSize: "10px",
+                            //color: "#ffffff"
+                        }
+                    }
+                },
+                bar: {
+                    pointWidth: 19,
+                    pointPadding: 0.1,
+                    enableMouseTracking: false
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [
+                {
+                    name: '계획(누계)',
+                    data: YearData,
+                    showInLegend: false,
+                    color: "#6d6d6d",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                {
+                    name: '계획(년간)',
+                    data: ConData,
+                    showInLegend: false,
+                    color: "#6d6d6d",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                }
+            ]
+
+        });
+
+    }
+
+    // 차트 현장별(실행율,공정율,원가율) 생성 함수
+    function CreateChartSiteRateDetail(pSiteCd) {
+        // 그래프 데이터 조회
+        var jsonData = ListSiteStateRateDetail(pSiteCd,"Home");
+        
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("현장현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_site_rate").highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: '달성율(%)'
+            },
+            subtitle: {
+                text: ""
+            },
+            xAxis: {
+                title: {
+                    text: ""
+                },
+                categories: ["공정(누계)", "공정(년간)", "수금(누계)", "수금(년간)"],
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "13px",
+                        color: "#6d6d6d"
+                    }
+                },
+                /*gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1*/
+            },
+            yAxis: {
+                title: {
+                    text: '계획대비실적(%)'
+                },
+                labels: {
+                    format: "{value}",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                /*tickInterval: 25,
+                gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1*/
+            },
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y:1f}' + '%'
+                    }
+                },
+                bar: {
+                    pointPadding: 0.1,
+                    borderWidth: 0,
+                    enableMouseTracking: false
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: "비율",
+                data: jsonData
+            }]
+        });
+    }
+
+    // 지도 생성
+    function MakeMap(pAddr, pdirLat, pdirLong) {
+
+        // 주소 누락시 리턴
+        if (pAddr == "") {
+            alert("주소가 누락 되었습니다.");
+            return false;
+        }
+
+                // 좌표 데이터
+        var mapPosition = new daum.maps.LatLng(pdirLat, pdirLong);
+
+                // 지도 옵션 (위치, 레벨)
+                var options = {
+                    center: mapPosition,
+                    level: 5
+                };
+                // 지도 생성
+                var map = new daum.maps.Map(document.getElementById("map"), options);
+
+                // 마커 옵션
+                var marker = new daum.maps.Marker({
+                    position: mapPosition
+                });
+                // 마커 생성
+                marker.setMap(map);
+
+                // 지도타입 컨트롤 (일반, 스카이뷰)
+                var mapTypeControl = new daum.maps.MapTypeControl();
+                map.addControl(mapTypeControl, daum.maps.ControlPosition.TOPRIGHT);
+
+                // 줌 컨트롤
+                var zoomControl = new daum.maps.ZoomControl();
+                map.addControl(zoomControl, daum.maps.ControlPosition.BOTTOMRIGHT);
+
+                // 좌표 저장
+                mapLat = pdirLat;
+                mapLng = pdirLong;
+
+                // 좌표변환
+                GetLatticeData(mapLat, mapLng);
+
+        /*
+        // 주소 - 좌표 변환 객체
+        var geocoder = new daum.maps.services.Geocoder();
+
+        // 주소로 좌표 검색
+        geocoder.addr2coord(pAddr, function (status, result) {
+
+            // 검색 완료 (정상)
+            if (status === daum.maps.services.Status.OK) {
+                // 좌표 데이터
+                var mapPosition = new daum.maps.LatLng(result.addr[0].lat, result.addr[0].lng);
+
+                // 지도 옵션 (위치, 레벨)
+                var options = {
+                    center: mapPosition,
+                    level: 5
+                };
+                // 지도 생성
+                var map = new daum.maps.Map(document.getElementById("map"), options);
+
+                // 마커 옵션
+                var marker = new daum.maps.Marker({
+                    position: mapPosition
+                });
+                // 마커 생성
+                marker.setMap(map);
+
+                // 지도타입 컨트롤 (일반, 스카이뷰)
+                var mapTypeControl = new daum.maps.MapTypeControl();
+                map.addControl(mapTypeControl, daum.maps.ControlPosition.TOPRIGHT);
+
+                // 줌 컨트롤
+                var zoomControl = new daum.maps.ZoomControl();
+                map.addControl(zoomControl, daum.maps.ControlPosition.BOTTOMRIGHT);
+
+                // 좌표 저장
+                mapLat = result.addr[0].lat;
+                mapLng = result.addr[0].lng;
+
+                // 좌표변환
+                GetLatticeData(mapLat, mapLng);
+            }
+            else {
+                alert("주소로 좌표를 얻어오는데 실패 했습니다.");
+                $("#box_load_data").hide();
+                return false;
+            }
+        });*/
+    }
+
+    // LCC DFS 좌표변환 ( code : "toXY"(위경도->좌표, v1:위도, v2:경도), "toLL"(좌표->위경도,v1:x, v2:y) )
+    function dfs_xy_conv(code, v1, v2) {
+        var DEGRAD = Math.PI / 180.0;
+        var RADDEG = 180.0 / Math.PI;
+
+        var re = RE / GRID;
+        var slat1 = SLAT1 * DEGRAD;
+        var slat2 = SLAT2 * DEGRAD;
+        var olon = OLON * DEGRAD;
+        var olat = OLAT * DEGRAD;
+
+        var sn = Math.tan(Math.PI * 0.25 + slat2 * 0.5) / Math.tan(Math.PI * 0.25 + slat1 * 0.5);
+        sn = Math.log(Math.cos(slat1) / Math.cos(slat2)) / Math.log(sn);
+        var sf = Math.tan(Math.PI * 0.25 + slat1 * 0.5);
+        sf = Math.pow(sf, sn) * Math.cos(slat1) / sn;
+        var ro = Math.tan(Math.PI * 0.25 + olat * 0.5);
+        ro = re * sf / Math.pow(ro, sn);
+        var rs = {};
+        if (code == "toXY") {
+            rs['lat'] = v1;
+            rs['lng'] = v2;
+            var ra = Math.tan(Math.PI * 0.25 + (v1) * DEGRAD * 0.5);
+            ra = re * sf / Math.pow(ra, sn);
+            var theta = v2 * DEGRAD - olon;
+            if (theta > Math.PI) theta -= 2.0 * Math.PI;
+            if (theta < -Math.PI) theta += 2.0 * Math.PI;
+            theta *= sn;
+            rs['x'] = Math.floor(ra * Math.sin(theta) + XO + 0.5);
+            rs['y'] = Math.floor(ro - ra * Math.cos(theta) + YO + 0.5);
+        }
+        else {
+            rs['x'] = v1;
+            rs['y'] = v2;
+            var xn = v1 - XO;
+            var yn = ro - v2 + YO;
+            ra = Math.sqrt(xn * xn + yn * yn);
+            if (sn < 0.0) -ra;
+            var alat = Math.pow((re * sf / ra), (1.0 / sn));
+            alat = 2.0 * Math.atan(alat) - Math.PI * 0.5;
+
+            if (Math.abs(xn) <= 0.0) {
+                theta = 0.0;
+            }
+            else {
+                if (Math.abs(yn) <= 0.0) {
+                    theta = Math.PI * 0.5;
+                    if (xn < 0.0) -theta;
+                }
+                else theta = Math.atan2(xn, yn);
+            }
+            var alon = theta / sn + olon;
+            rs['lat'] = alat * RADDEG;
+            rs['lng'] = alon * RADDEG;
+        }
+        return rs;
+    }
+
+    /*
+    // 위경도를 격자지점으로 변환 후 날씨 데이터 호출
+    function GetLatticeData(pLat, pLng) {
+        var lattice = dfs_xy_conv("toXY", pLat, pLng);
+        // 기상청 기상정보 조회
+        GetWeatherInfo(lattice.x, lattice.y);
+    }
+    */
+
+
+    //************ 이벤트 ************//
+
+    // 로드뷰 버튼 클릭 이벤트
+    $(document).on("click", "#btn_view_road", function (e) {
+        window.open("http://map.daum.net/link/roadview/" + mapLat + "," + mapLng, "_blank");
+    });
+
+    // 길찾기 버튼 클릭 이벤트
+    $(document).on("click", "#btn_find_road", function (e) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var userLat = position.coords.latitude // 위도
+                var userLng = position.coords.longitude; // 경도
+
+                window.open("http://map.naver.com/index.nhn?pathType=1&slng=" + userLng + "&slat=" + userLat + "&stext=" + "내위치" + "&elng=" + mapLng + "&elat=" + mapLat + "&etext=" + siteNm, "_blank");
+            }, function (error) {
+                window.open("http://map.daum.net/link/to/" + siteNm + "," + mapLat + "," + mapLng, "_blank");
+            });
+        }
+        else {
+            window.open("http://map.daum.net/link/to/" + siteNm + "," + mapLat + "," + mapLng, "_blank");
+        }
+    });
+
+    // 사진등록 클릭 이벤트
+    $(document).on("click", "#btn_Reg", function (e) {
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 960) / 2;
+        var popY = winY + (winHeight - 400) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=no,screenX=0,screenY=0,width=960,height=400,top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/SaveSitePhoto?pSiteCd=" + siteCd + "&pSaveMode=C&pRegNo=";
+        window.open(location, "사진등록", setting);
+
+    });
+
+    // 전체사진보기 클릭 이벤트
+    $(document).on("click", "#btn_All", function (e) {
+       
+        var CheckData = ListSitePhotoAllCheck(siteCd);
+                
+        if (CheckData.length == 0) {
+            alert("해당 현장에 등록된 사진이 없습니다.");
+            return false;
+        }
+
+       
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        //X축 1090 Y축 640
+        var popX = winX + (winWidth - 1090) / 2;
+        var popY = winY + (winHeight - 640) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=no,screenX=0,screenY=0,width=1090,height=640,top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/SitePhotoListAll?pSiteCd=" + siteCd ;
+        window.open(location, "전체사진보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box1", function (e) {
+
+        var imgWidth = document.getElementById("img1").naturalWidth;
+        var imgHeight = document.getElementById("img1").naturalHeight;
+
+        var maxImgWidth = 900;
+        var maxImgHeight = 600;
+
+        var resizeImgWidth = 0, resizeImgHeight = 0;
+
+
+        if (imgWidth > maxImgWidth || imgHeight > maxImgHeight) {
+            if (imgWidth > imgHeight) {
+                resizeImgWidth = maxImgWidth;
+                resizeImgHeight = Math.round((imgHeight * resizeImgWidth) / imgWidth);
+            } else {
+                resizeImgHeight = maxImgHeight;
+                resizeImgWidth = Math.round((imgWidth * resizeImgHeight) / imgHeight);
+            }
+        } else {
+            resizeImgWidth = imgWidth;
+            resizeImgHeight = imgHeight;
+        }
+
+        imgWidth = resizeImgWidth;
+        imgHeight = resizeImgHeight;
+
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - imgWidth) / 2;
+        var popY = winY + (winHeight - imgHeight) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=" + imgWidth + ",height=" + imgHeight + ",top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/BlowUpPhoto?pSiteCd="+siteCd+"&pNumber="+arr[0];
+        window.open(location, "사진확대", setting);
+
+    });
+
+    $(document).on("click", "#bn_box2", function (e) {
+
+        var imgWidth = document.getElementById("img2").naturalWidth;
+        var imgHeight = document.getElementById("img2").naturalHeight;
+
+        var maxImgWidth = 900;
+        var maxImgHeight = 600;
+
+        var resizeImgWidth = 0, resizeImgHeight = 0;
+
+
+        if (imgWidth > maxImgWidth || imgHeight > maxImgHeight) {
+            if (imgWidth > imgHeight) {
+                resizeImgWidth = maxImgWidth;
+                resizeImgHeight = Math.round((imgHeight * resizeImgWidth) / imgWidth);
+            } else {
+                resizeImgHeight = maxImgHeight;
+                resizeImgWidth = Math.round((imgWidth * resizeImgHeight) / imgHeight);
+            }
+        } else {
+            resizeImgWidth = imgWidth;
+            resizeImgHeight = imgHeight;
+        }
+
+        imgWidth = resizeImgWidth;
+        imgHeight = resizeImgHeight;
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - imgWidth) / 2;
+        var popY = winY + (winHeight - imgHeight) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=" + imgWidth + ",height=" + imgHeight + ",top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/BlowUpPhoto?pSiteCd=" + siteCd + "&pNumber=" + arr[1];
+        window.open(location, "사진확대", setting);
+
+    });
+
+    $(document).on("click", "#bn_box3", function (e) {
+
+        var imgWidth = document.getElementById("img3").naturalWidth;
+        var imgHeight = document.getElementById("img3").naturalHeight;
+
+        var maxImgWidth = 900;
+        var maxImgHeight = 600;
+
+        var resizeImgWidth = 0, resizeImgHeight = 0;
+
+
+        if (imgWidth > maxImgWidth || imgHeight > maxImgHeight) {
+            if (imgWidth > imgHeight) {
+                resizeImgWidth = maxImgWidth;
+                resizeImgHeight = Math.round((imgHeight * resizeImgWidth) / imgWidth);
+            } else {
+                resizeImgHeight = maxImgHeight;
+                resizeImgWidth = Math.round((imgWidth * resizeImgHeight) / imgHeight);
+            }
+        } else {
+            resizeImgWidth = imgWidth;
+            resizeImgHeight = imgHeight;
+        }
+
+        imgWidth = resizeImgWidth;
+        imgHeight = resizeImgHeight;
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - imgWidth) / 2;
+        var popY = winY + (winHeight - imgHeight) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=" + imgWidth + ",height=" + imgHeight + ",top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/BlowUpPhoto?pSiteCd=" + siteCd + "&pNumber=" + arr[2];
+        window.open(location, "사진확대", setting);
+
+    });
+
+    $(document).on("click", "#bn_box4", function (e) {
+
+        var imgWidth = document.getElementById("img4").naturalWidth;
+        var imgHeight = document.getElementById("img4").naturalHeight;
+
+        var maxImgWidth = 900;
+        var maxImgHeight = 600;
+
+        var resizeImgWidth = 0, resizeImgHeight = 0;
+
+
+        if (imgWidth > maxImgWidth || imgHeight > maxImgHeight) {
+            if (imgWidth > imgHeight) {
+                resizeImgWidth = maxImgWidth;
+                resizeImgHeight = Math.round((imgHeight * resizeImgWidth) / imgWidth);
+            } else {
+                resizeImgHeight = maxImgHeight;
+                resizeImgWidth = Math.round((imgWidth * resizeImgHeight) / imgHeight);
+            }
+        } else {
+            resizeImgWidth = imgWidth;
+            resizeImgHeight = imgHeight;
+        }
+
+        imgWidth = resizeImgWidth;
+        imgHeight = resizeImgHeight;
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - imgWidth) / 2;
+        var popY = winY + (winHeight - imgHeight) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=" + imgWidth + ",height=" + imgHeight + ",top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/BlowUpPhoto?pSiteCd=" + siteCd + "&pNumber=" + arr[3];
+        window.open(location, "사진확대", setting);
+
+    });
+
+    // 더보기 클릭 이벤트
+    $(document).on("click", "#btn_detail", function (e) {
+        $("#Detail").slideToggle('slow', function () {
+
+        });
+        $("#btn_detail").toggle();
+        $("#btn_close").toggle();
+    });
+    // 접기 클릭 이벤트
+    $(document).on("click", "#btn_close", function (e) {
+        $("#Detail").slideToggle('slow', function () {
+
+        });
+        $("#btn_detail").toggle();
+        $("#btn_close").toggle();
+    });
+
+    /*// 더보기 클릭 이벤트
+    $(document).on("click", "#btn_detail", function (e) {
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 300) / 2;
+        var popY = winY + (winHeight - 10) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=300,height=10,top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/SiteStateSummary?pBizPartCd=" + bizPartCd + "&pSiteCd=" + siteCd;
+        window.open(location, "공사개요 상세보기", setting);
+
+    });*/
+
+    //GetPagerValue($(this).attr("id"), $(this).text())
+    ListConstructionSiteWorkersInfo("N", 1, 10, siteCd);
+
+    /*$(document).on("click", "#pager_site_user a", function (e) {
+        ListConstructionSiteWorkersInfo("Y", GetPagerValue($(this).attr("id"), $(this).text()), 10, siteCd);
+    });*/
+
+    //오른쪽버튼 클릭 방지
+    /*document.oncontextmenu = function (e) {
+        alert("오른쪽버튼은 이용할 수 없습니다.");
+        return false;
+    }*/
+        
+    // 그리드 TR 클릭 이벤트
+    $(document).on("click", "#grid_site_user tr", function (e) {
+
+        if (GetGridTrValue("grid_site_user", "h_UserNm", $(this).children()) != "성명") {
+
+            var winHeight = document.body.clientHeight; //현재창의 높이
+            var winWidth = document.body.clientWidth; // 현재창의 너비
+
+            var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+            var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+            //X축 1090 Y축 640
+            var popX = winX + (winWidth - 920) / 2;
+            var popY = winY + (winHeight - 320) / 2;
+
+            var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=920,height=320,top=" + popY + ",left=" + popX + "";
+            var location = "/PopUp/ListUserDetail?pSEQ=2&pUserId=" + GetGridTrValue("grid_site_user", "h_EPUserId", $(this).children());
+            window.open(location, "사우정보상세", setting);
+
+            //location.href = "/Person/OrganizeChartDetail?pSEQ=" + GetGridTrValue("grid_user", "h_SEQ", $(this).children()) + "&pUserId=" + GetGridTrValue("grid_user", "h_UserId", $(this).children());
+        }
+
+    });
+
+
+</script>

@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+
+        <h1 class="title1">당월 가용예산 현황</h1>
+        <div id="grid_controlbudget_state" class="grid1" style="height:auto;"></div>
+ 
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        /*CreateChartControlBudget();*/
+        ListControlBudgetGrid("N", 0, 0, "@Session["DeptCd"]");
+        ApplyDisplayColor();
+    });
+
+    //************ 함수 ************//
+
+    function ApplyDisplayColor() {
+        $("#grid_controlbudget_state tr").each(function (e) {
+
+            if (($(this).children().eq(1).text() == "판관_후생복리비 합계") || ($(this).children().eq(1).text() == "판관_여비교통비 합계") || ($(this).children().eq(1).text() == "판관_접대비 합계")) {
+                $(this).css("background-color", "#BDBDBD");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+
+                $(this).children().each(function (e) {
+                    $(this).css("color", "#191919");
+
+                });
+            }
+        });
+    }
+
+    //************ Ajax ************//
+
+    // 가용예산 조회 그래프
+    function ListControlBudgetResult() {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListControlBudgetResult",
+            dataType: "json",
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리 
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    /*arrData.PlanFixAmt = parseInt(data[i].PlanFixAmt);
+                    arrData.RsltFixAmt = parseInt(data[i].RsltFixAmt);*/
+                    arrData.y = parseInt(data[i].Rate);
+
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    // 가용예산 조회 테이블
+    function ListControlBudgetGrid(pPagerUseYn, pCurPage, pListCnt, pDeptCd) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListControlBudgetGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pDeptCd" : pDeptCd },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_controlbudget_state").empty();
+                $("#grid_controlbudget_state").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 수주실적(전체) 차트 생성 함수
+    function CreateChartControlBudget() {
+        // 그래프 데이터 조회
+        var jsonData = ListControlBudgetResult();
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("가용예산 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_controlbudget_result").highcharts({
+            chart: {
+                type: "column"
+            },
+            title: {
+                text: ""
+            },
+            subtitle: {
+                text: ""
+            },
+            xAxis: {
+                title: {
+                    text: ""
+                },
+                categories: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "13px",
+                        fontWeight: "bold",
+                        color: "#6d6d6d"
+                    }
+                },
+                gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1
+            },
+            yAxis: {
+                title: {
+                    text: ""
+                },
+                labels: {
+                    format: "{value}"
+                },
+                tickInterval: 25,
+                gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1
+            },
+            plotOptions: {
+                column: {
+                    dataLabels: {
+                        enabled: true,
+                        style: {
+                            fontSize: "12px",
+                            color: "#ffffff"
+                        }
+                    },
+                    pointWidth: 30
+                },
+                series: {
+                    stacking: "normal"
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: "달성률(%)",
+                data: jsonData
+            }
+            /*,{
+                name: "실적금액",
+                data: jsonData.pop()
+            },
+            {
+                name: "달성율(%)",
+                data: jsonData.pop()
+            }*/
+            ]
+        });
+    }
+
+</script>

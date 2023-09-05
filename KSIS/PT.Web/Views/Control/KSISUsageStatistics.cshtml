@@ -1,0 +1,1410 @@
+﻿@{
+    ViewBag.Title = "KSISUsageStatistics";
+}
+
+@model PT.BusinessLogic.Entities.Control
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <h1 class="title1">사용통계</h1>
+
+    <div class="box_search3" id="UserInfo">
+
+        <div id="select" style="width:15%;float:left;margin:auto;">
+            <label>•구분</label>
+            <select name="ListUser" id="ListUser" onchange="changeSelect()">
+                <option value="KSISUser">사용자</option>
+                <option value="KSISMenu">메뉴</option>
+                <option value="KSISTB">집계표</option>
+            </select>
+            <label>  </label>
+        </div>
+
+        <div id="selectYMD" style="width:15%;float:left;margin:auto;">
+            <label>•단위</label>
+            <select name="Gubun1" id="Gubun1" onchange="changeSelectGubun()">
+                <option value="YYYY">기간</option>
+                <option value="MM">월</option>
+                <option selected value="DD">일</option>
+            </select>
+        </div>
+        <div id="Duty" style="width:15%;float:left;margin:auto;">
+            <label id="Duty">•직급</label>
+            @Html.DropDownList("Gubun2", (List<SelectListItem>)ViewBag.ddlSearchTypeCd1)
+        </div>
+        <div id="MenuNm" style="width:15%;float:left;display:none;margin:auto;">
+            <label>•메뉴명</label>
+            @Html.DropDownList("Gubun3", (List<SelectListItem>)ViewBag.ddlSearchTypeCd3)
+        </div>
+        <div style="width:50%;float:left;margin:auto;padding-left:20px;">
+            <div id="datePickFrom" style="float:left;">
+                <label>•기간</label>
+                <input type="text" id="From" class="box_dateinput">
+            </div>
+            <div id="datePickTo" style="float:left;padding-left:10px">
+                <label>~</label>
+                <input type="text" id="To" class="box_dateinput">
+            </div>
+            <div id="datePickMonth" style="float:left;display:none;">
+                <input type="text" id="Month" class="box_dateinput" autocomplete="off">
+            </div>
+            <div id="selectQuarter" style="float:left;margin:auto;display:none;">
+                <select name="Gubun4" id="Gubun4">
+                    <option selected value="1">1분기</option>
+                    <option value="2">2분기</option>
+                    <option value="3">3분기</option>
+                    <option value="4">4분기</option>
+                </select>
+            </div>
+            <div style="float:left;margin:auto;padding-left:20px;">
+                <a id="btn_search" class="btn1">조회</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="userSum" style="text-align:center;display:none;">
+        <p style="font-weight:bold;font-size:20px;"><input style="width:100px;text-align:center;font-weight:bold;font-size:20px;" type="text" id="dutyNm"> 직급의 사용자 총합 : <input style="width:100px;text-align:center;font-weight:bold;font-size:20px;" type="text" id="sumUser"></p>
+    </div>
+
+    <div class="contents_left3" id="User" style="display:none;">
+        <div id="grid_UserUsageStatistics" class="grid5" style="height:auto;"></div>
+        <!-- 페이지 -->
+        <div id="pager_User" class="pager1"></div>
+        <br />
+    </div>
+    <div class="contents_right3" id="UserDetail" style="display:none;">
+        <div id="grid_UserStatisticsDetail" class="grid3" style="height:auto;"></div>
+        <!-- 페이지 -->
+        <div id="pager_UserD" class="pager1"></div>
+        <br />
+    </div>
+    <div class="contents_left3" id="Menu1" style="display:none;">
+        <div id="grid_MenuUsageStatistics" class="grid5" style="height:auto;"></div>
+        <!-- 페이지 -->
+        <div id="pager_Menu" class="pager1"></div>
+        <br />
+    </div>
+    <div class="contents_right3" id="MenuDetail" style="display:none;">
+        <div id="grid_MenuStatisticsDetail" class="grid3" style="height:auto;"></div>
+        <!-- 페이지 -->
+        <div id="pager_MenuD" class="pager1"></div>
+        <br />
+    </div>
+    <div id="chart" style="display:none;">
+        <div style="float:left;">
+            <h1 class="title1">연간 사용비중</h1>
+            <div id="chart_Circle" class="chart" style="height:400px;width:480px;"></div>
+        </div>
+        <div style="float:left;">
+            <h1 class="title1">분기별 사용비중</h1>
+            <div id="chart_Bar" class="chart" style="height:400px;width:480px;"></div>
+        </div>
+    </div>
+    <div class="container" id="statisticsTb" style="display:none;float:left;">
+        <div id="grid_UsageTb" class="grid5" style="height:auto;"></div>
+        <br />
+    </div>
+    <div class="container" id="AllMenuTb" style="display:none;">
+        <div>
+            <a id="btn_Chart" class="btn1" style="width:65px;">차트 조회</a>
+        </div>
+        <br />
+        <div id="grid_UsageAllTb" class="grid3" style="height:auto;"></div>
+        <br />
+    </div>
+    <div class="container" id="AllChart" style="display:none;">
+        <div>
+            <a id="btn_Table" class="btn1" style="width:80px;">테이블 조회</a>
+        </div>
+        <br />
+        <div id="AllChartBar" class="chart" style="height:auto;"></div>
+    </div>
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+    var time = new Date();
+    var Month = "", Day = "";
+    var UserId = "", MenuNm = "", USERNM = "", PickDate = "", ScreenCd = "", TitleCd = "";
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        Month = (time.getMonth() + 1);
+        Day = time.getDate();
+
+        if (Month < 10) {
+            Month = '0' + (time.getMonth() + 1);
+        }
+        if (Day < 10) {
+            Day = '0' + time.getDate();
+        }
+
+        changeSelectGubun();
+ 
+    });
+    //************ Ajax ************//
+
+    function ChkTotalStatisticsUser(pGubun1, pGubun2, pFrom, pTo, pEPUserId) {
+
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/Control/ChkTotalStatisticsUser",
+            dataType: "json",
+            data: { "pGubun1": pGubun1, "pGubun2": pGubun2, "pFrom": pFrom, "pTo": pTo, "pEPUserId": pEPUserId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                for (i = 0; i < data.length; i++) {
+
+                    var arrData = {};
+
+                    arrData.DUTYNM = data[i].DUTYNM;
+                    arrData.RegCnt = parseInt(data[i].RegCnt);
+                    
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    /*function ChkTotalStatisticsMenu(pGubun1, pGubun2, pFrom, pTo, pEPUserId) {
+
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/Control/ChkTotalStatisticsMenu",
+            dataType: "json",
+            data: { "pGubun1": pGubun1, "pGubun2": pGubun2, "pFrom": pFrom, "pTo": pTo, "pEPUserId": pEPUserId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                for (i = 0; i < data.length; i++) {
+
+                    var arrData = {};
+
+                    arrData.PAGE = data[i].PAGE;
+                    arrData.PageCnt = parseInt(data[i].PageCnt);
+
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }*/
+
+    // 사용자 사용 통계 테이블
+    function ListUserUsageStatisticsForKSIS(pPagerUseYn, pCurPage, pListCnt, pGubun1, pGubun2, pFrom, pTo, pEPUserId) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListUserUsageStatisticsForKSIS",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pGubun1": pGubun1, "pGubun2": pGubun2, "pFrom": pFrom, "pTo": pTo, "pEPUserId": pEPUserId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_UserUsageStatistics").empty();
+                $("#grid_UserUsageStatistics").html(data[0]);
+                // 페이지 생성
+                CreateDynamicPager("pager_User", 10, data[1], data[2], "user");
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 사용자별 사용 통계 테이블 상세
+    function ListUserStatisticsDetailForKSIS(pPagerUseYn, pCurPage, pListCnt, pGubun1, pGubun2, pFrom, pTo, pEPUserId) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListUserStatisticsDetailForKSIS",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pGubun1": pGubun1, "pGubun2": pGubun2, "pFrom": pFrom, "pTo": pTo, "pEPUserId": pEPUserId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_UserStatisticsDetail").empty();
+                $("#grid_UserStatisticsDetail").html(data[0]);
+                // 페이지 생성
+                CreateDynamicPager("pager_UserD", 10, data[1], data[2], "userD");
+  
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 메뉴 사용 통계 테이블
+    function ListMenuUsageStatisticsForKSIS(pPagerUseYn, pCurPage, pListCnt, pGubun1, pGubun2, pFrom, pTo, pSelect, pTitleCd) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListMenuUsageStatisticsForKSIS",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pGubun1": pGubun1, "pGubun2": pGubun2, "pFrom": pFrom, "pTo": pTo, "pSelect": pSelect, "pTitleCd": pTitleCd },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_MenuUsageStatistics").empty();
+                $("#grid_MenuUsageStatistics").html(data[0]);
+                // 페이지 생성
+                CreateDynamicPager("pager_Menu", 10, data[1], data[2], "menu");
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 메뉴별 사용 통계 테이블 상세
+    function ListMenuStatisticsDetailForKSIS(pPagerUseYn, pCurPage, pListCnt, pGubun1, pGubun2, pFrom, pTo, pSelect, pTitleCd) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListMenuStatisticsDetailForKSIS",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pGubun1": pGubun1, "pGubun2": pGubun2, "pFrom": pFrom, "pTo": pTo, "pSelect": pSelect, "pTitleCd": pTitleCd },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_MenuStatisticsDetail").empty();
+                $("#grid_MenuStatisticsDetail").html(data[0]);
+                // 페이지 생성
+                CreateDynamicPager("pager_MenuD", 10, data[1], data[2], "menuD");
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 전체 사용비중 그래프 생성
+    function CreateChartCircleRate() {
+        // 그래프 데이터 조회
+        var jsonData = ListUsageCircleChartForKSIS($("#Gubun3").val(), $("#From").val(), "Circle", "ALL");
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("전체 사용비중 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_Circle").highcharts({
+            chart: {
+                type: "pie",
+                options3d: {
+                    enabled: true,
+                    alpha: 45,
+                    beta: 0
+                }
+            },
+            title: {
+                text: '',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    depth: 35,
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function () {
+                            return this.point.value;
+                        },
+                        style: {
+                            fontfamily: "NanumGothic",
+                            fontSize: "10px",
+                            color: "#6d6d6d"
+                        }
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                type: 'pie',
+                data: jsonData,
+                style: {                    
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            }]
+
+        });
+    }
+
+    // 분기 사용비중 막대 그래프 생성
+    function CreateChartBarRate() {
+        // 그래프 데이터 조회
+        var jsonData = ListUsageBarChartForKSIS($("#Gubun3").val(), $("#From").val(), "Bar", "ALL");
+        
+        var Data1q = [], Data2q = [], Data3q = [], Data4q = [];
+        
+        for (var i = 0; i < jsonData.length; i++) {
+
+            var arrData = {};
+
+            if (jsonData[i].name == "01") {
+
+                arrData.name = "1월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;   
+                arrData.color = jsonData[i].color;   
+
+                Data1q.push(arrData);
+                
+                
+            }
+            else if (jsonData[i].name == "02") {
+
+                arrData.name = "2월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;  
+                arrData.color = jsonData[i].color;
+
+                Data2q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "03") {
+
+                arrData.name = "3월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;  
+                arrData.color = jsonData[i].color;
+
+                Data3q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "04") {
+
+                arrData.name = "4월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;  
+                arrData.color = jsonData[i].color;
+
+                Data1q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "05") {
+
+                arrData.name = "5월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data2q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "06") {
+
+                arrData.name = "6월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data3q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "07") {
+
+                arrData.name = "7월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data1q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "08") {
+
+                arrData.name = "8월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data2q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "09") {
+
+                arrData.name = "9월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data3q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "10") {
+
+                arrData.name = "10월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data1q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "11") {
+
+                arrData.name = "11월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data2q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "12") {
+
+                arrData.name = "12월";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data3q.push(arrData);
+
+            }
+
+            // 분기인경우
+            else if (jsonData[i].name == "1Q") {
+
+                arrData.name = "1분기";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data1q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "2Q") {
+
+                arrData.name = "2분기";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data2q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "3Q") {
+
+                arrData.name = "3분기";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data3q.push(arrData);
+
+            }
+            else if (jsonData[i].name == "4Q") {
+
+                arrData.name = "4분기";
+                arrData.value = jsonData[i].value;
+                arrData.y = jsonData[i].y;
+                arrData.color = jsonData[i].color;
+
+                Data4q.push(arrData);
+
+            }
+
+        }
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("월별 사용비중 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_Bar").highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: '',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d",
+                    fontweight: "bold"
+                }
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+            yAxis: {
+                max: 100,
+                title: {
+                    text: ''
+                },
+                labels: {
+                    format: "",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+
+                gridLineWidth: 1,
+                gridLineColor: "#d8d8d8"
+            },
+            legend: {
+                reversed: true
+            },
+            plotOptions: {
+                series: {
+                    stacking: 'normal',
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function () {
+                            return this.point.y + "%";
+                        }
+                    }
+                },            
+            },
+            tooltip: {
+                
+                pointFormat: '{point.value} <br /> {point.y}'+'%',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [
+                {
+                    data: Data1q,
+                    color: "#6d6d6d",
+                    showInLegend: false,
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                {
+                    data: Data2q,
+                    color: "#6d6d6d",
+                    showInLegend: false,
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                {
+                    data: Data3q,
+                    color: "#6d6d6d",
+                    showInLegend: false,
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                {
+                    data: Data4q,
+                    color: "#6d6d6d",
+                    showInLegend: false,
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                }
+                
+            ]
+
+        });
+
+    }
+
+    //전체 사용비중 차트 DATA 조회    
+    function ListUsageCircleChartForKSIS(pScreenCd, pGUBUN, pSelect, pTerm) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/Control/ListUsageCircleChartForKSIS",
+            data: { "pScreenCd": pScreenCd, "pGUBUN": pGUBUN, "pSelect": pSelect, "pTerm": pTerm },
+            dataType: "json",
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리 
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.name = data[i].CircleScreenNm;
+                    arrData.y = parseFloat(data[i].CirclePer);
+                    arrData.color = data[i].CircleColor;
+                    arrData.value = data[i].CircleValue;
+                    arrData.sliced = true;
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+     // 분기 사용비중 막대 그래프 생성
+    function ListUsageBarChartForKSIS(pScreenCd, pGUBUN, pSelect, pTerm) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/Control/ListUsageBarChartForKSIS",
+            data: { "pScreenCd": pScreenCd, "pGUBUN": pGUBUN, "pSelect": pSelect, "pTerm": pTerm },
+            dataType: "json",
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리 
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.name = data[i].BarMM;
+                    arrData.value = data[i].BarScreenNm;
+                    arrData.y = parseFloat(data[i].BarPer);
+                    arrData.color = data[i].BarColor;
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+
+    // 전체 사용비중 막대 그래프 생성
+    function CreateChartBarAll() {
+        // 그래프 데이터 조회
+        var jsonData = ListUsageBarChartAllForKSIS("ALL", $("#From").val(), "Bar", "ALL");
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("전체 사용비중 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#AllChartBar").highcharts({
+            chart: {
+                type: 'bar',
+                height: 900,
+                width:960 
+            },
+            title: {
+                text: '',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d",
+                    fontweight: "bold"
+                }
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                title: {
+                    text: ""
+                },
+                type: 'category',
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "13px",
+                        color: "#6d6d6d"
+                    }
+                },
+            },
+            yAxis: {
+                max: (jsonData[0].y)*1.3,
+                title: {
+                    text: ''
+                },             
+                labels: '',
+            },
+            plotOptions: {
+                series: {
+
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.value}'
+                        }                   
+                },
+                bar: {
+                    enableMouseTracking: false
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            series: [
+                {
+                    data: jsonData,
+                    maxPointWidth : 20,
+                    color: "#6d6d6d",
+                    showInLegend: false,
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                }
+
+            ]
+
+        });
+
+    }
+
+    // 전체 사용비중 막대 그래프 생성
+    function ListUsageBarChartAllForKSIS(pScreenCd, pGUBUN, pSelect, pTerm) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/Control/ListUsageBarChartAllForKSIS",
+            data: { "pScreenCd": pScreenCd, "pGUBUN": pGUBUN, "pSelect": pSelect, "pTerm": pTerm },
+            dataType: "json",
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리 
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.name = data[i].ChildScrNm;
+                    arrData.value = data[i].TotalPercent;
+                    arrData.y = parseInt(data[i].TotalComma);
+                    arrData.color = data[i].AllBarColor;
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    // 사용 통계 집계표
+    function ListUsageStatisticsTableForKSIS(pPagerUseYn, pCurPage, pListCnt, pScreenCd, pGUBUN, pSelect, pTerm) {
+        $.ajax({
+            type: "POST",
+            url: "/Control/ListUsageStatisticsTableForKSIS",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pScreenCd": pScreenCd, "pGUBUN": pGUBUN, "pSelect": pSelect, "pTerm": pTerm},
+            async: false,   // 동기식 처리
+            success: function (data) {
+
+                var data = data.split("‡");
+                // 그리그 생성
+                if (pScreenCd == "ALL") {
+                    $("#grid_UsageAllTb").empty();
+                    $("#grid_UsageAllTb").html(data[0]);
+                }
+                else if (pScreenCd == "Browser" || pScreenCd == "Device") {
+                    $("#grid_UsageAllTb").empty();
+                    $("#grid_UsageAllTb").html(data[0]);
+                }                    
+                else {
+                    $("#grid_UsageTb").empty();
+                    $("#grid_UsageTb").html(data[0]);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    //************ 함수 ************//
+
+    // 선택창 이벤트
+    function changeSelect() {
+
+        if ($("#ListUser").val() == "KSISUser") {
+
+            $("#Duty").css("display", "block");
+            $("#selectYMD").css("display", "block"); 
+            $("#MenuNm").css("display", "none");
+            $("#MenuDetail").css("display", "none");
+            $("#Menu1").css("display", "none");
+            $("#menuSum").css("display", "none");
+            $("#statisticsTb").css("display", "none");
+            $("#AllMenuTb").css("display", "none");
+            $("#chart").css("display", "none");
+            $("#selectQuarter").css("display", "none");
+            $("#btn_Chart").css("display", "none");
+            $("#btn_Table").css("display", "none");
+            $("#AllChartBar").css("display", "none");
+            $("#AllMenuTb").css("display", "none");
+            changeSelectGubun();
+        }
+        if ($("#ListUser").val() == "KSISMenu") {
+
+            $("#Duty").css("display", "none");
+            $("#MenuNm").css("display", "block");
+            $("#selectYMD").css("display", "block");
+            $("#User").css("display", "none");
+            $("#UserDetail").css("display", "none");
+            $("#userSum").css("display", "none");
+            $("#statisticsTb").css("display", "none");
+            $("#AllMenuTb").css("display", "none");
+            $("#chart").css("display", "none");
+            $("#selectQuarter").css("display", "none");   
+            $("#btn_Chart").css("display", "none");
+            $("#btn_Table").css("display", "none");
+            $("#AllChartBar").css("display", "none");
+            $("#AllMenuTb").css("display", "none");
+            changeSelectGubun();
+        }
+        if ($("#ListUser").val() == "KSISTB") {
+
+            $("#Gubun1 option:eq(1)").prop("selected", true);
+
+            changeSelectGubun();
+
+            $("#Duty").css("display", "none");
+            $("#MenuNm").css("display", "block");
+            $("#selectYMD").css("display", "none");
+            $("#User").css("display", "none");
+            $("#UserDetail").css("display", "none");
+            $("#userSum").css("display", "none");
+            $("#MenuDetail").css("display", "none");
+            $("#Menu1").css("display", "none");
+            $("#menuSum").css("display", "none");                        
+            $("#btn_Chart").css("display", "none");
+            $("#btn_Table").css("display", "none");
+            $("#AllChartBar").css("display", "none");
+            $("#AllMenuTb").css("display", "none");
+            //$("#selectQuarter").css("display", "block");   
+        }
+
+    };
+
+    function changeSelectGubun() {
+        
+        if ($("#Gubun1").val() == "MM") {
+                 
+            $("#Month").datepicker({
+                showOn: "both",
+                buttonImage: "/Contents/images/button/icon_calender.gif",
+                buttonImageOnly: true,
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "yy-mm",
+                showButtonPanel: true,
+                currentText: "이번달",
+                closeText: '닫기',
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                showMonthAfterYear: true,
+                onChangeMonthYear: function (year, month, inst) {
+                    $("#Month").val($.datepicker.formatDate('yy-mm', new Date(year, month - 1, 1)));
+                },
+                onClose: function (dateText, inst) {
+                    var month = $(".ui-datepicker-month :selected").val();
+                    var year = $(".ui-datepicker-year :selected").val();
+                    $("#Month").val($.datepicker.formatDate('yy-mm', new Date(year, month, 1)));
+                }
+            }).focus(function () {
+                $(".ui-datepicker-calendar").hide();
+            });
+
+        }
+        else {            
+            $("#From").datepicker({
+                showOn: "both",
+                buttonImage: "/Contents/images/button/icon_calender.gif",
+                buttonImageOnly: true,
+                changeMonth: true,
+                changeYear: true,
+                nextText: '다음 달',
+                prevText: '이전 달',
+                showButtonPanel: true,
+                currentText: '오늘 날짜',
+                closeText: '닫기',
+                dateFormat: "yy-mm-dd",
+                dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
+                dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                showMonthAfterYear: true
+            });
+
+            $("#To").datepicker({
+                showOn: "both",
+                buttonImage: "/Contents/images/button/icon_calender.gif",
+                buttonImageOnly: true,
+                changeMonth: true,
+                changeYear: true,
+                nextText: '다음 달',
+                prevText: '이전 달',
+                showButtonPanel: true,
+                currentText: '오늘 날짜',
+                closeText: '닫기',
+                dateFormat: "yy-mm-dd",
+                dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
+                dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                showMonthAfterYear: true
+            });           
+        }
+
+        if ($("#Gubun1").val() == "YYYY") {
+            $("#datePickFrom").css("display", "block");
+            $("#datePickTo").css("display", "block");
+            $("#datePickMonth").css("display", "none");            
+            document.getElementById("From").value = time.getFullYear() + '-' + Month + '-' + Day;
+            document.getElementById("To").value = time.getFullYear() + '-' + Month + '-' + Day;
+            $("#From").css("width", "100px");
+            $("#To").css("width", "100px");
+        }
+        else if ($("#Gubun1").val() == "MM") {
+            $("#datePickFrom").css("display", "none");
+            $("#datePickTo").css("display", "none");
+            $("#datePickMonth").css("display", "block");
+            document.getElementById("Month").value = time.getFullYear() + '-' + Month;            
+            $("#Month").css("width", "70px");
+        }
+        else {
+            $("#datePickFrom").css("display", "block");
+            $("#datePickTo").css("display", "none");
+            $("#datePickMonth").css("display", "none");
+            document.getElementById("From").value = time.getFullYear() + '-' + Month + '-' + Day;
+            document.getElementById("To").value = time.getFullYear() + '-' + Month + '-' + Day;
+            $("#From").css("width", "100px");
+        }
+
+    };
+
+    // 조회버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        
+        if ($("#ListUser").val() == "KSISUser") {
+            $("#UserDetail").css("display", "none");
+            $("#User").css("display", "block");
+            $("#userSum").css("display", "block");
+
+            //합 구하기
+            if ($("#Gubun1").val() == "YYYY") {
+                var jsonData = ChkTotalStatisticsUser($("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#To").val(), "Total");
+            }
+            else if ($("#Gubun1").val() == "MM"){
+                var jsonData = ChkTotalStatisticsUser($("#Gubun1").val(), $("#Gubun2").val(), $("#Month").val(), $("#Month").val(), "Total");
+            }
+            else {
+                var jsonData = ChkTotalStatisticsUser($("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#From").val(), "Total");
+            }
+
+            for (var i = 0; i < jsonData.length; i++) {
+                document.getElementById("dutyNm").value = jsonData[i].DUTYNM;
+                document.getElementById("sumUser").value = jsonData[i].RegCnt;
+            }
+
+            if ($("#Gubun1").val() == "YYYY") {
+                ListUserUsageStatisticsForKSIS("Y", 1, 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#To").val(), "");
+            }
+            else if ($("#Gubun1").val() == "MM") {
+                ListUserUsageStatisticsForKSIS("Y", 1, 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#Month").val(), $("#Month").val(), "");
+            }
+            else {
+                ListUserUsageStatisticsForKSIS("Y", 1, 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#From").val(), "");
+            }
+
+        }
+        else if ($("#ListUser").val() == "KSISMenu") {
+            if ($("#Gubun3").val() == "ALL") {
+                alert("메뉴명을 전체로 조회할 수 없습니다.");
+                return;
+            }
+            else if ($("#Gubun3").val() == "Browser") {
+                alert("메뉴명을 브라우저로 조회할 수 없습니다.");
+                return;
+            }          
+            else if ($("#Gubun3").val() == "Device") {
+                alert("메뉴명을 접속기기로 조회할 수 없습니다.");
+                return;
+            }   
+            $("#MenuDetail").css("display", "none");
+            $("#Menu1").css("display", "block");
+
+            if ($("#Gubun1").val() == "YYYY") {
+                ListMenuUsageStatisticsForKSIS("Y", 1, 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#From").val(), $("#To").val(), "", "");
+            }
+            else if ($("#Gubun1").val() == "MM") {
+                ListMenuUsageStatisticsForKSIS("Y", 1, 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#Month").val(), $("#Month").val(), "", "");
+            }
+            else {
+                ListMenuUsageStatisticsForKSIS("Y", 1, 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#From").val(), $("#From").val(), "", "");
+            }
+        }
+        else if ($("#ListUser").val() == "KSISTB") {
+
+
+            
+
+            if ($("#Gubun3").val() == "ALL") {
+                ListUsageStatisticsTableForKSIS("N", 0, 0, $("#Gubun3").val(), $("#From").val(), "Table", "ALL");
+                CreateChartBarAll();
+                $("#AllChartBar").slideUp();
+                $("#AllMenuTb").css("display", "block");
+                $("#statisticsTb").css("display", "none");
+                $("#chart").css("display", "none");
+                $("#btn_Chart").css("display", "block");
+            }
+            else if ($("#Gubun3").val() == "Browser") { 
+                
+                ListUsageStatisticsTableForKSIS("N", 0, 0, $("#Gubun3").val(), $("#From").val(), "Browser", "ALL");
+                $("#AllMenuTb").css("display", "block");
+                $("#statisticsTb").css("display", "none");
+                $("#chart").css("display", "none");
+                $("#btn_Chart").css("display", "none");
+            }
+            else if ($("#Gubun3").val() == "Device") {
+
+                ListUsageStatisticsTableForKSIS("N", 0, 0, $("#Gubun3").val(), $("#From").val(), "Device", "ALL");
+                $("#AllMenuTb").css("display", "block");
+                $("#statisticsTb").css("display", "none");
+                $("#chart").css("display", "none");
+                $("#btn_Chart").css("display", "none");
+            }
+            else {
+                ListUsageStatisticsTableForKSIS("N", 0, 0, $("#Gubun3").val(), $("#From").val(), "Table", "ALL");
+                $("#btn_Table").css("display", "none");
+                $("#AllChartBar").css("display", "none");
+                $("#AllMenuTb").css("display", "none");
+                $("#btn_Chart").css("display", "none");
+                CreateChartCircleRate();
+                CreateChartBarRate();
+                $("#AllMenuTb").css("display", "none");
+                $("#statisticsTb").css("display", "block");
+                $("#chart").css("display", "block");
+            }
+            
+            ApplyDisplayColorTB();
+
+        }
+    });
+
+    // 차트조회 버튼 클릭 이벤트
+    $(document).on("click", "#btn_Chart", function (e) {
+        $("#AllChart").css("display", "block");
+        $("#AllMenuTb").css("display", "none");
+        $("#btn_Chart").css("display", "none");
+        $("#AllMenuTb").slideUp();
+        $("#AllChartBar").slideDown();
+        $("#btn_Table").css("display", "block");
+    });
+
+    // 테이블 조회 버튼 클릭 이벤트
+    $(document).on("click", "#btn_Table", function (e) {
+        $("#AllChart").css("display", "none");
+        $("#AllMenuTb").css("display", "block");
+        $("#btn_Table").css("display", "none");
+        $("#AllChartBar").slideUp();
+        $("#AllMenuTb").slideDown();
+        $("#btn_Chart").css("display", "block");
+    });
+
+    // 그리드 TR 클릭 이벤트(Table)
+    $(document).on("click", "#grid_UsageTb td", function (e) {
+
+        var Term = this.parentNode.parentNode.children[0].children[this.cellIndex].innerText.substring(0, 1);
+        var ScreenCd = this.parentNode.children[0].innerText;
+        var DutyCd = this.parentNode.children[2].innerText;    
+
+        if (((DutyCd == "EKP99997") || (DutyCd == "EKP00307") || (DutyCd == "EKP00306") || (DutyCd == "EKP00305") || (DutyCd == "EKP00304") || (DutyCd == "EKP00303")) &&
+                ((Term == "1") || (Term == "2") || (Term == "3") || (Term == "4"))) {
+                
+                var winHeight = document.body.clientHeight; //현재창의 높이
+                var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                var popX = winX + (winWidth - 980) / 2;
+                var popY = winY + (winHeight - 400) / 2;
+                
+                var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=980,height=400,top=" + popY + ",left=" + popX + "";
+                var location = "/PopUp/UsagePopUp?pScreenCd=" + ScreenCd + "&pGUBUN=" + $("#From").val().substring(0,4) + "&pDutyCd=" + DutyCd + "&pTerm=" + Term;
+                window.open(location, "사용 이력", setting);
+        
+            }          
+    });
+
+    // 그리드 TR 클릭 이벤트(User)
+    $(document).on("click", "#grid_UserUsageStatistics tr", function (e) {
+
+        if (GetGridTrValue("grid_UserUsageStatistics", "h_USERNM", $(this).children()) != "성명") {
+            
+            if ((GetGridTrValue("grid_UserUsageStatistics", "h_USERNM", $(this).children()) != "합 계")) {
+                
+                $("#UserDetail").css("display", "block");
+
+                UserId = GetGridTrValue("grid_UserUsageStatistics", "h_USERID", $(this).children());
+                USERNM = GetGridTrValue("grid_UserUsageStatistics", "h_USERNM", $(this).children());
+                PickDate = GetGridTrValue("grid_UserUsageStatistics", "h_RegCnt", $(this).children());
+
+                if ($("#Gubun1").val() == "YYYY") {
+                    ListUserStatisticsDetailForKSIS("Y", 1, 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#To").val(), GetGridTrValue("grid_UserUsageStatistics", "h_USERID", $(this).children()));
+                }
+                else if ($("#Gubun1").val() == "MM"){
+                    ListUserStatisticsDetailForKSIS("Y", 1, 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#Month").val(), $("#Month").val(), GetGridTrValue("grid_UserUsageStatistics", "h_USERID", $(this).children()));
+                }
+                else {
+                    ListUserStatisticsDetailForKSIS("Y", 1, 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#From").val(), GetGridTrValue("grid_UserUsageStatistics", "h_USERID", $(this).children()));
+                }
+
+                ApplyDisplayColorUser();
+            }
+        }
+    });
+
+    // 그리드 TR 클릭 이벤트(Menu)
+    $(document).on("click", "#grid_MenuUsageStatistics tr", function (e) {
+        
+        if ((GetGridTrValue("grid_MenuUsageStatistics", "h_ScreenNm", $(this).children()) != "화면명")) {
+
+            if ((GetGridTrValue("grid_MenuUsageStatistics", "h_ParentNm", $(this).children()) != "합   계")){
+                $("#MenuDetail").css("display", "block");
+
+                ScreenCd = GetGridTrValue("grid_MenuUsageStatistics", "h_ScreenCd", $(this).children());
+                TitleCd = GetGridTrValue("grid_MenuUsageStatistics", "h_TitleCd", $(this).children());
+
+                //MenuNm = GetGridTrValue("grid_MenuUsageStatistics", "h_ScreenCd", $(this).children());
+                //PickDate = GetGridTrValue("grid_MenuUsageStatistics", "h_RegDate", $(this).children());
+                if ($("#Gubun1").val() == "YYYY") {
+                    ListMenuStatisticsDetailForKSIS("Y", 1, 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#From").val(), $("#To").val(), ScreenCd, TitleCd);
+                }
+                else if ($("#Gubun1").val() == "MM"){
+                    ListMenuStatisticsDetailForKSIS("Y", 1, 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#Month").val(), $("#Month").val(), ScreenCd, TitleCd);
+                }
+                else {
+                    ListMenuStatisticsDetailForKSIS("Y", 1, 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#From").val(), $("#From").val(), ScreenCd, TitleCd);
+                }
+                
+                ApplyDisplayColorMenu();
+            }
+        }
+    });
+
+    // 페이지 번호(User) 클릭 이벤트
+    $(document).on("click", "#pager_User a", function (e) {
+        if ($("#Gubun1").val() == "YYYY") {
+            ListUserUsageStatisticsForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "user"), 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#To").val(), "");
+        }
+        else if ($("#Gubun1").val() == "MM"){
+            ListUserUsageStatisticsForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "user"), 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#Month").val(), $("#Month").val(), "");
+
+        }
+        else {
+            ListUserUsageStatisticsForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "user"), 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#From").val(), "");
+            
+        }      
+    });
+    // 페이지 번호(Menu) 클릭 이벤트
+    $(document).on("click", "#pager_Menu a", function (e) {
+        if ($("#Gubun1").val() == "YYYY") {
+            ListMenuUsageStatisticsForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "menu"), 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#From").val(), $("#To").val(), "", "");
+        }
+        else if ($("#Gubun1").val() == "MM"){
+            ListMenuUsageStatisticsForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "menu"), 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#Month").val(), $("#Month").val(), "", "");
+        } 
+        else {
+            ListMenuUsageStatisticsForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "menu"), 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#From").val(), $("#From").val(), "", "");
+        }   
+    });
+
+    // 페이지 번호(UserDetail) 클릭 이벤트
+    $(document).on("click", "#pager_UserD a", function (e) {
+        if ($("#Gubun1").val() == "YYYY") {
+            ListUserStatisticsDetailForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "userD"), 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#To").val(), UserId);
+        }
+        else if ($("#Gubun1").val() == "MM"){
+            ListUserStatisticsDetailForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "userD"), 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#Month").val(), $("#Month").val(), UserId);
+        }
+        else {
+            ListUserStatisticsDetailForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "userD"), 20, $("#Gubun1").val(), $("#Gubun2").val(), $("#From").val(), $("#From").val(), UserId);
+        }
+
+    });
+
+    // 페이지 번호(MenuDetail) 클릭 이벤트
+    $(document).on("click", "#pager_MenuD a", function (e) {
+        if ($("#Gubun1").val() == "YYYY") {
+            ListMenuStatisticsDetailForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "menuD"), 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#From").val(), $("#To").val(), ScreenCd, TitleCd);
+        }
+        else if ($("#Gubun1").val() == "MM"){
+            ListMenuStatisticsDetailForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "menuD"), 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#Month").val(), $("#Month").val(), ScreenCd, TitleCd);
+        }
+        else {
+            ListMenuStatisticsDetailForKSIS("Y", GetDynamicPagerValue($(this).attr("id"), $(this).text(), "menuD"), 40, $("#Gubun1").val(), $("#Gubun3").val(), $("#From").val(), $("#From").val(), ScreenCd, TitleCd);
+        }
+        
+    });
+   
+
+    function ApplyDisplayColorUser() {
+        $("#grid_UserUsageStatistics tr").each(function (e) {
+            if (($(this).children().eq(1).text() == USERNM && ($(this).children().eq(3).text() == PickDate))) {
+                $(this).css("background-color", "#eaeaea");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+            }
+            else {
+                $(this).css("background-color", "#ffffff");
+
+                if (GetGridTrValue("grid_UserUsageStatistics", "h_USERNM", $(this).children()) != "성명") {
+
+                    $(this).children().each(function (e) {
+                        $(this).css("font-weight", "normal");
+
+                    });
+                }
+
+            }
+        });
+
+    }
+
+    function ApplyDisplayColorMenu() {
+        $("#grid_MenuUsageStatistics tr").each(function (e) {
+            if (($(this).children().eq(1).text() == ScreenCd) && ($(this).children().eq(3).text() == TitleCd)) {
+                $(this).css("background-color", "#eaeaea");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+            }
+            else {
+                $(this).css("background-color", "#ffffff");
+
+                if (GetGridTrValue("grid_MenuUsageStatistics", "h_ScreenNm", $(this).children()) != "화면명") {
+
+                    $(this).children().each(function (e) {
+                        $(this).css("font-weight", "normal");
+
+                    });
+                }
+
+            }
+        });
+    }
+
+    function ApplyDisplayColorTB() {
+        $("#grid_UsageTb tr").each(function (e) {
+
+            if ($(this).children().eq(1).text() == "소 계") {
+                $(this).css("background-color", "#eaeaea");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+            }
+            else if ($(this).children().eq(1).text() == "합 계"){
+
+                $(this).css("background-color", "#BDBDBD");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+
+                $(this).children().each(function (e) {
+                    $(this).css("color", "#191919");
+
+                });
+            }
+        });
+
+        $("#grid_UsageAllTb tr").each(function (e) {
+
+            if ($(this).children().eq(0).text() == "소 계") {
+                $(this).css("background-color", "#eaeaea");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+            }
+            else if ($(this).children().eq(0).text() == "합 계") {
+
+                $(this).css("background-color", "#BDBDBD");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+
+                $(this).children().each(function (e) {
+                    $(this).css("color", "#191919");
+
+                });
+            }
+        });
+    }
+</script>

@@ -1,0 +1,101 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+</head>
+
+<body>
+            <div class="box_titletop" style="width:400px;">
+             <h1 class="title7" id="title7">1월 수주실적</h1>
+            </div>
+            <div class="box_titlebottom" style="padding-left:5px;padding-right:5px;border:0px;">
+                <h1 style="font-family:NanumGothic; font-size:12px;">(단위:백만)</h1>
+            </div>
+            <div id="grid_sujuMonthResult" class="grid5" style="height:auto;padding-left:5px;padding-right:5px;border:0px;"></div>
+            <div class="box_Close">
+                <div class="box_Close_Center">
+                    <a id="btn_Close" class="btn">닫 기</a>
+                </div>
+            </div>
+    <!-- //콘텐츠 -->
+</body>
+</html>
+
+<script type="text/javascript">
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        ListSujuMonthResult("N", 0, 0, "@ViewBag.YearMon");
+        ApplyDisplayColor();
+
+    });
+
+    //그리드 TR 클릭 이벤트
+    $(document).on("click", "#btn_Close", function (e) {
+        self.close();
+    });
+
+    function ApplyDisplayColor() {
+
+
+        $("#grid_sujuMonthResult tr").each(function (e) {
+
+            $(this).children().each(function (e) {
+                $(this).css("cursor", "default");
+
+            });
+        });
+
+        var Month = "@ViewBag.YearMon";
+
+        document.getElementById("title7").innerHTML = Month.substring(4,6) + "월 수주실적";
+
+    }
+
+    // 부서별 수주실적 조회
+    function ListSujuMonthResult(pPagerUseYn, pCurPage, pListCnt, pYearMon) {
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/ListSujuMonthResult",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pYearMon": pYearMon },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_sujuMonthResult").empty();
+                $("#grid_sujuMonthResult").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+</script>

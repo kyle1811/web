@@ -1,0 +1,158 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+
+    <script>
+        var meetTypeCd = "NoticeControl";
+
+        $(document).ready(function (e) {
+            $("#NoticeControl").addClass("txt_red");
+            ListMeetingGrid("Y", 1, 10, meetTypeCd, $("#TxtSubject").val());
+        });
+
+        // 회의자료 테이블 그리드
+        function ListMeetingGrid(pPagerUseYn, pCurPage, pListCnt, pMeetTypeCd, pSubject) {
+            $.ajax({
+                type: "POST",
+                url: "/AjaxAuth/ListMeetingGrid",
+                dataType: "html",
+                data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pMeetTypeCd": pMeetTypeCd, "pSubject": pSubject },
+                async: false,   // 동기식 처리
+                success: function (data) {
+                    var data = data.split("‡");
+                    // 그리그 생성
+                    $("#grid_meeting").empty();
+                    $("#grid_meeting").html(data[0]);
+                    // 페이지 생성
+                    CreatePager("pager_meeting", 10, data[1], data[2]);
+                    // 검색조건 저장
+                    $("#HdnMeetTypeCd").val(data[3]);
+                    $("#HdnSubject").val(data[4]);
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            });
+        }
+
+        //************ 이벤트 ************//
+
+        // 조회버튼 클릭 이벤트
+        $(document).on("click", "#btn_search", function (e) {
+            if ($("#TxtSubject").val() == "") {
+                alert("검색어를 입력하세요");
+                $("#TxtSubject").focus();
+                return false;
+            }
+
+            ListMeetingGrid("Y", 1, 10, meetTypeCd, $("#TxtSubject").val());
+        });
+
+        // 제목박스 엔터 이벤트
+        $(document).on("keypress", "#TxtSubject", function (e) {
+            if (e.which == 13) {
+                ListMeetingGrid("Y", 1, 10, meetTypeCd, $("#TxtSubject").val());
+                return false;
+            }
+        });
+
+        // 페이지 번호 클릭 이벤트
+        $(document).on("click", "#pager_meeting a", function (e) {
+            ListMeetingGrid("Y", GetPagerValue($(this).attr("id"), $(this).text()), 10, $("#HdnMeetTypeCd").val(), $("#HdnSubject").val());
+        });
+
+        // 작성버튼 클릭 이벤트
+        $(document).on("click", "#btn_edit", function (e) {
+            location.href = "/Admin/NoticeControlEdit?pMeetTypeCd=" + meetTypeCd + "&pSaveMode=C&pRegNo=";
+        });
+
+        // 그리드 TR 클릭 이벤트
+        $(document).on("click", "#grid_meeting tr", function (e) {
+            if (GetGridTrValue("grid_meeting", "h_Subject", $(this).children()) != "제목") {
+                location.href = "/Admin/NoticeControlDetail?pMeetTypeCd=" + meetTypeCd + "&pRegNo=" + GetGridTrValue("grid_meeting", "h_RegNo", $(this).children());
+            }
+        });
+
+    </script>
+
+</head>
+<body>
+    <div id="wrap">
+        <!-- 머리글 -->
+        <div id="header">
+            <div class="gnb">
+                <div class="gnb_info">
+                    <a href="/Portal/Home" class="logo"></a><a href="/Account/Logout">로그아웃</a><label>|</label><span>(@Session["DeptNm"])</span><span>@Session["DutyNm"]</span><span>@Session["UserNm"]</span><label>|</label><span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
+                </div>
+            </div>
+            <div class="lnbo">
+            </div>
+            <div id="container">
+                <!-- 콘텐츠 -->
+                <div id="contents">
+                    <!-- 사이드메뉴 -->
+                    <div class="contents_left1">
+                        <a href="/Admin/AuthControl" id="AuthControl">화면권환관리</a>
+                        <a href="/Admin/NoticeControl" id="NoticeControl">공지사항관리</a>
+                    </div>
+
+                    <div class="contents_right1">
+
+                        <!-- 검색 및 버튼박스 -->
+                        <div class="box_search">
+                            <div class="box_search_left">
+                                <span>제목</span><input type="text" id="TxtSubject" name="TxtSubject" style="width:250px" />
+                            </div>
+                            <div class="box_search_right">
+                                <a id="btn_search" class="btn1">검색</a><a id="btn_edit" class="btn1">작성</a>
+                            </div>
+                        </div>
+                        <!-- //검색 및 버튼박스 -->
+                        <!-- 그리드 -->
+                        <div id="grid_meeting" class="grid2" style="height:385px;"></div>
+                        <!-- //그리드 -->
+                        <!-- 페이지 -->
+                        <div id="pager_meeting" class="pager1"></div>
+                        <!-- //페이지 -->
+                        <!-- 숨김정보 -->
+                        <input type="hidden" id="HdnMeetTypeCd" name="HdnMeetTypeCd" />
+                        <input type="hidden" id="HdnSubject" name="HdnSubject" />
+                        <!-- //숨김정보 -->
+
+                    </div>
+                    <!-- //콘텐츠 -->
+                </div>
+            </div>
+        </div>
+        <!-- //본문 -->
+        <!-- 바닥글 -->
+        <div id="footer">
+            <span>COPYRIGHT(C) 2017 KCC ENGINEERING & CONSTRUCTION CO., LTD. ALL RIGHT RESERVED.</span>
+        </div>
+        <!-- //바닥글 -->
+
+    </div>
+
+</body>
+</html>

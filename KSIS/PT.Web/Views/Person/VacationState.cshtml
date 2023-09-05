@@ -1,0 +1,589 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+
+<div id="VC00001" class="boxother5" style="display:none">
+    <h1 class="title1">월별 연차사용현황</h1>
+    <div id="chart_month_vacationState" class="chart" style="height:400px;width:960px;"></div>
+</div>
+
+<div id="PN040100" class="boxother5" style="display:none">
+    <h1 class="title1">부서별 연차사용현황</h1>
+    <div style="margin-top:20px;position:absolute;z-index:1;right:50px;">
+        <a id="btn_search5" class="btn1"
+           style="background-color:#2facb2;border-top-left-radius:5px;border-top-right-radius:5px;border-bottom-left-radius:5px;border-bottom-right-radius:5px;color:white;font-weight:bold;border:1px solid #2facb2;">부서명순</a>
+        <a id="btn_search7" class="btn1"
+           style="background-color:white;border-top-left-radius:5px;border-top-right-radius:5px;border-bottom-left-radius:5px;border-bottom-right-radius:5px;color:#2facb2;font-weight:bold;border:1px solid #2facb2;">사용률순</a>
+        <a id="btn_search6" class="btn1"
+           style="background-color:white;border-top-left-radius:5px;border-top-right-radius:5px;border-bottom-left-radius:5px;border-bottom-right-radius:5px;color:#2facb2;font-weight:bold;border:1px solid #2facb2;">잔여연차순</a>
+    </div>
+    <div id="chart_dept_vacationPercent" class="chart" style="height:400px;width:960px;"></div>
+
+    <div class="box_search3" style="background-color:white;border:0px;">
+        <a id="btn_search1" class="btn1">본  사</a>
+        <a id="btn_search2" class="btn1">토  목</a>
+        <a id="btn_search3" class="btn1">건  축</a>
+        <a id="btn_search4" class="btn1">플랜트</a>
+    </div>
+</div>
+
+
+<div id="VC00003" class="boxother5" style="display:none">
+    <h1 class="title1">부서원 연차사용현황</h1>
+    <div id="chart_dept_vacationState" class="chart" style="height:auto;width:960px">
+
+    </div>
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+    var text1 = "", text2 = "", text3 = "", text4 = "";
+    var DeptCd = "";
+    var BizPartCd = "KCCENC";
+    var selectUserPic = "2";
+
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        
+        CreateChartMonthPersonalVacationCnt(false, false);
+        CreateChartDeptVacationPercent(BizPartCd, selectUserPic);
+
+        if ("@Session["DutyCd"]" == "EKP00310" || "@Session["DutyCd"]" == "EKP00311" || "@Session["DutyCd"]" == "EKP00312" || "@Session["DutyCd"]" == "EKP00313"
+            || "@Session["DutyCd"]" == "EKP00314" || "@Session["DutyCd"]" == "EKP00315" || "@Session["DutyCd"]" == "EKP00316" || "@Session["DutyCd"]" == "EKP00317"
+            || "@Session["DutyCd"]" == "EKP00318" || "@Session["DutyCd"]" == "EKP00319") {
+            CreateChartDeptVacationCnt("E20021");
+            $("#VC00003").toggle();
+        }
+        else {
+            text2 = "부서원";
+            $("#VC00001").toggle();
+            $("#VC00003").toggle();
+            CreateChartDeptVacationCnt("");
+        }
+
+        var jsonData = ListChkAuth("PN040100", "@Session["EmpNo"]");
+
+        for (var i = 0; i < jsonData.length; i++) {
+                $("#"+jsonData[i].AuthType).toggle();
+        }
+
+    });
+
+    //************ Ajax ************//
+    function ListChkAuth(pMeetTypeCd, pEmpNo) {
+
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListChkAuth",
+            dataType: "json",
+            data: { "pMeetTypeCd": pMeetTypeCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                for (i = 0; i < data.length; i++) {
+
+                    var arrData = {};
+                    arrData.AuthType = data[i].AuthType;
+
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+    //Session["DeptCd"] 부서코드
+
+    //연차현황 조회
+    function ListMonthPersonalVacationCnt(pEmpNo,pFlag) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListMonthPersonalVacationCnt",
+            dataType: "json",
+            data: { "pEmpNo": pEmpNo, "pFlag": pFlag },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].VacationCnt);
+                    arrData.name = data[i].VacationMon;
+                    arrData.value = data[i].DNICD;
+                    arrData.color = data[i].VacationColor;
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    function ListMonthDeptVacationCnt(pDeptCd, pEmpNo, pGubun) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListMonthDeptVacationCnt",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+
+                    arrData.y = parseFloat(data[i].VacationDeptCnt);
+                        arrData.name = data[i].VacationUser;
+                        arrData.value = data[i].DeptTotCnt;
+                        arrData.PeoPleCnt = parseInt(data[i].PeoPleCnt);
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+        function ListMonthDeptVacationPercent(pDeptCd, pEmpNo, pBizpartCd, pGubun) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+    
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListMonthDeptVacationPercent",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo, "pBizpartCd": pBizpartCd, "pGubun": pGubun },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].VacationDeptCntP);
+                    arrData.name = data[i].VacationUserP;
+                    arrData.color = data[i].VacationDeptPColor;
+                
+                    arrData.value = data[i].VacationInfoP;
+          
+                
+                    jsonData.push(arrData);
+
+                }
+               
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+    //************ 함수 ************//
+
+    // 개인별 연차현황 차트 생성
+
+        function CreateChartMonthPersonalVacationCnt(submit1, submit2){
+        // 그래프 데이터 조회
+        var jsonData = ListMonthPersonalVacationCnt("@Session["EmpNo"]", 1);
+
+
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("연차사용현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+       $("#chart_month_vacationState").highcharts({
+
+           title: {
+
+                text: '개인 연차사용현황',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                inverted: submit1,
+                polar: submit2
+            },
+
+            xAxis: {
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            yAxis: {
+                title: {
+                    text: '누 계',
+                    style: {
+                       fontfamily: "NanumGothic",
+                       fontSize: "10px",
+                       color: "#6d6d6d"
+                   }
+                }
+            },
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '<span style="color:{point.color}">\u25CF</span> {point.value}:{point.y}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                type: 'column',
+                data: jsonData,
+                showInLegend: false,
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            }]
+        });
+
+    }
+
+    // 부서원 연차현황 차트 생성
+    function CreateChartDeptVacationCnt(pDeptCd) {
+        // 그래프 데이터 조회
+        if (pDeptCd == "") {
+            DeptCd = "@Session["DeptCd"]";
+        }
+        else {
+            DeptCd = pDeptCd;
+        }
+
+        var jsonData = ListMonthDeptVacationCnt(DeptCd, "@Session["EmpNo"]");
+        var setPixel = "";
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("연차사용현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text3 != "") {
+            text1 = text3;
+        }
+        else {
+            text1 = text2;
+        }
+        setPixel = "";
+
+        if (jsonData[0].PeoPleCnt > 40) {
+            setPixel = "8px";
+        }
+
+
+        // 차트 생성
+        $("#chart_dept_vacationState").highcharts({
+
+
+            title: {
+                text: text1+' 연차사용현황',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                type: 'column',
+            },
+
+            xAxis: {
+                type: 'category',
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: setPixel,
+                        color: "#6d6d6d"
+                    }
+                }
+            },
+
+            yAxis: {
+                title: {
+                    text: '누계',
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                }
+            },
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.value}' +'<br>사용합계:{point.y}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            plotOptions: {
+                column: {
+
+                    pointPadding:0.1,
+                    borderWidth: 0
+                },
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                data: jsonData,
+                showInLegend: false,
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            }]
+
+
+        });
+
+    }
+
+
+    // 임원 접속시 차트 생성
+    function CreateChartDeptVacationPercent(pBizPartCd, pGubun) {
+        // 그래프 데이터 조회
+
+        var jsonData = ListMonthDeptVacationPercent("@Session["DeptCd"]", "@Session["EmpNo"]", pBizPartCd, pGubun);
+
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("연차사용현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+	var subject = "", subject2 = "";
+
+	if(pGubun == 1) {
+        subject = "부서별 연차사용현황(잔여연차순)";
+        subject2 = "잔여연차갯수";
+        }
+    else if (pGubun == 2){
+        subject = "부서별 연차사용현황(가나다순)";
+        subject2 = "누계사용률(%)";
+    }
+    else {
+        subject = "부서별 연차사용현황(사용률순)";
+        subject2 = "누계사용률(%)";
+    }
+
+        // 차트 생성
+        $("#chart_dept_vacationPercent").highcharts({
+
+
+            title: {
+                text: subject,
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                type: 'column',
+            },
+
+            xAxis: {
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            yAxis: {
+                title: {
+                    text: subject2,
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                }
+            },
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.value}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            plotOptions: {
+                series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function () {
+                                text3 = this.name;
+                                CreateChartDeptVacationCnt(this.name);
+                            }
+                        }
+                    }
+                },
+                column: {
+                    pointPadding: 0,
+                    borderWidth: 0
+                },
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+
+                data: jsonData,
+                showInLegend: false,
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+            }]
+
+
+        });
+
+    }
+
+    //본사
+    $(document).on("click", "#btn_search1", function (e) {
+        BizPartCd = "KCCENC"
+        CreateChartDeptVacationPercent(BizPartCd, selectUserPic);
+        text2 = text4 , text3="";
+
+        CreateChartDeptVacationCnt(text4);
+    });
+    //토목
+    $(document).on("click", "#btn_search2", function (e) {
+        BizPartCd = "SA020101"
+        CreateChartDeptVacationPercent(BizPartCd, selectUserPic);
+        text2 = text4, text3 = "";
+
+        CreateChartDeptVacationCnt(text4);
+    });
+    //건축
+    $(document).on("click", "#btn_search3", function (e) {
+        BizPartCd = "SA020102"
+        CreateChartDeptVacationPercent(BizPartCd, selectUserPic);
+        text2 = text4, text3 = "";
+
+        CreateChartDeptVacationCnt(text4);
+        });
+
+    //플랜트
+    $(document).on("click", "#btn_search4", function (e) {
+        BizPartCd = "SA020104"
+        CreateChartDeptVacationPercent(BizPartCd, selectUserPic);
+        text2 = text4, text3 = "";
+
+        CreateChartDeptVacationCnt(text4);
+        });
+
+        //부서명 정렬
+        $(document).on("click", "#btn_search5", function (e) {
+
+            $("#btn_search5").css("background-color", "#2facb2");
+            $("#btn_search5").css("color", "white");
+            $("#btn_search6").css("background-color", "white");
+            $("#btn_search6").css("color", "#2facb2");
+            $("#btn_search7").css("background-color", "white");
+            $("#btn_search7").css("color", "#2facb2");
+            selectUserPic = 2;
+            CreateChartDeptVacationPercent(BizPartCd, selectUserPic);
+            text2 = text4, text3 = "";
+        });
+
+        //잔여연차순 정렬
+        $(document).on("click", "#btn_search6", function (e) {
+
+            $("#btn_search6").css("background-color", "#2facb2");
+            $("#btn_search6").css("color", "white");
+            $("#btn_search5").css("background-color", "white");
+            $("#btn_search5").css("color", "#2facb2");
+            $("#btn_search7").css("background-color", "white");
+            $("#btn_search7").css("color", "#2facb2");
+            selectUserPic = 1;
+            CreateChartDeptVacationPercent(BizPartCd, selectUserPic);
+            text2 = text4, text3 = "";
+        });
+
+        //사용률 정렬
+        $(document).on("click", "#btn_search7", function (e) {
+
+            $("#btn_search7").css("background-color", "#2facb2");
+            $("#btn_search7").css("color", "white");
+            $("#btn_search5").css("background-color", "white");
+            $("#btn_search5").css("color", "#2facb2");
+            $("#btn_search6").css("background-color", "white");
+            $("#btn_search6").css("color", "#2facb2");
+            selectUserPic = 3;
+            CreateChartDeptVacationPercent(BizPartCd, selectUserPic);
+            text2 = text4, text3 = "";
+        });
+</script>

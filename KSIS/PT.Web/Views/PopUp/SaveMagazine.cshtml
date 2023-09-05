@@ -1,0 +1,121 @@
+﻿@model PT.BusinessLogic.Entities.Community
+@using PT.Web.WebUtil
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/jquery-ui-1.9.2.custom.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-ui-1.9.1.custom.js"></script>
+
+</head>
+    <body>
+    <div id="container">  
+        <!-- 콘텐츠 -->
+        <div id="contents">
+            <!-- 폼 -->
+            <form id="frm" name="frm" enctype="multipart/form-data" action="/PopUp/SaveMagazine" method="post">
+                <!-- 버튼박스 -->
+                <br />
+                <div class="box_search2">
+                    <div class="box_search_left">
+                        <label>등록년월</label>
+                        <input type="text" id="date1" name="Date" class="box_dateinput">
+                    </div>
+                    <div class="box_search_right">
+                        <a id="btn_save" class="btn1">저장</a>
+                    </div>
+                </div>
+                <!-- //버튼박스 -->
+                <!-- 첨부파일 -->
+                <div class="file_box">
+                    @WebUtil.MakeFileControl("사보표지,PDF파일", "AttId", Model.AttId, true, Position.left, "100%")
+                </div>
+                <!-- //첨부파일 -->
+                <!-- 숨김정보 -->
+                @Html.HiddenFor(x => x.SaveMode)
+                @Html.HiddenFor(x => x.RegNo)
+                <!-- //숨김정보 -->
+             </form>
+        <!-- //폼 -->
+        </div>
+        <!-- //콘텐츠 -->
+     </div>
+    </body>
+</html>
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+    var saveMode = "@Model.SaveMode";
+    var time = new Date();
+    var Month = "", Day = "";
+    
+    //************ 로드 ************//
+    $(document).ready(function (e) {
+
+        $("#date1").datepicker({
+            showOn: "both",
+            buttonImage: "/Contents/images/button/icon_calender.gif",
+            buttonImageOnly: true,
+            changeMonth: true,
+            changeYear: true,
+            nextText: '다음 달',
+            prevText: '이전 달',
+            showButtonPanel: true,
+            currentText: '오늘 날짜',
+            closeText: '닫기',
+            dateFormat: "yy-mm-dd",
+            changeMonth: true,
+            dayNames: ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'],
+            dayNamesMin: ['월', '화', '수', '목', '금', '토', '일'],
+            monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            showMonthAfterYear: true
+        });
+    });
+  
+    //************ 이벤트 ************//
+
+    // 저장버튼 클릭 이벤트
+    $(document).on("click", "#btn_save", function (e) {
+
+        $("#frm").submit();
+    });
+
+    // 현시점 자동입력
+    $(document).ready(function (e) {
+
+        Month = (time.getMonth() + 1);
+        Day = time.getDate();
+
+        if (Month < 10) {
+            Month = '0' + (time.getMonth() + 1);
+        }
+        if (Day < 10) {
+            Day = '0' + time.getDate();
+        }
+
+        document.getElementById("date1").value = time.getFullYear() + '-' + Month + '-' + Day;
+
+    });
+
+</script>

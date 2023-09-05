@@ -1,0 +1,614 @@
+﻿@using PT.Web.WebUtil;
+@model PT.BusinessLogic.Entities.AsManage
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id=" contents">
+
+    <!-- 사이드메뉴 -->
+    @*<div class="contents_left1">
+            <a href="/Site/AsManage">하자관리현황</a>
+            <a href="/Site/AsManageDetail?pPJTCD=&pPJTNM=" class="txt_red">현장별 하자현황</a>
+            <a href="/Site/~~" id="~~">품질/하자사례</a>
+        </div>*@
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+
+    <!-- 버튼박스 -->
+    <div class="box_btn_right margin_top10">
+        <a id="btn_list" class="btn1">목 록</a>
+    </div>
+    <!-- //버튼박스 -->
+
+    <div class="boxother4">
+
+        <!-- 검색 및 버튼박스 -->
+        <div class="box_search">
+            <div class="box_search_left">
+                <span>프로젝트명</span><input type="text" id="TxtSearchWord" name="TxtSearchWord" style="width:250px" value="@ViewBag.PJTNM"> <a id="btn_search" class="btn1">검색</a>
+            </div>
+            <div class="box_search_right">
+                <span>단계</span>  @Html.DropDownList("pPROGSTEP", (List<SelectListItem>)ViewBag.ddlPROGSTEP)
+                <a id="btn_search_step" class="btn1">조회</a>
+            </div>
+            
+        </div>
+        
+        <!-- //검색 및 버튼박스 -->
+
+        <h1 class="title1">단계별 현황</h1>
+        <div class="box_titlebottom">
+            <h1>(현재 기준)</h1>
+        </div>
+        <div id="As_Step_Summary_Detail" class="grid1"></div>
+        <input type="hidden" id="cInput" name="cInput">
+
+        <br /><br />
+        <h1 class="title1">업체</h1>
+        <div id="As_Vendor" class="grid1" style="height:auto;"></div>
+        <input type="hidden" id="cInput" name="cInput">
+
+        <br /><br />
+        <h1 class="title1">하자발생 분포도</h1>
+        <div id="chart_As_Distribution" class="chart" style="height:auto;"></div>
+
+        <br /><br />
+        <h1 class="title1">하자보수 조치율</h1>
+        <div id="chart_As_ActionRate" class="chart" style="height:auto;"></div>
+
+        <br /><br /><br /><br />
+        <table style="border-color:white">
+            <colgroup>
+                <col style="width:48%" />
+                <col style="width:4%" />
+                <col style="width:48%" />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td><h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:18px;color:#121212;">하자원인</h1></td>
+                    <td></td>
+                    <td><h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:18px;color:#121212;">하자공종</h1></td>
+                </tr>
+                <tr><td colspan="3">&nbsp;</td></tr>
+                <tr>
+                    <td style="height:auto;border-color:white;display:block;"><div id="grid_As_Reason" class="grid1" style="height:auto;"></div></td>
+                    <td style="height:auto;border-color:white;"></td>
+                    <td style="height:auto;border-color:white;"><div id="As_Item" class="grid1" style="height:auto;"><input type="hidden" id="cInput" name="cInput"></div></td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <!-- //콘텐츠(상세) -->
+
+        <script type="text/javascript">
+
+            $(document).on("click", "#btn_list", function (e) {
+                history.go(-1);
+            });
+
+            ////************ 변수 ************//
+
+            var PJTCD = "@ViewBag.PJTCD";
+            var PJTNM = "@ViewBag.PJTNM";
+            var CNT   = "@ViewBag.CNT";
+
+
+
+            ////************ 로드 ************//
+
+            $(document).ready(function (e) {
+
+                if (CNT > 0) {
+
+                    ListAsStepSummaryDetail(PJTCD);
+                    ListAsVendor(PJTCD, $("#pPROGSTEP").val());
+                    ListAsReason("N", 0, 0, PJTCD, $("#pPROGSTEP").val());
+                    ListAsItem(PJTCD, $("#pPROGSTEP").val());
+
+                    CreateChartAsDistribution(PJTCD, $("#pPROGSTEP").val());
+                    CreateChartAsActionRate(PJTCD, $("#pPROGSTEP").val());
+
+                    ApplyDisplayColor();
+                }
+            });
+
+            // 단계별 현황
+            function ListAsStepSummaryDetail(pPJTCD) {
+                $.ajax({
+                    type: "POST",
+                    url: "/AjaxAuth/ListAsStepSummaryDetail",
+                    dataType: "html",
+                    data: { "pPJTCD": pPJTCD },
+                    async: false,   // 동기식 처리
+                    success: function (data) {
+                        $("#As_Step_Summary_Detail").empty();
+                        $("#As_Step_Summary_Detail").append(data);
+                    },
+                    error: function (e) {
+                        alert("에러 발생.");
+                        return false;
+                    }
+                });
+            }
+
+            // 업체 조회
+            function ListAsVendor(pPJTCD, pPROGSTEP) {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/AjaxAuth/ListAsVendor",
+                    dataType: "html",
+                    data: { "pPJTCD": pPJTCD, "pPROGSTEP": pPROGSTEP},
+                    async: false,   // 동기식 처리
+                    success: function (data) {
+                        $("#As_Vendor").empty();
+                        $("#As_Vendor").append(data);
+                    },
+                    error: function (e) {
+                        alert("에러 발생.");
+                        return false;
+                    }
+                });
+            }
+
+            // 하자원인 조회
+            function ListAsReason(pPagerUseYn, pCurPage, pListCnt, pPJTCD, pPROGSTEP) {
+                $.ajax({
+                    type: "POST",
+                    url: "/AjaxAuth/ListAsReasonGrid",
+                    datatype: "html",
+                    data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pPJTCD": pPJTCD, "pPROGSTEP": pPROGSTEP },
+                    async: false,
+                    success: function (data) {
+                        var data = data.split("‡");
+                        // 그리드 생성
+
+                        $("#grid_As_Reason").empty();
+                        $("#grid_As_Reason").html(data[0]);
+                    },
+                    error: function (e) {
+                        alert("에러 발생.");
+                        return false;
+                    }
+                })
+            }
+
+            // 하자공종 조회
+            function ListAsItem(pPJTCD, pPROGSTEP) {
+                $.ajax({
+                    type: "POST",
+                    url: "/AjaxAuth/ListAsItem",
+                    dataType: "html",
+                    data: { "pPJTCD": pPJTCD, "pPROGSTEP": pPROGSTEP },
+                    async: false,   // 동기식 처리
+                    success: function (data) {
+                        $("#As_Item").empty();
+                        $("#As_Item").append(data);
+                    },
+                    error: function (e) {
+                        alert("에러 발생.");
+                        return false;
+                    }
+                });
+            }
+
+            // 하자발생분포도 조회
+            function ListAsDistribution(pPJTCD, pPROGSTEP) {
+                // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+                var jsonData = [];
+                $.ajax({
+                    type: "POST",
+                    url: "/AjaxAuth/ListAsDistribution",
+                    dataType: "json",
+                    data: { "pPJTCD": pPJTCD, "pPROGSTEP": pPROGSTEP },
+                    async: false,   // 동기식 처리
+                    success: function (data) {
+                        // Json 데이터 y축 그래프 값 숫자형 처리
+                        for (i = 0; i < data.length; i++) {
+                            var arrData = {};
+                            arrData.name = data[i].TRADESHORTNM;
+                            arrData.y = parseInt(data[i].RCPTCNT);
+                            arrData.value = data[i].RCPTCNTCOMMA;
+                            arrData.color = data[i].COLOR;
+                            arrData.sliced = data[i].slice;
+                            jsonData.push(arrData);
+                        }
+                    },
+                    error: function (e) {
+                        alert("에러 발생.");
+                        return false;
+                    }
+                });
+
+                return jsonData;
+            }
+
+            // 하자조치율 조회
+            function ListAsActionRate(pPJTCD, pPROGSTEP) {
+                // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+                var jsonData = [];
+                $.ajax({
+                    type: "POST",
+                    url: "/AjaxAuth/ListAsActionRate",
+                    dataType: "json",
+                    data: { "pPJTCD": pPJTCD, "pPROGSTEP": pPROGSTEP  },
+                    async: false,   // 동기식 처리
+                    success: function (data) {
+                        // Json 데이터 y축 그래프 값 숫자형 처리
+                        for (i = 0; i < data.length; i++) {
+                            var arrData = {};
+
+                            arrData.name = data[i].TRADESHORTNM;
+                            arrData.y = parseInt(data[i].HNDRATE);
+                            arrData.color = data[i].COLOR;
+
+                            jsonData.push(arrData);
+                        }
+                    },
+                    error: function (e) {
+                        alert("에러 발생.");
+                        return false;
+                    }
+                });
+
+                return jsonData;
+            }
+
+            // 하자발생 분포도 차트 생성
+            function CreateChartAsDistribution(pPJTCD, pPROGSTEP) {
+                // 그래프 데이터 조회
+                var jsonData = ListAsDistribution(pPJTCD, pPROGSTEP);
+
+                // 그래프 데이터가 없는 경우
+                if (jsonData == null) {
+                    alert("데이터를 조회하지 못했습니다.");
+                    return false;
+                }
+
+                $("#chart_As_Distribution").highcharts({
+                    chart: {
+                        type: "pie",
+                        options3d: {
+                            enabled: true,
+                            alpha: 45,
+                            beta: 0
+                        }
+                    },
+                    title: {
+                        text: '',
+                        style: {
+                            fontfamily: "NanumGothic",
+                            fontSize: "13px",
+                            color: "#6d6d6d"
+                        }
+                    },
+
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            depth: 35,
+                            dataLabels: {
+                                enabled: true,
+                                formatter: function () {
+                                    return Math.round(this.percentage * 100) / 100 + '% (' + this.point.value + ')';
+                                },
+                                style: {
+                                    fontfamily: "NanumGothic",
+                                    fontSize: "11px",
+                                    color: "#6d6d6d"
+                                }
+                            },
+                            enableMouseTracking: false
+                        }
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                    },
+                    series: [{
+                        type: 'pie',
+                        showInLegend: true,
+                        name: '하자발생 분포도',
+                        data: jsonData,
+                        style: {
+                            fontfamily: "NanumGothic",
+                            fontSize: "10px",
+                            color: "#6d6d6d"
+                        }
+                    }]
+
+                });
+            }
+
+            // 하자보수 조치율 차트 생성
+            function CreateChartAsActionRate(pPJTCD, pPROGSTEP) {
+                // 그래프 데이터 조회
+                var jsonData = ListAsActionRate(pPJTCD, pPROGSTEP);
+
+                // 그래프 데이터가 없는 경우
+                if (jsonData == null) {
+                    alert("현장현황 데이터를 조회하지 못했습니다.");
+                    return false;
+                }
+
+                // 차트 생성
+                $("#chart_As_ActionRate").highcharts({
+                    chart: {
+                        type: 'bar'
+                    },
+                    title: {
+                        text: '조치율(%)',
+                        style: {
+                            fontfamily: "NanumGothic",
+                            fontSize: "13px",
+                            color: "#6d6d6d"
+                        }
+                    },
+                    subtitle: {
+                        text: ""
+                    },
+                    xAxis: {
+                        title: {
+                            text: ""
+                        },
+                        type: 'category',
+                        //categories: ["공정(년간)", "수금(년간)", "공정(전체)", "수금(전체)"],
+                        labels: {
+                            style: {
+                                fontfamily: "NanumGothic",
+                                fontSize: "13px",
+                                color: "#6d6d6d"
+                            }
+                        },
+                        /*gridLineColor: "#d8d8d8",
+                        gridLineDashStyle: "solid",
+                        gridLineWidth: 1*/
+                    },
+                    yAxis: {
+                        title: {
+                            text: ''
+                        },
+                        labels: {
+                            format: "{value}",
+                            style: {
+                                fontfamily: "NanumGothic",
+                                fontSize: "10px",
+                                color: "#6d6d6d"
+                            }
+                        },
+
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.y:1f}' + '%'
+                            }
+                        },
+                        bar: {
+                            pointPadding: 0.1,
+                            borderWidth: 0,
+                            enableMouseTracking: false
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: [{
+                        name: "비율",
+                        data: jsonData
+                    }]
+                });
+
+            }
+
+
+
+            ////************ 이벤트 ************//
+
+            // 검색버튼 클릭 이벤트
+            $(document).on("click", "#btn_search", function (e) {
+
+                var winHeight = document.body.clientHeight; //현재창의 높이
+                var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                var popX = winX + (winWidth - 960) / 2;
+                var popY = winY + (winHeight - 385) / 2;
+
+                var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=no,screenX=no,screenY=no,width=980,height=395,top=" + popY + ",left=" + popX + "";
+                var location = "/PopUp/SearchAsProject?pSearchWord=" + $("#TxtSearchWord").val();
+
+                var openDialog = function (location, setting, closeCallback) {
+
+                    var win = window.open(location, "현장검색", setting);
+                    var interval = window.setInterval(function () {
+                        try {
+                            if (win == null || win.closed) {
+                                window.clearInterval(interval);
+                                closeCallback(win);
+                            }
+                        }
+                        catch (e) {
+                        }
+                    }, 500);
+
+                    return win;
+                };
+
+                openDialog(location, setting, function (win) {
+
+                    if ($("#cInput").val() != "") {
+
+                        ListAsStepSummaryDetail($("#cInput").val());
+                        ListAsVendor($("#cInput").val(), $("#pPROGSTEP").val());
+                        ListAsReason("N", 0, 0, $("#cInput").val(), $("#pPROGSTEP").val());
+                        ListAsItem($("#cInput").val(), $("#pPROGSTEP").val());
+                        CreateChartAsDistribution($("#cInput").val(), $("#pPROGSTEP").val());
+                        CreateChartAsActionRate($("#cInput").val(), $("#pPROGSTEP").val());
+                        ApplyDisplayColor();
+                    }
+                    else {
+                        alert("선택하지 않았습니다!");
+                    }
+                });
+
+            });
+
+            // 검색박스 엔터 이벤트
+            $(document).on("keypress", "#TxtSearchWord", function (e) {
+                if (e.which == 13) {
+                    $("#btn_search").trigger("click");
+                    return false;
+                }
+            });
+
+            // 업체별 하자 현황 그리드 Td 클릭 이벤트(Table)
+            $(document).on("click", "#As_Vendor td", function (e) {
+                             
+                //var PJTCD = this.parentNode.children[this.cellIndex + 2].innerText;
+                //location.href = "/PopUp/AsVendorDetail?pPJTCD=" + pPJTCD;
+
+                //alert(this.parentNode.children[1].innerText);
+                //alert(this.cellIndex);
+                //alert(this.parentNode.children[8].innerText);
+
+                //alert($("#pPROGSTEP").val().toString());
+                //alert(document.childNodes.$("pPROGSTEP").val());
+
+                
+
+                //if (this.parentNode.children[10].innerText > 0) {       // 순위가 있으면서 (합계 행은 링크 안걸리도록)
+                //    if (this.cellIndex == 5) {                          // 5번째 컬럼인데 (미처리건)
+                if (this.parentNode.rowIndex != this.parentNode.parentNode.childElementCount - 1) { // 합계 행 제외 20201027 suyeon26
+
+                    if ((this.parentNode.childElementCount == 12 && this.cellIndex == 6) || (this.parentNode.childElementCount == 11 && this.cellIndex == 5)) { // 미처리건 컬럼만 팝업 연결되도록 설정 20201027 suyeon26
+
+                        //if (this.innerText > 0) {                       
+                        if (this.innerText.replace(",","") > 0) {                   // 값이 0 이상일 때 20190903 suyeon26 컴마 제거
+
+                            var winHeight = document.body.clientHeight;             //현재창의 높이
+                            var winWidth = document.body.clientWidth;               // 현재창의 너비
+
+                            var winX = window.screenX || window.screenLeft || 0;    // 현재 창의 x좌표
+                            var winY = window.screenY || window.screenTop || 0;     // 현재 창의 y좌표
+
+                            //X축 1000 Y축 650
+                            var popX = winX + (winWidth - 1000) / 2;
+                            var popY = winY + (winHeight - 650) / 2;
+
+                            var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=no,screenX=no,screenY=no,width=1000,height=650,top=" + popY + ",left=" + popX + "";
+                            var location = "/PopUp/AsVendorDetail?pPJTCD=" + PJTCD
+                                + "&pCONSTRADEID=" + this.parentNode.children[this.parentNode.childElementCount-2].innerHTML
+                                + "&pTRADENM=" + this.parentNode.children[this.cellIndex-4].innerHTML
+                                + "&pDFJOBTYPENM=" + this.parentNode.children[this.cellIndex-5].innerHTML
+                                + "&pPROGSTEP=" + $("#pPROGSTEP").val();
+
+                            window.open(location, "업체별 상세 현황", setting);
+                        }
+                    }
+                }
+            });
+
+            // 공종별 하자 현황 그리드 Td 클릭 이벤트(Table)
+            $(document).on("click", "#As_Item td", function (e) {
+
+                if (this.parentNode.rowIndex != this.parentNode.parentNode.childElementCount - 1) { // 합계 행 제외 20201005 suyeon26
+
+                    if ((this.parentNode.childElementCount == 4 && this.cellIndex == 1) || (this.parentNode.childElementCount == 5 && this.cellIndex == 2)) { // 소공종 컬럼만 팝업 연결되도록 설정 20201005 suyeon26
+
+                        var winHeight = document.body.clientHeight; //현재창의 높이
+                        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                        //X축 960 Y축 385
+                        var popX = winX + (winWidth - 1000) / 2;
+                        var popY = winY + (winHeight - 650) / 2;
+
+                        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=no,screenX=no,screenY=no,width=1000,height=650,top=" + popY + ",left=" + popX + "";
+                        var location = "/PopUp/AsItemDetail?pPJTCD=" + PJTCD + "&pUPDFNM=" + this.parentNode.children[this.cellIndex - 1].innerHTML + "&pDFNM=" + this.parentNode.children[this.cellIndex].innerHTML + "&pPROGSTEP=" + $("#pPROGSTEP").val();
+
+                        window.open(location, "공종별 상세 현황", setting);
+                    }
+                }
+            });
+
+            // 진행단계 선택 후 조회 버튼 클릭 이벤트
+            $(document).on("click", "#btn_search_step", function (e) {
+
+                if ($("#cInput").val() != "") {
+                    ListAsStepSummaryDetail($("#cInput").val());
+                    ListAsVendor($("#cInput").val(), $("#pPROGSTEP").val());
+                    ListAsReason("N", 0, 0, $("#cInput").val(), $("#pPROGSTEP").val());
+                    ListAsItem($("#cInput").val(), $("#pPROGSTEP").val());
+                    CreateChartAsDistribution($("#cInput").val(), $("#pPROGSTEP").val());
+                    CreateChartAsActionRate($("#cInput").val(), $("#pPROGSTEP").val());
+                    ApplyDisplayColor();
+                }
+                else {
+                    ListAsStepSummaryDetail(PJTCD);
+                    ListAsVendor(PJTCD, $("#pPROGSTEP").val());
+                    ListAsReason("N", 0, 0, PJTCD, $("#pPROGSTEP").val());
+                    ListAsItem(PJTCD, $("#pPROGSTEP").val());
+
+                    CreateChartAsDistribution(PJTCD, $("#pPROGSTEP").val());
+                    CreateChartAsActionRate(PJTCD, $("#pPROGSTEP").val());
+                    ApplyDisplayColor();
+                }
+                
+            });
+
+            function ApplyDisplayColor() {
+                $("#grid_As_Reason tr").each(function (e) {
+                    if ($(this).children().eq(1).text() == "계") {
+
+                        $(this).children().each(function (e) {
+
+                            $(this).css("background-color", "#eaeaea");
+                            $(this).css("font-weight", "bold");
+                        });
+                    }
+                });
+
+                $("#As_Vendor td").each(function (e) {
+                    if (this.parentNode.children[this.parentNode.childElementCount-1].innerText > 0) {
+
+                        //if (this.cellIndex == 5) {
+                        if ((this.parentNode.childElementCount == 12 && this.cellIndex == 6) || (this.parentNode.childElementCount == 11 && this.cellIndex == 5)){ // 대공종 컬럼 추가로 미처리건 셀 다시 설정 20201028 suyeon26
+
+                            //if (this.innerText > 0) {
+                            if (this.innerText.replace(",","") > 0) {      // 20190903 suyeon26 숫자 비교를 위해 (,) 제거
+
+                                //$(this).css("text-decoration", "underline");
+                                $(this).css("color", "#0000FF");
+                                $(this).css("cursor", "pointer");
+                            }
+                        }                        
+                    }
+                });
+
+            }
+
+        </script>
+    </div>
+</div>

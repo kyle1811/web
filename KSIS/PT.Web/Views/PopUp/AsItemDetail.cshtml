@@ -1,0 +1,79 @@
+﻿@using PT.Web.WebUtil
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+    <div id="container">
+
+        <!-- 콘텐츠 -->
+        <div id="contents">
+
+            <!-- 콘텐츠(상세) -->
+                <h1 class="title1">공종별 상세 - @ViewBag.pDFNM</h1>                
+                <div id="As_Item_Detail" class="grid1"></div>
+                
+
+            <!-- //콘텐츠(상세) -->
+        </div>
+        <!-- //콘텐츠 -->
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+    var PJTCD = "@ViewBag.pPJTCD";
+    var UPDFNM = "@ViewBag.pUPDFNM";
+    var DFNM = "@ViewBag.pDFNM";
+    var PROGSTEP = "@ViewBag.pPROGSTEP";
+
+    $(document).ready(function (e) {  
+
+        ListAsItemDetail(PJTCD, UPDFNM, DFNM, PROGSTEP);
+        
+    });
+
+    // 단계별 현황
+    function ListAsItemDetail(pPJTCD, pUPDFNM, pDFNM, pPROGSTEP) {
+
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/ListAsItemDetail",
+            dataType: "html",
+            data: { "pPJTCD":pPJTCD, "pUPDFNM":pUPDFNM, "pDFNM":pDFNM, "pPROGSTEP":pPROGSTEP },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                $("#As_Item_Detail").empty();
+                $("#As_Item_Detail").append(data);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }   
+
+
+</script>
+

@@ -1,0 +1,227 @@
+﻿@using PT.Web.WebUtil;
+@model PT.BusinessLogic.Entities.AsManage
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id=" contents">
+
+    <!-- 사이드메뉴 -->
+    @*<div class="c@*ontents_left1">
+            <a href="/Site/AsManage" class="txt_red">하자관리현황</a>
+            <a href="/Site/AsManageDetail?pPJTCD=&pPJTNM=">현장별 하자현황</a>
+            <a href="/Site/~~" id="~~">품질/하자사례</a>
+        </div>*@
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="boxother4">
+
+        <div class="box_search">
+            <div class="box_search_left">               
+                <span>권역</span>@Html.DropDownList("pSRVCNTR", (List<SelectListItem>)ViewBag.ddlSRVCNTR)               
+            </div>
+            <div class="box_search_right">
+                <a id="btn_search" class="btn1">조회</a>
+            </div>
+        </div>
+        
+
+        <h1 class="title1">단계별 진행 현황</h1>
+        <div id="grid_As_Step_Summary" class="grid1" style="height:auto;"></div>
+
+
+        <br />
+        <br />
+        <h1 class="title1">단계별 처리 현황</h1>
+        <div class="box_titlebottom">
+            <table>
+                <tr>
+                    <td class="td_left">
+                        <input type="radio" id="GUBUN" name="chk_info" onclick="check(this.value)" value="A" checked="checked">당해년도
+                        <input type="radio" id="GUBUN" name="chk_info" onclick="check(this.value)" value="B">전체기준
+                    </td>
+                    <td class="td_right"> <label id="label2" position="right">현재일기준, 1년 차부터는 인수 이전 자료 제외</label> </td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="grid_As_Summary" class="grid1" style="height:auto;"></div>
+
+
+
+        <!-- //콘텐츠(상세) -->
+    </div>
+    <!-- //콘텐츠 -->
+    <script type="text/javascript">
+
+
+        ////************ 로드 ************//
+
+        //// 페이지 로드 시
+        $(document).ready(function (e) {
+
+            ListAsStepSummary($("#pSRVCNTR").val());
+            ListAsSummary($("#pSRVCNTR").val(), $("#GUBUN:checked").val());
+            ApplyDisplayColor();
+        });
+
+        ////************ Ajax ************//
+
+        // 접수유형별 하자현황 조회
+        function ListAsReceiptSummary(pSRVCNTR) {
+
+            $.ajax({
+                type: "POST",
+                url: "/Site/AsReceiptSummary",
+                datatype: "html",
+                data: { "pSRVCNTR": pSRVCNTR },
+                async: false,
+                success: function (data) {
+
+                    $("#box_input").empty();
+                    $("#box_input").append(data);
+
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            })
+        }
+
+        // 단계별 진행 현황 조회
+        function ListAsStepSummary(pSRVCNTR) {
+
+            $.ajax({
+                type: "POST",
+                url: "/AjaxAuth/ListAsStepSummaryGrid",
+                datatype: "html",
+                data: { "pSRVCNTR": pSRVCNTR },
+                async: false,
+                success: function (data) {
+                    var data = data.split("‡");
+
+                    // 그리드 생성
+                    $("#grid_As_Step_Summary").empty();
+                    $("#grid_As_Step_Summary").html(data[0]);
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            })
+        }
+
+        // 단계별 처리 현황 조회
+        function ListAsSummary(pSRVCNTR, pGUBUN) {
+
+            $.ajax({
+                type: "POST",
+                url: "/AjaxAuth/ListAsSummaryGrid",
+                datatype: "html",
+                data: { "pSRVCNTR": pSRVCNTR, "pGUBUN": pGUBUN },
+                async: false,
+                success: function (data) {
+                    var data = data.split("‡");
+
+                    // 그리드 생성
+                    $("#grid_As_Summary").empty();
+                    $("#grid_As_Summary").html(data[0]);
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            })
+        }
+
+        function ApplyDisplayColor() {
+
+            $("#grid_As_Step_Summary tr").each(function (e) {                
+
+                if ($(this).children().eq(0).text() > 0) {
+
+                    $(this).children().each(function (e) {
+                        $(this).css("text-decoration", "underline");
+                        $(this).css("color", "#0000FF");
+                        $(this).css("cursor", "pointer");
+                        $(this).css("font-size", "13px");
+                    });
+                }
+            });
+
+            $("#grid_As_Step_Summary td").each(function (e) {
+
+                $(this).css("font-size", "13px");
+
+                if (this.cellIndex == 1 || this.cellIndex == 5 || this.innerText == "") {
+                    $(this).css("color", "#6d6d6d");
+                    $(this).css("text-decoration", "none");
+                    $(this).css("cursor", "default");                    
+                }
+            });
+
+            $("#grid_As_Summary td").each(function (e) {
+
+                $(this).css("font-size", "13px");
+                
+            });
+        }
+
+        //************ 함수 ************//
+
+        // 조회버튼 클릭 이벤트
+        $(document).on("click", "#btn_search", function (e) {
+
+            //ListAsReceiptSummary($("#pSRVCNTR").val());
+
+            ListAsStepSummary($("#pSRVCNTR").val());
+
+            ListAsSummary($("#pSRVCNTR").val(), $("#GUBUN:checked").val());
+
+            ApplyDisplayColor();
+        });
+
+        // 단계별 진행 현황 그리드 Td 클릭 이벤트(Table)
+        $(document).on("click", "#grid_As_Step_Summary td", function (e) {
+
+            var PJTCD = this.parentNode.children[this.cellIndex + 1].innerText;
+            var PJTNM = this.parentNode.children[this.cellIndex + 2].innerText;
+            var CNT = this.parentNode.children[this.cellIndex + 3].innerText;
+
+            if (this.parentNode.children[0].innerText > 0) {
+                if (PJTCD != "") {
+                    if (CNT == -1) {
+                        //alert(PJTNM + " 현장은" + "\n" + "하자관리 준비단계 입니다.")
+                        return;
+                    }
+                    else if (CNT == 0) {
+                        alert(PJTNM + " 현장은" + "\n" + "하자관리 시스템 대상 현장이 아닙니다.")
+                        return;
+                    }
+                    else {
+                        location.href = "/Site/AsManageDetail?pPJTCD=" + PJTCD + "&pPJTNM=" + PJTNM + "&pCNT=" + CNT;
+                    }
+                }
+            }
+
+        });
+
+        // 단계별 처리 현황 radio 박스 선택 이벤트
+        $(document).on("click", "#GUBUN", function (e) {
+
+            var today = new Date();
+            var year = today.getFullYear();
+            if (this.value == "A") { document.getElementById('label2').innerHTML = '현재일기준, 1년 차부터는 인수 이전 자료 제외'; }
+            else { document.getElementById('label2').innerHTML = year + '년도 현재일기준, 1년차 이상은 인수 이전 자료 제외'; }
+            //  label2.setText(this.value);
+
+            ListAsSummary($("#pSRVCNTR").val(), this.value);
+
+            ApplyDisplayColor();          // 20190307 단계별처리현황 당해년도/전체기준 클릭 시 글자크기 맞추기
+        });
+
+    </script>
+</div>

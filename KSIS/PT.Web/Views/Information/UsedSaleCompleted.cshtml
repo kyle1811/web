@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Information/UsedSale">진행중인나눔</a>
+        <a href="/Information/UsedSaleCompleted" class="txt_red">완료된나눔</a>
+        <a href="/Information/UsedSaleRegistration?pSaveMode=I">물품등록하기</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <!-- 검색 및 버튼박스 -->
+        <div class="box_search4">
+            <select name="SelectOption" id="SelectOption" style="height:20px;width:80px;">
+                <option value="전체" selected="selected">전체</option>
+                <option value="무료나눔">무료나눔</option>
+                <option value="판 매">판 매</option>
+            </select>
+            &nbsp;
+            <span>물품명</span> <input type="text" id="TxtSubject" name="TxtSubject" />
+            <a id="btn_search" class="btn1">검색</a>
+        </div>
+        <!-- //검색 및 버튼박스 -->
+        <!-- 그리드 -->
+        <div id="grid_UsedSale" class="grid2" style="height:375px;"></div>
+        <!-- //그리드 -->
+        <!-- 페이지 -->
+        <div id="pager_UsedSale" class="pager1"></div>
+        <!-- //페이지 -->
+        <!-- 숨김정보 -->
+        <input type="hidden" id="HdnTypeCd" name="HdnTypeCd" />
+        <input type="hidden" id="HdnSubject" name="HdnSubject" />
+        <!-- //숨김정보 -->
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        GetOnComplete("Y", 1, 10, $("#TxtSubject").val(), "@Session["EmpNo"]", $("#SelectOption").val());
+    });
+
+
+    //************ Ajax ************//
+
+    function GetOnComplete(pPagerUseYn, pCurPage, pListCnt, pSubject, pUserId, pOption) {
+        $.ajax({
+            type: "POST",
+            url: "/Information/GetOnComplete",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pSubject": pSubject, "pUserId": pUserId, "pOption": pOption},
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_UsedSale").empty();
+                $("#grid_UsedSale").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_UsedSale", 10, data[1], data[2]);
+
+                // 검색조건 저장
+                $("#HdnTypeCd").val(data[3]);
+                $("#HdnSubject").val(data[4]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+
+    //************ 이벤트 ************//
+
+    // 조회버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        //if ($("#TxtSubject").val() == "") {
+        //    alert("검색어를 입력하세요");
+        //    $("#TxtSubject").focus();
+        //    return false;
+        //}
+        
+        GetOnComplete("Y", 1, 10, $("#TxtSubject").val(), "@Session["EmpNo"]", $("#SelectOption").val());
+    });
+
+    // 제목박스 엔터 이벤트
+    $(document).on("keypress", "#TxtSubject", function (e) {
+        if (e.which == 13) {
+            GetOnComplete("Y", 1, 10, $("#TxtSubject").val(), "@Session["EmpNo"]", $("#SelectOption").val());
+            return false;
+        }
+    });
+
+    // 페이지 번호 클릭 이벤트
+    $(document).on("click", "#pager_UsedSale a", function (e) {
+        GetOnComplete("Y", GetPagerValue($(this).attr("id"), $(this).text()), 10, $("#HdnSubject").val(), $("#SelectOption").val());
+    });
+
+    // 그리드 TR 클릭 이벤트
+    $(document).on("click", "#grid_UsedSale tr", function (e) {
+        if (GetGridTrValue("grid_UsedSale", "h_ItemNm", $(this).children()) != "물품명") {
+            location.href = "/Information/UsedSaleDetail?pUsedSaleNo=" + GetGridTrValue("grid_UsedSale", "h_UsedSaleNo", $(this).children()) + "&pRegUser=" + GetGridTrValue("grid_UsedSale", "h_RegUser", $(this).children()) + "&pStatus=C&pUserId=" + "@Session["EmpNo"]";
+        }
+    });
+
+</script>

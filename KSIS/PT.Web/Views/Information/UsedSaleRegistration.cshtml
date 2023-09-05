@@ -1,0 +1,243 @@
+﻿@using PT.Web.WebUtil
+@model PT.BusinessLogic.Entities.UsedSale
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Information/UsedSale">진행중인나눔</a>
+        <a href="/Information/UsedSaleCompleted">완료된나눔</a>
+        <a href="/Information/UsedSaleRegistration?pSaveMode=I" class="txt_red">물품등록하기</a>        
+    </div>
+    <div class="contents_right1">
+        <h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:15px;color:#121212;">물품등록</h1>
+        <!-- 버튼박스 -->
+        <div class="box_btn_right">
+            <a id="btn_save" class="btn1">저장</a>
+            <a href="/Information/UsedSale" id="btn_list" class="btn1">목록</a>
+        </div>
+        <!-- 폼 -->
+        <form id="frm" name="frm" enctype="multipart/form-data" action="/Information/UsedSaleRegistration" method="post">
+            <!-- 입력박스 -->
+            <div class="box_input">
+                <table>
+                    <colgroup>
+                        <col style="width:15%" />
+                        <col style="width:35%" />
+                        <col style="width:15%" />
+                        <col />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th>물품명</th>
+                            <td colspan="3">@Html.TextBoxFor(x => x.ItemNm)</td>
+                        </tr>
+                        <tr>
+                            <th>나눔유형</th>
+                            <td class="td_left">
+                                @Html.RadioButton("SharingType", "무료나눔", isChecked: true)
+                                @Html.Label("무료나눔", new { style = "text-align:left;width:100px" })
+                                @Html.RadioButton("SharingType", "판 매", isChecked: false)
+                                @Html.Label("판 매", new { style = "text-align:left;width:100px" })
+                            </td>
+                            <th>판매가격</th>
+                            <td class="td_left" style="padding-left:10px;">@Html.TextBoxFor(x => x.Price, new { @class = "input_number", maxlength = 11, style = "width:230px;text-align:right;padding-right:5px;" })원</td>
+                        </tr>
+                        <tr>
+                            <th>배송방법</th>
+                            <td colspan="3" class="td_left">
+                                @Html.RadioButton("ShippingMethod", "협 의", isChecked: true)
+                                @Html.Label("협 의", new { style = "text-align:left;width:100px" })
+                                @Html.RadioButton("ShippingMethod", "직접배송", isChecked: false)
+                                @Html.Label("직접배송", new { style = "text-align:left;width:100px" })
+                                @Html.RadioButton("ShippingMethod", "택배배송", isChecked: false)
+                                @Html.Label("택배배송", new { style = "text-align:left;width:100px" })
+                                @*<select name="ShippingMethod" id="ShippingMethod" style="height:25px;width:260px;">
+                                    <option value="협의" selected="selected">협의</option>
+                                    <option value="직접배송">직접배송</option>
+                                    <option value="택배배송">택배배송</option>
+                                </select>*@
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <th>상세정보</th>
+                            <td colspan="3" class="td_left" style="height:70px;padding-left:10px;overflow:auto">@Html.TextAreaFor(x => x.MoreInfo, new { @rows = "5", style = "width:625px;" })</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- //입력박스 -->
+            <!-- 첨부파일 -->
+            <div class="file_box">
+                @WebUtil.MakeFileControl("사진업로드", "AttId", Model.AttId, true, Position.left, "100%")
+            </div>
+            <h1 style="padding-left:5px;font-size:14px;color:orangered;">
+                * 물품나눔 이미지는 3장까지 표시됩니다.
+            </h1>
+            <br />
+            <!-- //첨부파일 -->
+            <!-- 숨김정보 -->
+            @Html.HiddenFor(x => x.UsedSaleNo)
+            @Html.HiddenFor(x => x.SaveMode)
+            @Html.HiddenFor(x => x.RegUserId)
+            @Html.HiddenFor(x => x.Price)
+            @Html.HiddenFor(x => x.ShippingMethod, new { id = "ShippingMethod" })
+            @Html.HiddenFor(x => x.SharingType, new { id = "SharingType" })
+            <!-- //숨김정보 -->
+        </form>
+        <!-- //사이드메뉴 -->
+        <!-- 콘텐츠(상세) -->
+
+    </div>
+    <!-- //콘텐츠 -->
+    <script type="text/javascript">
+
+        var isRun = false;
+         //************ 변수 ************//
+        $(document).ready(function (e) {
+
+            if ("@Model.SaveMode" == "U") {
+                $("#UsedSaleNo").val("@Model.UsedSaleNo");                                
+                $(":radio[name='ShippingMethod']:radio[value='@Model.ShippingMethod']").prop("checked", true);
+                $(":radio[name='SharingType']:radio[value='@Model.SharingType']").prop("checked", true);
+            }
+            freeShareYn("@Model.SaveMode");
+        });
+        //************ 함수 ************//
+        function freeShareYn(SaveMode) {
+
+            var pSharingType = $(':radio[name="SharingType"]:checked').val();
+
+            if (pSharingType == "무료나눔") {
+                $("#Price").val(0);
+                $("#Price").prop("disabled", true);
+                
+            }
+            else if (pSharingType == "판 매" && SaveMode == "U"){
+                $("#Price").val("@Model.Price");
+                $("#Price").prop("disabled", false);
+            }
+            else {
+                $("#Price").val("");
+                $("#Price").prop("disabled", false);
+            }
+        }
+
+        // 숫자를 입력받아 천단위 표시 넣어주는 함수
+        function price_format(price) {
+            // 입력받은 숫자에서 ,제거
+            price = price.replace(/,/g, "");
+
+            //    if (String(price).length > 8) {
+            //        price = price.substring(0, 7);
+            //    }
+
+            if (String(price).length > 3) {
+                // 3자리가 넘는 경우 문자열 사이에 ,를 넣어 배열을 생성한다.
+                var nArr = String(price).split('').join(',').split('');
+
+                // 천단위 위치가 아닌 , 배열을 제거한다.
+                for (var i = nArr.length - 1, j = 1; i >= 0; i-- , j++)
+                    if (j % 6 != 0 && j % 2 == 0)
+                        nArr[i] = '';
+
+                // 배열을 다시 문자열로 연결해서 반환한다.
+                return nArr.join('');
+            }
+            else return price;
+        }
+
+        var isFisrt = true;
+
+        // 숫자만 입력해야하는 텍스트 박스 처리
+        $('.input_number').bind('keydown', function (event) {
+
+            if (isFisrt) {
+                isFisrt = false;
+            }
+            else {
+                return false;
+            }
+
+            // the keycode for the key pressed
+            var keyCode = event.which;
+
+            // 48-57 Standard Keyboard prices
+            var isStandard = (keyCode > 47 && keyCode < 58);
+
+            // 96-105 Extended Keyboard prices (aka Keypad)
+            var isExtended = (keyCode > 95 && keyCode < 106);
+
+            // 8 Backspace, 46 Forward Delete
+            // 37 Left Arrow, 38 Up Arrow, 39 Right Arrow, 40 Down Arrow
+            var validKeyCodes = ',8,37,38,39,40,46,';
+            var isOther = (validKeyCodes.indexOf(',' + keyCode + ',') > -1);
+
+            if (isStandard || isExtended || isOther) {
+                return true;
+            } else {
+                return false;
+            }
+
+        })
+        .bind("keyup", function (event) { isFisrt = true; this.value = price_format(this.value) });  // keyup 이벤트에 천단위 표시
+
+        //************ 이벤트 ************//
+
+        // 저장버튼 클릭 이벤트
+        $(document).on("click", "#btn_save", function (e) {                   
+
+            if ($("#ItemNm").val() == "") {
+                alert("물품명을 입력하시기 바랍니다.");
+                $("#ItemNm").focus();
+                return false;
+            }
+            if ($("#Price").val() == "") {
+                alert("판매가격을 입력하시기 바랍니다.");
+                $("#Price").focus();
+                return false;
+            }
+            if ($("#MoreInfo").val() == "") {
+                alert("상세정보를 입력하시기 바랍니다.");
+                $("#MoreInfo").focus();
+                return false;
+            }
+            //if (document.getElementById("PeriodType").value == "") {
+            //    alert("사용기간 기준을 선택해주세요.");
+            //    $("#PeriodType").focus();
+            //    return false;
+            //}
+
+            $('#RegUserId').val("@Session["EmpNo"]");
+            $("ShippingMethod").value = $(':radio[name="ShippingMethod"]:checked').val();
+            //$("TradeWay").value = $(':radio[name="TradeWay"]:checked').val();
+            
+
+            if (isRun == true) {                
+                alert("저장 중 입니다.");
+            }
+            else {
+                isRun = true;
+                $("#frm").submit();
+                isRun = false;                
+            }            
+
+        });
+
+        //목록버튼 이벤트 처리
+        $(document).on("click", "#btn_list", function (e) {
+
+                location.href = "/Information/UsedSale";
+
+        });
+
+        $(document).on("click", "#SharingType", function (e) {
+            freeShareYn();
+        });
+
+    </script>

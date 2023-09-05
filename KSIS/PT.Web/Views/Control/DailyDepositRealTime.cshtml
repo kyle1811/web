@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+<!-- 콘텐츠 -->
+<div id="contents">
+
+        <h1 class="title1">일일입금현황(실시간)</h1>
+        <form name ="daily">
+            <div class="box_search1">
+                 <div class="box_search_left">
+                     <label>시작일</label>
+                     <a></a><input name="date1" id="date1" type="text" class="box_dateinput"  onClick="popup_Calendar(this, 'sd', 'yyyy/mm/dd');" >
+                     <input type="button" onClick="popup_Calendar(this, date1, 'yyyy-mm-dd');" class="Calendar" > 
+                
+                     <label>~</label>
+                
+                     <label>종료일</label>
+                     <input name="date2" id="date2" type="text" class="box_dateinput"  onClick="popup_Calendar(this, 'sd', 'yyyy/mm/dd');" >
+                     <input type="button" onClick="popup_Calendar(this, date2, 'yyyy-mm-dd');" class="Calendar" > 
+                     
+                       <label>구분</label>
+                      <select name="gubun" id="gubun">
+                            <option selected>전체</option>
+                            <option>입금</option>
+                            <option>출금</option>
+                      </select>
+
+                      <label>계좌</label>
+                      <select name="acct" id="acct">
+                            <option selected>외환 611-019018-923 (주)케이씨씨건설</option>
+                            <option>외환 060-11-00193-7 (주)케이씨씨건설</option>
+                      </select>
+                  
+                 </div>
+                 <div class="box_search_right">
+                      <a id="btn_search" class="btn1">조회</a> 
+                 </div>
+            </div>
+        </form>
+
+        <div id="grid_controlDailyDeposit_state" class="grid3" style="height:600px;"></div>
+        <br>
+       
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">      
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        ListControlDailyDepositGrid("N", 0, 0, $("#date1").val(), $("#date2").val(), $("select[name=acct]").val(), $("select[name=gubun]").val());
+    });
+
+    //************ Ajax ************//
+
+    // 일일입금현황 조회 테이블
+    function ListControlDailyDepositGrid(pPagerUseYn, pCurPage, pListCnt, pDatePick1, pDatePick2, pAcct, pGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListControlDailyDepositRealTimeGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pDatePick1": pDatePick1, "pDatePick2": pDatePick2, "pAcct": pAcct, "pGubun": pGubun },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_controlDailyDeposit_state").empty();
+                $("#grid_controlDailyDeposit_state").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 조회버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        if ($("#date1").val() == "") {
+            alert("시작일을 선택하세요");
+            $("#date1").focus();
+            return false;
+        }
+
+        if ($("#date2").val() == "") {
+            alert("종료일을 선택하세요");
+            $("#date2").focus();
+            return false;
+        }
+
+        ListControlDailyDepositGrid("N", 0, 0, $("#date1").val(), $("#date2").val(), $("select[name=acct]").val(), $("select[name=gubun]").val());
+    });
+
+</script>

@@ -1,0 +1,364 @@
+﻿@using PT.Web.WebUtil;
+@model PT.BusinessLogic.Entities.Site
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left2">
+        <!-- 검색 및 버튼박스 -->
+        <div class="box_search4">
+            <input style="width:150px;" type="text" id="TxtSearchWord" name="TxtSearchWord" />
+            <a id="btn_search" class="btn1">검색</a>
+        </div>
+        <!-- //검색 및 버튼박스 -->
+        <div id="tree_dept_chart" class="tree_type1" style="width:255px;height:450px;">
+            @MvcHtmlString.Create(ViewBag.TreeData)
+        </div>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right2">
+
+        <div id="SiteName">
+
+        </div>
+        <!-- 그리드 -->
+        <div id="main" role="main">
+            <section class="slider">
+                <div class="flexslider" id="flexslider">
+                    <ul class="slides">
+
+                        @WebUtil.MakeCompletionSitePhoto(ViewBag.DeptCd)
+
+                    </ul>
+                </div>
+            </section>
+            <!-- //그리드 -->
+            <!-- 숨김정보 -->
+            <input type="hidden" id="HdnTreeYn" name="HdnTreeYn" />
+            <input type="hidden" id="HdnDeptCd" name="HdnDeptCd" />
+            <input type="hidden" id="HdnSearchTypeCd" name="HdnSearchTypeCd" />
+            <input type="hidden" id="HdnSearchWord" name="HdnSearchWord" />
+            <input type="hidden" id="siteBizpartCd" name="siteBizpartCd">
+            <input type="hidden" id="cInput" name="cInput">
+            <!-- //숨김정보 -->
+        </div>
+        <div id="main2" style="height:600px;">
+        </div>
+            <div id="areain">
+                <h1 class="title1">면적개요</h1>
+                <div class="box_input" id="area" style="display:block;">
+
+                </div>
+                <div style="margin-top:10px;"></div>
+            </div>
+            <div id="facilityin">
+                <h1 class="title1">시설개요</h1>
+                <div class="box_input" id="facility" style="display:block;">
+
+                </div>
+                <div style="margin-top:10px;"></div>
+            </div>
+
+
+        <!-- //콘텐츠(상세) -->
+    </div>
+    <!-- //콘텐츠 -->
+</div>
+
+    <script type="text/javascript">
+
+    //************ 변수 ************//
+
+        var deptCd = "@ViewBag.DeptCd";
+        var BizPartCd = "@ViewBag.BizPartCd";
+
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시 //D000123
+    $(document).ready(function (e) {
+        startSlide();
+
+        ListCompletionSiteInfoDetail(deptCd, "SiteName", BizPartCd);
+
+        if (BizPartCd != "SA020101") {
+            ListCompletionSiteInfoDetail(deptCd, "area", BizPartCd);
+            ListCompletionSiteInfoDetail(deptCd, "facility", BizPartCd);
+            $("#areain").css("display", "block");
+            $("#facilityin").css("display", "block");
+        }
+        else {
+
+            ListCompletionSiteInfoDetail(deptCd, "facility", BizPartCd);
+            $("#facilityin").css("display", "block");
+            $("#areain").css("display", "none");
+        }
+
+        $("#main2").css("display", "none");
+
+        $("#" + deptCd).children().eq(0).css("color", "#ff0000");
+
+        var myDiv = $("#tree_dept_chart");
+        myDiv.animate({ scrollTop: $("#" + deptCd).offset().top - (myDiv.offset().top + 200) }, 300);
+
+    });
+
+
+    //************ Ajax ************//
+    function startSlide(){
+
+        $(window).load(function () {
+
+            var filter = "win16|win32|win64|mac|macIntel";
+
+            if (navigator.platform) {
+
+                if (filter.indexOf(navigator.platform.toLowerCase()) < 0) {
+                    $('.flexslider').flexslider({
+                        animation: "slide",
+                        animationLoop: false,
+                        pauseOnAction: false,
+                        slideshow: false,
+                        controlsContainer: $(".custom-controls-container"),
+                        customDirectionNav: $(".custom-navigation a")
+                    });
+                } else {
+
+                    $('.flexslider').flexslider({
+                        animation: "slide",
+                        controlNav: "thumbnails",
+                        animationLoop: false,
+                        pauseOnAction: false,
+                        slideshow: false
+                    });
+                }
+            }
+
+        });
+
+
+    }
+
+    // 준공현장 사진 조회
+    function ListCompletionSitePhoto(pSiteCd, pNumber) {
+                $.ajax({
+                    type: "POST",
+                    url: "/AjaxAuth/ListSitePhotoDetailUrl",
+                    dataType: "json",
+                    data: { "pSiteCd": pSiteCd, "pNumber": pNumber },
+                    async: false,   // 동기식 처리
+                    success: function (data) {
+
+                        for (i = 0; i < data.length; i++) {
+
+
+                            $("#img_" + (i)).attr("src", data[i].SitePhotoUrl);
+                            $('#siteBizpartCd').val(data[0].SiteBizpartCd);
+                            $("#thumbImg_" + (i + 1)).attr("src", data[i].SitePhotoUrl);
+                            
+                        }
+                    },
+                    error: function (e) {
+                        alert("에러 발생1.");
+                        return false;
+                    }
+                });
+            }
+
+    // 준공현장 상세정보 조회
+        function ListCompletionSiteInfoDetail(pSiteCd, pSelect, pBizpartCd) {
+            
+                $.ajax({
+                    type: "POST",
+                    url: "/Site/ListCompletionSiteInfoDetail",
+                    dataType: "html",
+                    data: { "pSiteCd": pSiteCd, "pSelect": pSelect, "pBizpartCd": pBizpartCd },
+                    async: false,   // 동기식 처리
+                    success: function (data) {
+                        if (pSelect == "area") {
+                            $("#area").empty();
+                            $("#area").append(data);
+                        }
+                        else if (pSelect == "facility") {
+                            $("#facility").empty();
+                            $("#facility").append(data);
+                        }
+                        else {
+                            $("#SiteName").empty();
+                            $("#SiteName").append(data);
+                        }
+
+                    },
+                    error: function (e) {
+                        alert("에러 발생1.");
+                        return false;
+                    }
+                });
+    }
+
+
+        // 검색창 조회에 따른 트리 조회
+        function ReCallCompletionSite(pSiteCd) {
+
+            $.ajax({
+                type: "POST",
+                url: "/Site/ReCallCompletionSite",
+                dataType: "html",
+                data: { "pSiteCd": pSiteCd },
+                async: false,   // 동기식 처리
+                success: function (data) {
+                    
+                    $("#tree_dept_chart").empty();
+                    $("#tree_dept_chart").append(data);                    
+                   
+                },
+                error: function (e) {
+                    alert("에러 발생");
+                    return false;
+                }
+            });
+        }
+
+
+
+    //************ 이벤트 ************//
+
+    // 트리뷰 클릭 이벤트
+    $(document).on("click", "#tree_dept_chart a", function (e) {
+        $("#TxtSearchWord").val("");
+
+        $("#tree_dept_chart a").css("color", "#5f5f5f");
+        $(this).css("color", "#d82728");
+
+        if ($(this).attr("class") == "sub_open") {
+            $(this).attr("class", "sub_none");
+            $(this).next().css("display", "none");
+        }
+        else if ($(this).attr("class") == "sub_none") {
+            $(this).attr("class", "sub_open");
+            $(this).next().css("display", "block");
+        }
+
+        var sitecd = $(this).parent().attr("id").substring(0, 1);
+        var siteLength = $(this).parent().attr("id").length;
+        
+        if ((sitecd == "A" && siteLength >= 7) || (sitecd == "B" && siteLength >= 7) || (sitecd == "C" && siteLength >= 7) || (sitecd == "D" && siteLength >= 7) || (sitecd == "E" && siteLength >= 7)) {
+            
+            ListCompletionSitePhoto($(this).parent().attr("id"), 0);
+            ListCompletionSiteInfoDetail($(this).parent().attr("id"), "SiteName", $("#siteBizpartCd").val());
+            
+            if ($("#siteBizpartCd").val() != "SA020101") {
+                ListCompletionSiteInfoDetail($(this).parent().attr("id"), "area", $("#siteBizpartCd").val());
+                ListCompletionSiteInfoDetail($(this).parent().attr("id"), "facility", $("#siteBizpartCd").val());
+                $("#areain").css("display", "block");
+                $("#facilityin").css("display", "block");
+            }
+            else {
+                
+                ListCompletionSiteInfoDetail($(this).parent().attr("id"), "facility", $("#siteBizpartCd").val());
+                $("#facilityin").css("display", "block");
+                $("#areain").css("display", "none");
+            }
+            $("#SiteName").css("display", "block");
+            $("#main").css("display", "block");
+            $("#main2").css("display", "none");
+            
+
+        }
+        else {
+            $("#SiteName").css("display", "none");
+            $("#main").css("display", "none");
+            $("#main2").css("display", "block");
+            $("#facilityin").css("display", "none");
+            $("#areain").css("display", "none");
+        }
+    });
+
+    // 검색버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        if ($("#TxtSearchWord").val() == "") {
+            alert("검색 단어를 입력하지 않았습니다.");
+            $("#TxtSearchWord").focus();
+            return false;
+        }
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 960) / 2;
+        var popY = winY + (winHeight - 385) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=960,height=385,top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/SearchSite?pSearchWord=" + $("#TxtSearchWord").val();
+
+        var openDialog = function (location, setting, closeCallback) {
+
+            var win = window.open(location, "준공현장검색", setting);
+            var interval = window.setInterval(function () {
+                try {
+                    if (win == null || win.closed) {
+                        window.clearInterval(interval);
+                        closeCallback(win);
+                    }
+                }
+                catch (e) {
+                }
+            }, 500);
+
+            return win;
+        };
+
+        openDialog(location, setting, function (win) {
+            if ($("#cInput").val() != "") {
+               
+                ListCompletionSitePhoto($("#cInput").val(), 0);
+                ListCompletionSiteInfoDetail($("#cInput").val(), "SiteName", $("#siteBizpartCd").val());
+                if ($("#siteBizpartCd").val() != "SA020101") {
+                    ListCompletionSiteInfoDetail($("#cInput").val(), "area", $("#siteBizpartCd").val());
+                    ListCompletionSiteInfoDetail($("#cInput").val(), "facility", $("#siteBizpartCd").val());
+                    $("#areain").css("display", "block");
+                    $("#facilityin").css("display", "block");
+                }
+                else {
+                    
+                    ListCompletionSiteInfoDetail($("#cInput").val(), "facility", $("#siteBizpartCd").val());
+                    $("#facilityin").css("display", "block");
+                    $("#areain").css("display", "none");
+                }
+                $("#SiteName").css("display", "block");
+                $("#main").css("display", "block");
+                $("#main2").css("display", "none");
+
+                ReCallCompletionSite($("#cInput").val());
+
+                $("#tree_dept_chart a").css("color", "#5f5f5f");
+                $("#" + $("#cInput").val()).children().eq(0).css("color", "#ff0000");
+
+                var myDiv = $("#tree_dept_chart");
+                myDiv.animate({ scrollTop: $("#" + $("#cInput").val()).offset().top - (myDiv.offset().top + 200) }, 300);
+
+            }
+            else {
+                //alert("선택하지 않았습니다!");
+            }
+        });
+
+    });
+
+    // 검색박스 엔터 이벤트
+    $(document).on("keypress", "#TxtSearchWord", function (e) {
+        if (e.which == 13) {
+            $("#btn_search").trigger("click");
+            return false;
+        }
+    });
+
+    </script>

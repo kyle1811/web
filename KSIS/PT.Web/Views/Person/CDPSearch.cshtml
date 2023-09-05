@@ -1,0 +1,306 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+        <!-- 사이드메뉴 -->
+        <div class="contents_left1">
+            <a href="/Person/CDP">개인 경력 사항</a>
+            <a href="/Person/CDPSearch"  style="color:red">조건별 경력 조회</a>
+        </div>
+        <!-- //사이드메뉴 -->
+        <!-- 콘텐츠(상세) -->
+        <div class="contents_right1">
+        
+
+        <!-- 검색 및 버튼박스 -->
+
+            <div class="box_search6">
+
+                직 급
+                <select id="EmpClass" name="EmpClass" style="width:100px;margin-left:10px">
+                    <option value=""></option>
+                    <option value="1급(갑)">1급(갑)</option>
+                    <option value="1급(을)">1급(을)</option>
+                    <option value="2급">2급</option>
+                    <option value="3급">3급</option>
+                    <option value="4급">4급</option>
+                    <option value="5급">5급</option>
+                </select>&nbsp;
+
+                <label>사 번</label> <input type="text" id="TxtEmpNo" name="TxtEmpNo" style="width:100px" />&nbsp;
+
+                <label>성 명</label> <input type="text" id="TxtEmpNm" name="TxtEmpNm" style="width:100px" />&nbsp;
+
+                <label>현장명</label> <input type="text" id="TxtSiteNm" name="TxtSiteNm" style="width:220px" />
+
+                <br>
+                <br>
+
+                직 책        <select id="EmpDuty" name="EmpDuty" style="width:100px;margin-left:10px">
+                    <option value=""></option>
+                    <option value="공사">공사</option>
+                    <option value="공무">공무</option>
+                    <option value="관리">관리</option>
+                    <option value="기전">기전</option>
+                    <option value="안전">안전</option>
+                </select>
+
+                &nbsp;
+
+                부 문        <select id="BizPart" name="BizPart" style="width:100px">
+                    <option value=""></option>
+                    <option value="SA020101">토목</option>
+                    <option value="SA020102">건축</option>
+                    <option value="SA020103">철구</option>
+                    <option value="SA020104">플랜트</option>
+                </select>
+                &nbsp;
+
+                <!--
+            Cd	        CdNm
+            SA040901	설계분야
+            SA04010801	일반철도
+            SA040801	오수처리시설등설계시공
+            SA040206	오피스텔
+            SA040209	교육시설
+            SA04110101	기타
+            SA040113	토목기타
+            SA041002	철골
+            SA040302	플랜트
+            SA040201	연립주택
+            SA040110	단지조성
+            SA040203	주상복합
+            SA040204	판매시설
+            SA041001	강교
+            SA040102	교량
+            SA040101	도로
+            SA040401	조경
+            SA041101	기타
+            SA040205	오피스
+            SA040301	환경설비
+            SA040208	숙박시설
+            SA040701	통신
+            SA04011203	하수도
+            SA040108	철도
+            SA040109	지하철
+            SA040210	의료시설
+            SA040103	댐
+            SA040211	건축기타
+            SA040207	관공서
+            SA040112	상하수도
+            SA040105	항만
+            SA040111	운하
+            SA040304	기타
+            SA040202	아파트
+            SA041003	압력용기
+            SA040501	전기
+            SA04021101	교회,사찰등종교용건물
+    -->
+                공사종류    <select id="ConstType" name="ConstType" style="width:150px">
+                    <option value=""></option>
+                    <option value="SA040202">아파트</option>
+                    <option value="SA040206">오피스텔</option>
+                    <option value="SA040203">주상복합</option>
+                    <option value="SA041002">철골</option>
+                    <option value="SA040302">플랜트</option>
+                    <option value="SA040901">설계분야</option>
+                    <option value="SA04010801">일반철도</option>
+                    <option value="SA040801">오수처리시설등설계시공</option>
+
+                    <option value="SA040209">교육시설</option>
+                    <option value="SA04110101">기타</option>
+                    <option value="SA040113">토목기타</option>
+
+                    <option value="SA040201">연립주택</option>
+                    <option value="SA040110">단지조성</option>
+
+                    <option value="SA040204">판매시설</option>
+                    <option value="SA041001">강교</option>
+                    <option value="SA040102">교량</option>
+                    <option value="SA040101">도로</option>
+                    <option value="SA040401">조경</option>
+                    <option value="SA041101">기타</option>
+                    <option value="SA040205">오피스</option>
+                    <option value="SA040301">환경설비</option>
+                    <option value="SA040208">숙박시설</option>
+                    <option value="SA040701">통신</option>
+                    <option value="SA04011203">하수도</option>
+                    <option value="SA040108">철도</option>
+                    <option value="SA040109">지하철</option>
+                    <option value="SA040210">의료시설</option>
+                    <option value="SA040103">댐</option>
+                    <option value="SA040211">건축기타</option>
+                    <option value="SA040207">관공서</option>
+                    <option value="SA040112">상하수도</option>
+                    <option value="SA040105">항만</option>
+                    <option value="SA040111">운하</option>
+                    <option value="SA040304">기타</option>
+
+                    <option value="SA041003">압력용기</option>
+                    <option value="SA040501">전기</option>
+                    <option value="SA04021101">교회,사찰등종교용건물</option>
+                </select>
+
+                &nbsp;
+                공사금액    <select id="ConsultContractAmt" name="ConsultContractAmt" style="width:130px">
+                    <option value=""></option>
+                    <option value="100억미만">100억미만</option>
+                    <option value="100억이상~300억미만">100억이상~300억미만</option>
+                    <option value="300억이상~500억미만">300억이상~500억미만</option>
+                    <option value="500억이상~1000억미만">500억이상~1000억미만</option>
+                    <option value="1000억이상">1000억이상</option>
+                </select>
+
+                <br>
+                <br>
+                <label>발주처</label> <input type="text" id="TxtVendorNm" name="TxtVendorNm" style="width:150px" />
+                <a id="btn_search" class="btn1" style="width:10px;margin-left:470px;">검 색</a> <!-- <a id="btn_edit" class="btn1">초기화</a> -->
+            </div>
+        <!-- //검색 및 버튼박스 -->
+
+        <!-- 그리드 -->
+        <div id="grid_CDPSearch" class="grid2" style="height:350px;"></div>
+        <!-- //그리드 -->
+        <!-- 페이지 -->
+        <div id="pager_CDPSearch" class="pager1"></div>
+        <br>
+        <!-- //페이지 -->
+        <!-- 숨김정보 -->
+        <input type="hidden" id="HdnCooperator" name="HdnCooperator" />
+        <input type="hidden" id="HdnSubject" name="HdnSubject" />
+        <!-- //숨김정보 -->
+    
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var CDPSearch = "@ViewBag.CDPSearch";
+    /*
+    $(document).ready(function (e) {
+        ListSearchCDP("Y", 1, 9, CDPSearch, $("#TxtEmpNo").val(), $("#TxtEmpNM").val());
+    });
+    */
+
+    function ListSearch() {
+        ListSearchCDP("Y", 1, 9, CDPSearch, $("#TxtEmpNo").val(), $("#TxtEmpNm").val(), $("#TxtVendorNm").val(), $("#BizPart").val(), $("#ConstType").val(), $("#ConsultContractAmt").val(), $("#EmpDuty").val(), $("#EmpClass").val(), $("#TxtSiteNm").val());
+    }
+    
+    // 경력사항 조회
+    function ListSearchCDP(pPagerUseYn, pCurPage, pListCnt, pCDPSearch, pEmpNo, pEmpNm, pVendorNm, pBizPartCd, pConstTypeCdS, pConsultContractAmt, pEmpDuty, pEmpClass, pSiteNm) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/CDPSearch",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pCDPSearch": pCDPSearch, "pEmpNo": pEmpNo, "pEmpNm": pEmpNm, "pVendorNm": pVendorNm, "pBizPartCd": pBizPartCd, "pConstTypeCdS": pConstTypeCdS, "pConsultContractAmt": pConsultContractAmt, "pEmpDuty": pEmpDuty, "pEmpClass": pEmpClass, "pSiteNm": pSiteNm },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_CDPSearch").empty();
+                $("#grid_CDPSearch").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_CDPSearch", 9, data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8]);
+                // 검색조건 저장
+                $("#HdnEmpNo").val(data[3]);
+                $("#HdnEmpNm").val(data[4]);
+                $("#HdnVendorNm").val(data[5]);
+                $("#HdnBizPartCd").val(data[6]);
+                $("#HdnConstTypeCdS").val(data[7]);
+                $("#HdnConsultContractAmt").val(data[8]);
+                $("#HdnEmpDuty").val(data[9]);
+                $("#HdnEmpClass").val(data[10]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    //************ 이벤트 ************//
+
+    // 조회버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        /*
+        if ($("#TxtEmpNo").val() == "" && $("#TxtEmpNm").val() == "") {
+            alert("검색어를 입력하세요");
+            $("#TxtEmpNo").focus();
+            return false;
+        }
+        */
+        ListSearch();
+    });
+
+    // 페이지 번호 클릭 이벤트
+    $(document).on("click", "#pager_CDPSearch a", function (e) {
+        //ListSearchCDP("Y", GetPagerValue($(this).attr("id"), $(this).text()), 9, $("#HdnEmpNo").val(), $("#HdnEmpNm").val(), $("#HdnVendorNm").val(), $("#HdnBizPartCd").val(), $("#HdnConstTypeCdS").val(), $("#HdnConsultContractAmt").val());
+
+        ListSearchCDP("Y", GetPagerValue($(this).attr("id"), $(this).text()), 9, CDPSearch, $("#TxtEmpNo").val(), $("#TxtEmpNm").val(), $("#TxtVendorNm").val(), $("#BizPart").val(), $("#ConstType").val(), $("#ConsultContractAmt").val(), $("#EmpDuty").val(), $("#EmpClass").val(), $("#TxtSiteNm").val());
+    });
+
+    // 사번박스 엔터 이벤트
+    $(document).on("keypress", "#TxtEmpNo", function (e) {
+        if (e.which == 13) {
+            ListSearch();
+            return false;
+        }
+    });
+    // 성명박스 엔터 이벤트
+    $(document).on("keypress", "#TxtEmpNm", function (e) {
+        if (e.which == 13) {
+            ListSearch();
+            return false;
+        }
+    });
+
+    // 발주처박스 엔터 이벤트
+    $(document).on("keypress", "#TxtVendorNm", function (e) {
+        if (e.which == 13) {
+            lswk
+            dj
+            ListSearch();
+            return false;
+        }
+    });
+
+    // 현장명박스 엔터 이벤트
+    $(document).on("keypress", "#TxtSiteNm", function (e) {
+        if (e.which == 13) {
+            ListSearch();
+            return false;
+        }
+    });
+
+
+    // 그리드 TR 클릭 이벤트
+    $(document).on("click", "#grid_CDPSearch tr", function (e) {
+
+        //var winHeight = document.body.clientHeight; //현재창의 높이
+        //var winWidth  = document.body.clientWidth; // 현재창의 너비
+
+        //var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        //var winY = window.screenY || window.screenTop  || 0; // 현재창의 y좌표
+
+        //var popX = winX + (winWidth  - 960) / 2;
+        //var popY = winY + (winHeight - 700) / 2;
+
+        //var setting = "var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";,screenX=0,screenY=0,width=980,height=800,top="+popY+",left="+popX+"";
+        ////var location = "/PopUp/CDPDetail?pEmpNo=" + GetGridTrValue("grid_CDPSearch", "EMP", $(this).children());
+        if (GetGridTrValue("grid_CDPSearch", "h_EmpNo", $(this).children()) != "사번") {
+            location.href = "/Person/CDPSearchDetail?pEmpNo=" + GetGridTrValue("grid_CDPSearch", "EMP", $(this).children())
+        }
+
+
+        //window.open(location,"CDPDetail",setting);
+    });
+
+
+</script>

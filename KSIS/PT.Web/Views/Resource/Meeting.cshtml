@@ -1,0 +1,343 @@
+﻿@using PT.Web.WebUtil;
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <div id="RE02000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE020000" id="RE02000001">주간업무회의</a>
+        </div>
+        <div id="RE14000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE140000" id="RE14000001">주간업무회의<br />(관리)</a>
+        </div>
+        <div id="RE03000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE030000" id="RE03000001">자금회의</a>
+        </div>
+        <div id="RE04000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE040000" id="RE04000001">영업회의</a>
+        </div>
+        <div id="RE05000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE050000" id="RE05000001">관리회의</a>
+        </div>
+        <div id="RE06000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE060000" id="RE06000001">건축회의</a>
+        </div>
+        <div id="RE07000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE070000" id="RE07000001">손익회의</a>
+        </div>
+        <div id="RE15000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE150000" id="RE15000001">손익회의(관리)</a>
+        </div>
+        <div id="RE08000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE080000" id="RE08000001">전사운영회의</a>
+        </div>
+        <div id="RE09000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE090000" id="RE09000001">주간보고(법무)</a>
+        </div>
+        <div id="RE10000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE100000" id="RE10000001">주간보고(경정)</a>
+        </div>
+        <div id="RE11000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE110000" id="RE11000001">준공보고</a>
+        </div>
+        <div id="RE12000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE120000" id="RE12000001">수주심의</a>
+        </div>
+        @*<div id="RE13000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE130000" id="RE13000001">수주심의(임원)</a>
+        </div>*@
+        <div id="RE16000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE160000" id="RE16000001">인사관련회의</a>
+        </div>
+        <div id="RE18000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE180000" id="RE18000001">안전보건경영<br> 운영위원회</a>
+        </div>
+        @*<div id="RE17000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE170000" id="RE17000001">디자인매뉴얼</a>
+        </div>*@
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <!-- 검색 및 버튼박스 -->
+        <div class="box_search">
+            <div class="box_search_left">
+                <span>제목</span><input type="text" id="TxtSubject" name="TxtSubject" style="width:250px" />
+            </div>
+            <div class="box_search_right">
+                <a id="btn_search" class="btn1">검색</a><a id="btn_edit" class="btn1">작성</a>
+            </div>
+        </div>
+        <!-- //검색 및 버튼박스 -->
+        <!-- 그리드 -->
+        <div id="grid_meeting" class="grid2" style="height:385px;"></div>
+        <!-- //그리드 -->
+        <!-- 페이지 -->
+        <div id="pager_meeting" class="pager1"></div>
+        <!-- //페이지 -->
+        <!-- 숨김정보 -->
+        <input type="hidden" id="HdnMeetTypeCd" name="HdnMeetTypeCd" />
+        <input type="hidden" id="HdnSubject" name="HdnSubject" />
+        <!-- //숨김정보 -->
+    </div>
+    <div id="AttFileBox" class="Layer_pop">
+        <div id="pc" class="file_box">
+        </div>
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var meetType = "@ViewBag.MeetTypeCd" + "01";
+    var meetTypeCd = "@ViewBag.MeetTypeCd";
+    var temp = "";
+    var device = "@Session["device"]";
+    var userId = "@Session["EmpNo"]";
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        var jsonData = ListChkAuth("Meeting", "@Session["EmpNo"]");
+
+        for (var i = 0; i < jsonData.length; i++) {
+                $("#"+jsonData[i].AuthType+"02").toggle();
+        }
+
+        ChangeMenuList(meetType);
+        ListMeetingGrid("Y", 1, 10, meetTypeCd, $("#TxtSubject").val(), userId);
+
+        if ("20006900" == "@Session["EmpNo"]") {
+            $("#btn_edit").css("display", "none");
+
+        }
+
+        ApplyDisplayColor();
+
+    });
+
+
+    //************ Ajax ************//
+    function ListChkAuth(pMeetTypeCd, pEmpNo) {
+
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListChkAuth",
+            dataType: "json",
+            data: { "pMeetTypeCd": pMeetTypeCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                for (i = 0; i < data.length; i++) {
+
+                    var arrData = {};
+                    arrData.AuthType = data[i].AuthType;
+
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+
+    // 회의자료 테이블 그리드
+    function ListMeetingGrid(pPagerUseYn, pCurPage, pListCnt, pMeetTypeCd, pSubject, pUserId) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListMeetingGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pMeetTypeCd": pMeetTypeCd, "pSubject": pSubject, "pUserId": pUserId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_meeting").empty();
+                $("#grid_meeting").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_meeting", 10, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnMeetTypeCd").val(data[3]);
+                $("#HdnSubject").val(data[4]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    // 첨부파일 레이업 조회
+    function ListAttFileLayUp(pTitle, pId, pAttId, pWidth, pGubun) {
+
+        $.ajax({
+            type: "POST",
+            url: "/Resource/ListAttFileLayUp",
+            dataType: "html",
+            data: { "pTitle": pTitle, "pId": pId, "pAttId": pAttId, "pWidth": pWidth, "pGubun": pGubun },
+            async: false,   // 동기식 처리
+            success: function (data) {
+
+                $("#pc").empty();
+                $("#pc").append(data);
+            },
+            error: function (e) {
+                alert("에러 발생");
+                return false;
+            }
+        });
+    }
+
+    // 파일변환 Url 조회
+    function GetSnyNapViewer(pAttId, pConfirm) {
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/GetSnyNapViewer",
+            dataType: "text",
+            data: { "pAttId": pAttId, "pConfirm": pConfirm },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                if (data == "Error") {
+                    alert("파일변환 에러 발생.");
+                    return false;
+                }
+                else if (data == "NotConvertContent") {
+                    alert("변환 불가능한 확장자.");
+                    return false;
+                }
+                else if (temp == true) {
+
+                    var winHeight = document.body.clientHeight; //현재창의 높이
+                    var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                    var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                    var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                    var popX = winX + (winWidth - 1280) / 2;
+                    var popY = winY + (winHeight - 720) / 2;
+
+                    var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+
+                    window.open(data, "원본보기", setting);
+                }
+                else {
+                    window.open(data, "");
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 현재 페이지 왼쪽메뉴 선택처리
+    function ChangeMenuList(meetType) {
+        $("#" + meetType).addClass("txt_red");
+    }
+
+
+    //************ 이벤트 ************//
+
+    // 조회버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        if ($("#TxtSubject").val() == "") {
+            alert("검색어를 입력하세요");
+            $("#TxtSubject").focus();
+            return false;
+        }
+
+        ListMeetingGrid("Y", 1, 10, meetTypeCd, $("#TxtSubject").val());
+    });
+
+    // 제목박스 엔터 이벤트
+    $(document).on("keypress", "#TxtSubject", function (e) {
+        if (e.which == 13) {
+            ListMeetingGrid("Y", 1, 10, meetTypeCd, $("#TxtSubject").val());
+            return false;
+        }
+    });
+
+    // 페이지 번호 클릭 이벤트
+    $(document).on("click", "#pager_meeting a", function (e) {
+        ListMeetingGrid("Y", GetPagerValue($(this).attr("id"), $(this).text()), 10, $("#HdnMeetTypeCd").val(), $("#HdnSubject").val());
+    });
+
+    // 작성버튼 클릭 이벤트
+    $(document).on("click", "#btn_edit", function (e) {
+        location.href = "/Resource/MeetingEdit?pMeetTypeCd=" + meetTypeCd + "&pSaveMode=C&pRegNo=";
+    });
+
+    $(document).on("click", "body", function (e) {
+
+        if ((!$(e.target).hasClass("file_float_left") && !$(e.target).hasClass("Layer_pop") && !$(e.target).hasClass("file_box") && !$(e.target).hasClass("h_file_title") && !$(e.target).hasClass("box_fileLayer") && !$(e.target).hasClass("tbl_file") && !$(e.target).hasClass("attfile") && !$(e.target).hasClass("btn_delete_file")) && (e.target.innerText != "보기") ) {
+            $("#AttFileBox").css("display", "none");
+        }
+    });
+
+    // 그리드 TR 클릭 이벤트
+    $(document).on("click", "#grid_meeting td", function (e) {
+
+        if (this.parentNode.parentNode.firstChild.childNodes[this.cellIndex].innerText == "제목") {
+            location.href = "/Resource/MeetingDetail?pMeetTypeCd=" + meetTypeCd + "&pRegNo=" + this.parentNode.childNodes[1].innerText;
+        }
+        else if ((this.parentNode.parentNode.firstChild.childNodes[this.cellIndex].innerText == "첨부파일") && (this.innerText == "보기")) {
+
+            if ("@Session["EmpNo"]" == "18902060") {
+                device = "PC";
+            }
+
+            ListAttFileLayUp("첨부파일", "AttId", this.parentNode.childNodes[0].innerText, "100%", device);
+
+            var divLeft = 400
+
+            var divTop = e.clientY - document.getElementById("header").getBoundingClientRect().height;
+
+            $("#AttFileBox").css({
+                "top": divTop,
+                "left": divLeft,
+                "position": "absolute",
+                "display": "block"
+            }).show();
+        }
+
+    });
+
+    // 첨부파일 클릭 이벤트
+    $(document).on("click", "#tbody_attid td:nth-child(1) a", function (e) {
+        GetSnyNapViewer($(this).attr("id"), "N");
+    });
+    // 원본보기 클릭 이벤트
+    $(document).on("click", "#tbody_attid td:nth-child(2) a", function (e) {
+        GetSnyNapViewer($(this).attr("id"), "Y");
+    });
+
+    function ApplyDisplayColor() {
+        $("#grid_meeting td").each(function (e) {
+
+            if (this.innerText == "보기") {
+
+                $(this).css("color", "blue");
+                $(this).css("text-decoration", "underline");
+            }
+        });
+    }
+
+</script>

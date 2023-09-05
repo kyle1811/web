@@ -1,0 +1,234 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Site/SiteWeatherCivil?pBizPartCd=SA020101" id="SA020101">토목</a>
+        <a href="/Site/SiteWeatherConstruct?pBizPartCd=SA020102" id="SA020102">건축</a>
+        <a href="/Site/SiteWeatherPlant?pBizPartCd=SA020104" id="SA020104">플랜트</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- //콘텐츠(상세) -->
+    <div class="contents_right1">
+        <h1 style="text-align:center;font-size:18px;color:#5D5D5D"><권역별 건축현장 현재 날씨정보></h1>
+        @*<h1 style="text-align:center;font-size:18px;color:#5D5D5D;display:inline-block;margin-right:85px;margin-left:235px;"><권역별 건축현장 현재 날씨정보></h1><a href="http://web.weatheri.co.kr/special/special01.php" target="_blank" style="color:blue;font-weight:bold;"><u>※ 기상특보 바로가기</u></a>*@
+        <h1 class="title1">수도권</h1>
+        <div id="grid_OrderResult_Dept1" class="grid2" style="height:auto;"></div>
+        <h1 class="title1">강원권</h1>
+        <div id="grid_OrderResult_Dept2" class="grid2" style="height:auto;"></div>
+        <h1 class="title1">충청권</h1>
+        <div id="grid_OrderResult_Dept3" class="grid2" style="height:auto;"></div>
+        <h1 class="title1">호남권</h1>
+        <div id="grid_OrderResult_Dept4" class="grid2" style="height:auto;"></div>
+        <h1 class="title1">영남권</h1>
+        <div id="grid_OrderResult_Dept5" class="grid2" style="height:auto;"></div>
+        <h1 class="title1">제주권</h1>
+        <div id="grid_OrderResult_Dept6" class="grid2" style="height:auto;"></div>
+
+
+    </div>
+
+
+</div>
+<!-- //콘텐츠 -->
+
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var bizPartCd = "@ViewBag.BizPartCd";
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        alert
+        ChangeMenuList(bizPartCd);
+
+        ListOrderResultDeptGrid1("N", 0, 0, "SA020102", "CM065001");
+        ListOrderResultDeptGrid2("N", 0, 0, "SA020102", "CM065002");
+        ListOrderResultDeptGrid3("N", 0, 0, "SA020102", "CM065003");
+        ListOrderResultDeptGrid4("N", 0, 0, "SA020102", "CM065004");
+        ListOrderResultDeptGrid5("N", 0, 0, "SA020102", "CM065005");
+        ListOrderResultDeptGrid6("N", 0, 0, "SA020102", "CM065007");
+
+
+
+    });
+
+    //************ Ajax ************//
+
+    // 현장별 날씨 조회
+    function ListOrderResultDeptGrid1(pPagerUseYn, pCurPage, pListCnt, pBizPartCd, pGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListWeatherMainGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pBizPartCd": pBizPartCd, "pGubun": pGubun },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept1").empty();
+                $("#grid_OrderResult_Dept1").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    function ListOrderResultDeptGrid2(pPagerUseYn, pCurPage, pListCnt, pBizPartCd, pGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListWeatherMainGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pBizPartCd": pBizPartCd, "pGubun": pGubun },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept2").empty();
+                $("#grid_OrderResult_Dept2").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    function ListOrderResultDeptGrid3(pPagerUseYn, pCurPage, pListCnt, pBizPartCd, pGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListWeatherMainGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pBizPartCd": pBizPartCd, "pGubun": pGubun },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept3").empty();
+                $("#grid_OrderResult_Dept3").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    function ListOrderResultDeptGrid4(pPagerUseYn, pCurPage, pListCnt, pBizPartCd, pGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListWeatherMainGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pBizPartCd": pBizPartCd, "pGubun": pGubun },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept4").empty();
+                $("#grid_OrderResult_Dept4").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    function ListOrderResultDeptGrid5(pPagerUseYn, pCurPage, pListCnt, pBizPartCd, pGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListWeatherMainGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pBizPartCd": pBizPartCd, "pGubun": pGubun },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept5").empty();
+                $("#grid_OrderResult_Dept5").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    function ListOrderResultDeptGrid6(pPagerUseYn, pCurPage, pListCnt, pBizPartCd, pGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListWeatherMainGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pBizPartCd": pBizPartCd, "pGubun": pGubun },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept6").empty();
+                $("#grid_OrderResult_Dept6").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+
+    // 현재 페이지 왼쪽메뉴 선택처리
+    function ChangeMenuList(pBizPartCd) {
+        $("#" + pBizPartCd).addClass("txt_red");
+    }
+
+ 
+
+    // 클릭 이벤트
+    $(document).on("click", "#grid_OrderResult_Dept1 tr", function (e) {
+        if (GetGridTrValue("grid_OrderResult_Dept1", "h_SiteNm", $(this).children()) != "현장명") {
+            location.href = "/Site/SiteWeatherDetail?pBizPartCd=" + bizPartCd + "&pSiteCd=" + GetGridTrValue("grid_OrderResult_Dept1", "SiteCd", $(this).children())
+        }
+    });
+    $(document).on("click", "#grid_OrderResult_Dept2 tr", function (e) {
+        if (GetGridTrValue("grid_OrderResult_Dept2", "h_SiteNm", $(this).children()) != "현장명") {
+            location.href = "/Site/SiteWeatherDetail?pBizPartCd=" + bizPartCd + "&pSiteCd=" + GetGridTrValue("grid_OrderResult_Dept2", "SiteCd", $(this).children())
+        }
+    });
+    $(document).on("click", "#grid_OrderResult_Dept3 tr", function (e) {
+        if (GetGridTrValue("grid_OrderResult_Dept3", "h_SiteNm", $(this).children()) != "현장명") {
+            location.href = "/Site/SiteWeatherDetail?pBizPartCd=" + bizPartCd + "&pSiteCd=" + GetGridTrValue("grid_OrderResult_Dept3", "SiteCd", $(this).children())
+        }
+    });
+    $(document).on("click", "#grid_OrderResult_Dept4 tr", function (e) {
+        if (GetGridTrValue("grid_OrderResult_Dept4", "h_SiteNm", $(this).children()) != "현장명") {
+            location.href = "/Site/SiteWeatherDetail?pBizPartCd=" + bizPartCd + "&pSiteCd=" + GetGridTrValue("grid_OrderResult_Dept4", "SiteCd", $(this).children())
+        }
+    });
+    $(document).on("click", "#grid_OrderResult_Dept5 tr", function (e) {
+        if (GetGridTrValue("grid_OrderResult_Dept5", "h_SiteNm", $(this).children()) != "현장명") {
+            location.href = "/Site/SiteWeatherDetail?pBizPartCd=" + bizPartCd + "&pSiteCd=" + GetGridTrValue("grid_OrderResult_Dept5", "SiteCd", $(this).children())
+        }
+    });
+
+    $(document).on("click", "#grid_OrderResult_Dept6 tr", function (e) {
+        if (GetGridTrValue("grid_OrderResult_Dept6", "h_SiteNm", $(this).children()) != "현장명") {
+            location.href = "/Site/SiteWeatherDetail?pBizPartCd=" + bizPartCd + "&pSiteCd=" + GetGridTrValue("grid_OrderResult_Dept6", "SiteCd", $(this).children())
+        }
+    });
+
+</script>

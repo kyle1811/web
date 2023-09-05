@@ -1,0 +1,674 @@
+﻿@using PT.Web.WebUtil;
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left4">
+        <div id="tree_dept_chart" class="tree_type1" style="width:160px;height:550px;">
+            @MvcHtmlString.Create(ViewBag.TreeData)
+        </div>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right4">
+        <h1 class="title1">공사진행현황</h1>
+        <div>
+            <a id="btn_table" class="btn1">표보기</a>
+        </div>
+        <div>
+            <a id="btn_chart" class="btn1" style="display:none">차트보기</a>
+        </div>
+        <br>
+
+        <div id="chart_site_Amt" class="chart" style="height:550px;"></div>
+
+        <div id="grid_site_table">
+            <p style="text-align:right;font-family:NanumGothic;font-weight:bold;">(단위:억)</p>
+            <div id="grid_site_list" class="grid1" style="height:auto;"></div>
+        </div>
+
+        <h1 class="title1" id = "title" style="display:none;"></h1>
+        <div class="bn" id="bn" style="display:none;">
+            @WebUtil.MakeSitePhotoGubun("SA020101", "A01")
+        </div>
+
+
+    </div>
+
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var BizpartCd = "@ViewBag.DeptCd";
+    var sign = "";
+    var lange = 0, area = 10, compare = 0;
+    var deptCd = "@ViewBag.DeptCd";
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+
+        CreateChartSiteAmt();
+        CreateChartSiteRate();
+        GridSiteState("N", 0, 0, BizpartCd, 'Table');
+        $("#grid_site_table").slideUp(0, function () {
+
+        });
+        ApplyDisplayColor();
+
+        var myDiv = $("#tree_dept_chart");
+
+        myDiv.animate({ scrollTop: $("#" + deptCd).offset().top - (myDiv.offset().top + 200) }, 300);
+        $(this).css("color", "#d82728");
+
+    });
+
+    // 트리뷰 클릭 이벤트
+    $(document).on("click", "#tree_dept_chart a", function (e) {
+
+        $("#tree_dept_chart a").css("color", "#5f5f5f");
+        $(this).css("color", "#d82728");
+
+        if ($(this).attr("class") == "sub_open") {
+            $(this).attr("class", "sub_none");
+            $(this).next().css("display", "none");
+        }
+        else if ($(this).attr("class") == "sub_none") {
+            $(this).attr("class", "sub_open");
+            $(this).next().css("display", "block");
+        }
+
+        if ($(this).parent().attr("id") == "SA020101") {
+            $("#title").css("display", "none");
+            $("#bn").css("display", "none");
+            BizpartCd = "SA020101";
+            CreateChartSiteAmt();
+            CreateChartSiteRate();
+            GridSiteState("N", 0, 0, BizpartCd, 'Table');
+            ApplyDisplayColor();
+        }
+        else if ($(this).parent().attr("id") == "SA020102") {
+            $("#title").css("display", "none");
+            $("#bn").css("display", "none");
+            BizpartCd = "SA020102";
+            CreateChartSiteAmt();
+            CreateChartSiteRate();
+            GridSiteState("N", 0, 0, BizpartCd, 'Table');
+            ApplyDisplayColor();
+        }
+        else if ($(this).parent().attr("id") == "SA020104") {
+            $("#title").css("display", "none");
+            $("#bn").css("display", "none");
+            BizpartCd = "SA020104";
+            CreateChartSiteAmt();
+            CreateChartSiteRate();
+            GridSiteState("N", 0, 0, BizpartCd, 'Table');
+            ApplyDisplayColor();
+        }
+        else if ($(this).parent().attr("id") != "ALL"){
+            $("#title").css("display", "block");
+            $("#bn").css("display", "block");
+            $('#title').empty();
+            $('#title').append(this.parentNode.firstElementChild.text);
+            MakeSitePhotoGubun(this.parentNode.parentNode.parentNode.id, this.parentNode.id);
+
+            BizpartCd = this.parentNode.parentNode.parentNode.id;
+            
+        }
+
+    });
+
+    document.oncontextmenu = function (e) {
+        alert("오른쪽버튼은 이용할 수 없습니다.");
+        return false;
+    }
+
+    $(document).on("click", ".bn_box2", function (e) {
+        location.href = "/Site/SiteStateTreeViewDetail?pBizPartCd=" + BizpartCd + "&pSiteCd=" + $(this).children("span").attr("id");
+    });
+
+    //************ Ajax ************//
+
+    // 현장현황(실행율,공정율,원가율) 목록 조회
+    function ListSiteStateRate() {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSiteStateRate",
+            dataType: "json",
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseInt(data[i].SiteRate);
+                    arrData.color = data[i].GraphColor;
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+    // 현장현황(실행율,공정율,원가율) 목록 조회
+    function ListSiteStateRateALL1(pBizPartCd, pHome) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSiteStateRateALL",
+            dataType: "json",
+            data: { "pBizPartCd": pBizPartCd, "pHome": pHome },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].SiteRate);
+                    arrData.color = data[i].GraphColor;
+                    jsonData.push(arrData);
+                    if (lange <= parseInt(data[i].SiteRate)) {
+                        lange = parseInt(data[i].SiteRate);
+                    }
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    // 현장현황(공정율,수금율,금액) 조회
+    function ListSiteStateRateALL(pBizPartCd, pHome) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSiteStateRateALL",
+            dataType: "json",
+            data: { "pBizPartCd": pBizPartCd, "pHome": pHome },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    if (pHome == "Home") {
+                        arrData.y = parseInt(data[i].SiteRate);
+                        arrData.color = data[i].GraphColor;
+                        jsonData.push(arrData);
+                    }
+                    else if (pHome == "Year") {
+                        arrData.y = parseInt(data[i].Amout);
+                        arrData.value = data[i].value;
+                        arrData.name = data[i].SEQ;
+                        arrData.color = data[i].GraphColor;
+                        jsonData.push(arrData);
+                        if (lange <= parseInt(data[i].Amout)) {
+                            lange = data[i].Amout;
+                        }
+                    }
+                    else if (pHome == "Rslt") {
+                        arrData.y = parseInt(data[i].Amout);
+                        arrData.value = data[i].value;
+                        arrData.name = data[i].SEQ;
+                        arrData.color = data[i].GraphColor;
+                        jsonData.push(arrData);
+                        if (lange <= parseInt(data[i].Amout)) {
+                            lange = data[i].Amout;
+                        }
+                    }
+                    else if (pHome == "Con") {
+                        arrData.y = parseInt(data[i].Amout);
+                        arrData.value = data[i].value;
+                        arrData.name = data[i].SEQ;
+                        arrData.color = data[i].GraphColor;
+                        jsonData.push(arrData);
+                        if (lange <= parseInt(data[i].Amout)) {
+                            lange = data[i].Amout;
+                        }
+                    }
+                    else if (pHome == "Tot") {
+                        arrData.y = parseInt(data[i].Amout);
+                        arrData.value = data[i].value;
+                        arrData.name = data[i].SEQ;
+                        arrData.color = data[i].GraphColor;
+                        jsonData.push(arrData);
+                        if (lange <= parseInt(data[i].Amout)) {
+                            lange = data[i].Amout;
+                        }
+                    }
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    // 주간공정보고 테이블 조회
+    function GridSiteState(pPagerUseYn, pCurPage, pListCnt, pBizPartCd, pHome) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/GridSiteState",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pBizPartCd": pBizPartCd, "pHome": pHome },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_site_list").empty();
+                $("#grid_site_list").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+   
+
+    //************ 함수 ************//
+
+    // 차트 현장현황 공정율, 수금율
+    function CreateChartSiteRate1() {
+        // 그래프 데이터 조회
+        var jsonData = ListSiteStateRateALL1("ALL", "Home");
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("현장현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_site_Amt1").highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: '달성율(%)',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+            subtitle: {
+                text: ""
+            },
+            xAxis: {
+                title: {
+                    text: ""
+                },
+                categories: ["공정(년간)", "수금(년간)", "공정(전체)", "수금(전체)"],
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "13px",
+                        color: "#6d6d6d"
+                    }
+                },
+                /*gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1*/
+            },
+            yAxis: {
+                title: {
+                    text: ''
+                },
+                labels: {
+                    format: "{value}",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                tickInterval: lange,
+                /*tickInterval: 25,
+                gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1*/
+            },
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y:1f}' + '%'
+                    }
+                },
+                bar: {
+                    pointPadding: 0.1,
+                    borderWidth: 0,
+                    enableMouseTracking: false
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: "비율",
+                data: jsonData
+            }]
+        });
+    }
+
+    // 차트 현장현황 계획, 실적 금액
+    function CreateChartSiteAmt() {
+
+        var YearData = ListSiteStateRateALL(BizpartCd, "Year");
+        var ConData = ListSiteStateRateALL(BizpartCd, "Con");
+        /*var RsltData = ListSiteStateRateALL(bizPartCd, "Rslt");*/
+        /*var TotData = ListSiteStateRateALL(bizPartCd, "Tot");*/
+
+        // 그래프 데이터가 없는 경우
+        if (YearData == null || ConData == null) {
+            /*if (YearData == null || RsltData == null || ConData == null || TotData == null) {*/
+            alert("현장현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        for (j = 1; j < lange.length - 8; j++) {
+            area = area * 10;
+        }
+
+        compare = lange;
+        lange = lange * 1.6;
+        lange = parseInt(lange.toString().substr(0, 1));
+
+        if (area * lange < compare) {
+            area = area * 10;
+        }
+
+        $("#chart_site_Amt").highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: '공정 및 수금 현황',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                categories: ["공정(년간)", "수금(년간)", "공정(전체)", "수금(전체)"],
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "13px",
+                        color: "#6d6d6d"
+                    }
+                },
+            },
+            yAxis: {
+                title: {
+                    text: '단위(억)'
+                },
+                labels: {
+                    format: "{value}",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                max: area * lange,
+                /*tickInterval: lange,*/
+                gridLineWidth: 1,
+                gridLineColor: "#d8d8d8"
+            },
+            plotOptions: {
+                series: {
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.value}',
+                        style: {
+                            fontSize: "10px",
+                            //color: "#ffffff"
+                        }
+                    }
+                },
+                bar: {
+                    pointWidth: 19,
+                    pointPadding: 0.1,
+                    enableMouseTracking: false
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [
+                {
+                    name: '계획(전체)',
+                    data: YearData,
+                    showInLegend: false,
+                    color: "#6d6d6d",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                /*{
+                    name: '달성율(%)',
+                    data: RsltData,
+                    showInLegend: false,
+                    color: "#6d6d6d",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },*/
+                {
+                    name: '계획(년간)',
+                    data: ConData,
+                    showInLegend: false,
+                    color: "#6d6d6d",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                }/*,
+                {
+                    name: '실적(누계)',
+                    data: TotData,
+                    showInLegend: false,
+                    color: "#6d6d6d",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },*/
+
+
+
+            ]
+
+        });
+
+    }
+
+    // 차트 현장현황 공정율, 수금율
+    function CreateChartSiteRate() {
+        // 그래프 데이터 조회
+        var jsonData = ListSiteStateRateALL("ALL", "Home");
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("현장현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_site_rate").highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: '달성율(%)'
+            },
+            subtitle: {
+                text: ""
+            },
+            xAxis: {
+                title: {
+                    text: ""
+                },
+                categories: ["공정(전체)", "공정(년간)", "수금(전체)", "수금(년간)"],
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "13px",
+                        color: "#6d6d6d"
+                    }
+                },
+                /*gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1*/
+            },
+            yAxis: {
+                title: {
+                    text: '계획대비실적(%)'
+                },
+                labels: {
+                    format: "{value}",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                /*tickInterval: 25,
+                gridLineColor: "#d8d8d8",
+                gridLineDashStyle: "solid",
+                gridLineWidth: 1*/
+            },
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.y:1f}' + '%'
+                    }
+                },
+                bar: {
+                    pointPadding: 0.2,
+                    borderWidth: 0,
+                    enableMouseTracking: false
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: "비율",
+                data: jsonData
+            }]
+        });
+    }
+
+    function ApplyDisplayColor() {
+        $("#grid_site_list tr").each(function (e) {
+
+
+            if ($(this).children().eq(1).text() == "총 계(매출)" || $(this).children().eq(1).text() == "총 계(수금)") {
+                $(this).css("background-color", "#BDBDBD");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+
+                $(this).children().each(function (e) {
+                    $(this).css("color", "#191919");
+
+                });
+            }
+        });
+    }
+
+    //버튼 클릭시 제어
+    $(document).on("click", "#btn_table", function (e) {
+        $("#grid_site_table").slideToggle('slow', function () {
+
+        });
+        $("#chart_site_Amt").slideToggle('slow', function () {
+
+        });
+        $("#chart_site_rate").slideToggle('slow', function () {
+
+        });
+        $("#btn_table").toggle();
+        $("#btn_chart").toggle();
+    });
+
+    $(document).on("click", "#btn_chart", function (e) {
+        $("#grid_site_table").slideToggle('slow', function () {
+
+        });
+        $("#chart_site_Amt").slideToggle('slow', function () {
+
+        });
+        $("#chart_site_rate").slideToggle('slow', function () {
+
+        });
+        $("#btn_table").toggle();
+        $("#btn_chart").toggle();
+    });
+
+    // 항목별 현장조회
+    function MakeSitePhotoGubun(pBizpartCd, pProjetId) {
+        $.ajax({
+            type: "POST",
+            url: "/Site/MakeSitePhotoGubun",
+            dataType: "html",
+            data: { "pBizpartCd": pBizpartCd, "pProjetId": pProjetId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                $("#bn").empty();
+                $("#bn").append(data);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+</script>

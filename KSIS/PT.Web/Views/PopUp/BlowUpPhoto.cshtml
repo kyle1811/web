@@ -1,0 +1,59 @@
+﻿@model PT.BusinessLogic.Entities.Site
+
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+    <script>
+        $(function () {
+            $("#post_content img, .resizablebox").each(function () {
+                var oImgWidth = $(this).width();
+                var oImgHeight = $(this).height();
+                $(this).css({
+                    'max-width': oImgWidth + 'px',
+                    'max-height': oImgHeight + 'px',
+                    'width': '100%',
+                    'height': '100%'
+                });
+            });
+        });
+
+        document.oncontextmenu = function (e) {
+            alert("오른쪽버튼은 이용할 수 없습니다.");
+            return false;
+        }
+
+        document.onclick = function (e) {
+            self.close();
+        }
+
+    </script>
+
+</head>
+    <body>
+        <div id="post_content">
+            <img src = "@Model.SitePhotoUrl">
+        </div>
+    </body>
+</html>

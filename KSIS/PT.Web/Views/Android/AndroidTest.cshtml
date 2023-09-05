@@ -1,0 +1,45 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AndroidTest</title>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+<body>
+    <div>
+        <a id="btn">버튼</a>
+    </div>
+    <script type="text/javascript">
+
+        function ajaxTest(pUserStr, pPwdrStr) {
+
+            $.ajax({
+                type: "POST",
+                url: "/Android/Login",
+                dataType: "json",
+                data: { "pUserStr": pUserStr, "pPwdrStr": pPwdrStr },
+                async: false,   // 동기식 처리
+                success: function (data) {
+                    alert(data.statusID);
+                    alert(data.statusMSG);
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            });
+        }
+
+        $(document).on("click", "#btn", function (e) {
+            ajaxTest("rasyde", "1");
+        });
+
+    </script>
+</body>
+</html>

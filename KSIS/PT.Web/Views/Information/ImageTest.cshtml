@@ -1,0 +1,373 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+<!-- 콘텐츠 -->
+<!-- 콘텐츠(상세) -->
+<div id="contents">
+    <br>
+    <div class="box_search2">
+        <div class="box_search_left">
+            <label>구분</label>
+            <select name="gubun" id="gubun">
+                <option selected>2018</option>
+                <option>2017</option>
+                <option>2016</option>
+                <option>2015</option>
+                <option>2014</option>
+                <option>2013</option>
+                <option>2012</option>
+                <option>2011</option>
+                <option>2010</option>
+            </select>
+            <a margin_right:"10px"; id="btn_Sch" class="btn1">조회</a>
+        </div>
+        <div class="box_search_right">
+            <a id="btn_Reg" class="btn1">사보등록</a>
+        </div>
+    </div>
+    <div class="bn">
+
+        <a id="bn_box1" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box2" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box3" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box4" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box5" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box6" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box7" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box8" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box9" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box10" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box11" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+        <a id="bn_box12" class="bn_MagazineBox">
+            <img src="/Contents/images/ex/bn.png" />
+            <span></span>
+        </a>
+
+    </div>
+
+</div>
+<!-- //콘텐츠(상세) -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+
+    var display = [];
+    var MagazinePdfUrl = "";
+    var MagazineData = []; // 사보 데이터
+
+
+    //************ 로드 ************//
+    Listdisplay();
+    ListChangeMagazine($("select[name=gubun]").val());
+
+    //************ Ajax ************//
+
+    // 일일입금현황 조회 테이블
+    function ListChangeMagazine(pGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/Information/ListChangeMagazine",
+            dataType: "json",
+            data: { "pGubun": pGubun },
+            async: false,   // 동기식 처리
+            success: function (data) {
+
+
+
+                MagazineData = data;
+
+                var MagazineJson = [];
+
+                for (i = 0; i <= 11; i++) {
+                    $("#bn_box" + (i + 1) + " img").attr("src", "");
+                    $("#bn_box" + (i + 1) + " span").attr("id", "");
+                    $("#bn_box" + (i + 1) + " span").text("");
+                    document.getElementById("bn_box" + (i + 1)).style.display = "none";
+
+                }
+
+                for (i = 0; i < MagazineData.length; i++) {
+                    var MagazineInfo = {};
+                    MagazineInfo.MagazineJpgUrl = MagazineData[i].MagazineJpgUrl;
+                    MagazineInfo.MagazinePdfUrl = MagazineData[i].MagazinePdfUrl;
+                    MagazineInfo.MagazineNm = MagazineData[i].MagazineNm;
+                    MagazineJson.push(MagazineInfo);
+                }
+
+                for (i = 0; i < MagazineJson.length; i++) {
+                    $("#bn_box" + (i + 1) + " img").attr("src", MagazineData[i].MagazineJpgUrl);
+                    $("#bn_box" + (i + 1) + " span").attr("id", MagazineData[i].MagazinePdfUrl);
+                    $("#bn_box" + (i + 1) + " span").text(MagazineData[i].MagazineNm);
+                    document.getElementById("bn_box" + (i + 1)).style.display = "block";
+                }
+
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    function Listdisplay() {
+        for (i = 0; i <= 11; i++) {
+            document.getElementById("bn_box" + (i + 1)).style.display = "none";
+        }
+
+    }
+
+    // 사보등록 클릭 이벤트
+    $(document).on("click", "#btn_Reg", function (e) {
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 960) / 2;
+        var popY = winY + (winHeight - 400) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=960,height=400,top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/SaveMagazine?pSaveMode=C&pRegNo=";
+        window.open(location, "사보등록", setting);
+
+    });
+
+    // 회계년월 변경 이벤트
+    $(document).on("click", "#btn_Sch", function (e) {
+        ListChangeMagazine($("select[name=gubun]").val());
+    });
+
+    //사보표지 클릭 이벤트
+    $(document).on("click", "#bn_box1", function (e) {
+
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box2", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box3", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box4", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box5", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box6", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box7", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box8", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box9", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box10", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box11", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+    $(document).on("click", "#bn_box12", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 1280) / 2;
+        var popY = winY + (winHeight - 720) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,toolbar=no,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+        var location = $(this).children("span").attr("id");
+        window.open(location, "사보보기", setting);
+
+    });
+
+
+</script>
+

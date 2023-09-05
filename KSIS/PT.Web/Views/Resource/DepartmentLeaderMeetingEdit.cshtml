@@ -1,0 +1,192 @@
+﻿@using PT.Web.WebUtil
+@model PT.BusinessLogic.Entities.Meeting
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <div id="CMM" style="display:none">
+            <a href="/Resource/CompanyManageMeeting?pMeetTypeCd=PT00101" id="PT00101">전사운영회의</a>
+        </div>
+        <div id="DM" style="display:none">
+            <a href="/Resource/DirectorsMeeting?pMeetTypeCd=PT00103" id="PT00103">임원회의</a>
+        </div>
+        <div id="DLM" style="display:none">
+            <a href="/Resource/DepartmentLeaderMeeting?pMeetTypeCd=PT00102" id="PT00102">부서장회의</a>
+        </div>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <!-- 폼 -->
+        <form id="frm" name="frm" enctype="multipart/form-data" action="/Resource/DepartmentLeaderMeetingEdit" method="post">
+            <!-- 버튼박스 -->
+            <div class="box_btn_right">
+                <a href="/Resource/DepartmentLeaderMeeting?pMeetTypeCd=@Model.MeetTypeCd" id="btn_list" class="btn1">목록</a><a id="btn_save" class="btn1">저장</a><a id="btn_delete" class="btn1" style="display:none;">삭제</a>
+            </div>
+            <!-- //버튼박스 -->
+            <!-- 입력박스 -->
+            <div class="box_input">
+                <table>
+                    <colgroup>
+                        <col style="width:15%" />
+                        <col style="width:35%" />
+                        <col style="width:15%" />
+                        <col />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th>작성자</th>
+                            <td class="td_center">@Model.RegUserNm</td>
+                            <th>작성일자</th>
+                            <td class="td_center">@Model.RegDate</td>
+                        </tr>
+                        <tr>
+                            <th>제목</th>
+                            <td colspan="3">@Html.TextBoxFor(x => x.Subject)</td>
+                        </tr>
+                        <tr>
+                            <th>내용</th>
+                            <td colspan="3">@Html.TextAreaFor(x => x.Content, new { @rows = "20", style = "width:638px;" })</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- //입력박스 -->
+            <!-- 첨부파일 -->
+            <div class="file_box">
+                @WebUtil.MakeFileControl("첨부파일", "AttId", Model.AttId, true, Position.left, "100%")
+            </div>
+            <!-- //첨부파일 -->
+            <!-- 숨김정보 -->
+            @Html.HiddenFor(x => x.SaveMode)
+            @Html.HiddenFor(x => x.RegNo)
+            @Html.HiddenFor(x => x.MeetTypeCd)
+            <!-- //숨김정보 -->
+        </form>
+        <!-- //폼 -->
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var meetTypeCd = "@Model.MeetTypeCd";
+
+    var CMMeeting = "@ViewBag.CMMeeting";
+    var DLMeeting = "@ViewBag.DLMeeting";
+    var DMeeting = "@ViewBag.DMeeting";
+
+    var saveMode = "@Model.SaveMode";
+
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        /*if (CMMeeting == "Y") {
+                 $("#CMM").toggle();
+             }
+             if (DLMeeting == "Y") {
+                 $("#DM").toggle();
+             }
+             if (DMeeting == "Y") {
+                 $("#DLM").toggle();
+             }*/
+        $("#CMM").toggle();
+        $("#DM").toggle();
+        $("#DLM").toggle();
+
+        ChangeMenuList(meetTypeCd);
+        EnableControl();
+    });
+
+
+    //************ Ajax ************//
+
+    // 파일변환 Url 조회
+    function GetSnyNapViewer(pAttId) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/GetSnyNapViewer",
+            dataType: "text",
+            data: { "pAttId": pAttId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                if (data == "Error") {
+                    alert("파일변환 에러 발생.");
+                    return false;
+                }
+                else if (data == "NotConvertContent") {
+                    alert("변환 불가능한 확장자.");
+                    return false;
+                }
+                else {
+                    window.open(data, "_Blank");
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 현재 페이지 왼쪽메뉴 선택처리
+    function ChangeMenuList(meetTypeCd) {
+        $("#" + meetTypeCd).addClass("txt_red");
+    }
+
+    // 버튼 및 INPUTBOX 활성화.비활성화 함수
+    function EnableControl() {
+        if (saveMode == "U") {
+            $("#btn_delete").show();
+        }
+    }
+
+
+    //************ 이벤트 ************//
+
+    // 저장버튼 클릭 이벤트
+    $(document).on("click", "#btn_save", function (e) {
+        if ($("#Subject").val() == "") {
+            alert("제목을 입력해 주세요.");
+            $("#Subject").focus();
+            return false;
+        }
+
+        if ($("#Content").val() == "") {
+            alert("내용을 입력해 주세요.");
+            $("#Content").focus();
+            return false;
+        }
+
+        $("#frm").submit();
+    });
+
+    // 삭제버튼 클릭 이벤트
+    $(document).on("click", "#btn_delete", function (e) {
+        // 저장방식 설정
+        $("#SaveMode").val("D");
+
+        $("#frm").submit();
+    });
+
+    // 첨부파일 클릭 이벤트
+    $(document).on("click", "#tbody_attid td:first-child a", function (e) {
+        GetSnyNapViewer($(this).attr("id"));
+    });
+
+
+</script>
+

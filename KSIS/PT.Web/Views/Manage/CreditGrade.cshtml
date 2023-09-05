@@ -1,0 +1,629 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+@model PT.BusinessLogic.Entities.Site
+
+<!-- 콘텐츠 -->
+
+<div class ="boxother5">
+    <h1 class="title1">장기등급(회사채)</h1>
+
+        <div style="float:left;width:7%;height:auto;padding-top:160px">
+         <input type="button" class="btnLeft" id="btn5" > </input>
+    </div>
+
+   <div id="chart_creditgrade_1" class="chart" style="float:left;width:86%;height:auto;"></div>
+
+    <div style="float:left;width:7%;height:auto;padding-top:160px">
+        <input type="button" class="btnRight" id="btn6" style="margin-left:40px" ></input>
+    </div>
+
+    <div class="box_titletop1" style="padding:10px;">
+        <a class="btn1" id="btn2">한국신용평가</a>
+        <a class="btn1" id="btn1">NICE 신용평가</a>
+        <a class="btn1" id="btn9" style="display:none">한국기업평가</a>
+    </div>
+
+    <div class="boxother6" style="line-height:150%;display:none">
+        NICE 신용평가(@Session["TypeNm1"])<br />
+        등급 : <span style="color:red">@Session["Grade1"]</span><br />
+        평정일 :  <span style="color:blue">@Session["CDate1"]</span> <br />
+        평가구분 : @Session["CType1"] <br />
+    </div>
+    <div class="boxother6" style="line-height:150%;display:none">
+        한국기업평가(@Session["TypeNm1"])<br />
+        등급 : <span style="color:red">@Session["Grade2"]</span><br />
+        평정일 :  <span style="color:blue">@Session["CDate2"]</span> <br />
+        평가구분 : @Session["CType2"] <br />
+    </div>
+    <div class="boxother6" style="line-height:150%;display:none">
+        한국신용평가(@Session["TypeNm1"])<br />
+        등급 : <span style="color:red">@Session["Grade3"]</span><br />
+        평정일 :  <span style="color:blue">@Session["CDate3"]</span> <br />
+        평가구분 : @Session["CType3"] <br />
+    </div>
+
+    <div class="box_credit">
+        <label>[회사채 평가등급]</label><br />
+        <span>중장기적인 자금수요에 대응하기 위하여 발행하는 채권에 대하여 원리금의 상환확실성 정도를 평가하는 것으로, 발행기관의 중장기적인 전망과 상환능력에 영향을 미치는 요소에 대하여 중점적으로 검토합니다.
+        등급은 <label2>AAA, AA, A, BBB, BB, B, CCC, CC, C, D</label2> 10개 등급이며, AA부터 B까지는 "+" 또는 "-"의 기호를 부가하여 세분화 할 수 있습니다.
+        등급 중 AAA부터 BBB까지는 원리금 상환능력이 인정되는 투자등급이며, BB에서 C까지는 환경변화에 따라 크게 영향을 받는 투기등급으로 분류됩니다.
+        </span>
+    </div>
+
+    <br />
+    <h1 class="title1">단기등급(기업어음, 전단채)</h1>
+
+    <div style="float:left;width:7%;height:auto;padding-top:160px">
+         <input type="button" class="btnLeft" id="btn7"></input>
+    </div>
+
+    <div id="chart_creditgrade_2" class="chart" style="float:left;width:86%;height:auto;"></div>
+
+    <div style="float:left;width:7%;height:auto;padding-top:160px">
+        <input type="button" class="btnRight" id="btn8" style="margin-left:40px"></input>
+    </div>
+    
+    <div class="box_titletop1" style="padding:10px;">
+        <a class="btn1" id="btn4">한국신용평가</a>
+        <a class="btn1" id="btn3">NICE 신용평가</a>
+        <a class="btn1" id="btn10" style="display:none">한국기업평가</a>
+    </div>
+ 
+    <div class="boxother6" style="line-height:150%;display:none">
+        NICE 신용평가(@Session["TypeNm2"])<br />
+        등급 : <span style="color:red">@Session["Grade4"]</span><br />
+        평정일 :  <span style="color:blue">@Session["CDate4"]</span> <br />
+        평가구분 : @Session["CType4"] <br />
+    </div>
+    <div class="boxother6" style="line-height:150%;display:none">
+        한국기업평가(@Session["TypeNm2"])<br />
+        등급 : <span style="color:red">@Session["Grade5"]</span><br />
+        평정일 :  <span style="color:blue">@Session["CDate5"]</span> <br />
+        평가구분 : @Session["CType5"] <br />
+    </div>
+    <div class="boxother6" style="line-height:150%;display:none">
+        한국신용평가(@Session["TypeNm2"])<br />
+        등급 : <span style="color:red">@Session["Grade6"]</span><br />
+        평정일 :  <span style="color:blue">@Session["CDate6"]</span> <br />
+        평가구분 : @Session["CType6"] <br />
+    </div>
+
+
+    <div class="box_credit">
+        <label>[기업어음, 전단채 평가등급]</label><br />
+        <span>단기 운영자금 조달의 위하여 발행한 기업어음, 전단채의 상환능력에 영향을 미치는 요소를 분석, 평가하여 그 상환능력을 평가하는 것으로, 발행기업의 단기적 영업상황과 유동성 위험 등 단기 채무상 중점적으로 파악합니다.
+        등급은 <label2>A1, A2, A3, B, C, D</label2> 6개 등급이며, A2부터 B까지는 "+" 또는 "-"의 기호를 부가하여 세분화 할 수 있습니다.
+        등급 중 A1에서 A3까지는 적기 상환능력이 인정되는 투자등급이며, B와 C는 환경변화에 따라 크게 영향을 받는 투기등급으로 분류됩니다.
+        </span>
+    </div>
+
+</div>
+
+<div class ="boxother5">
+    <h1 class="title1">건설사별 도급순위 및 신용등급현황</h1> 
+    <div id="chart_creditgrade_3" class="chart" style="height:300px;"></div>
+</div>
+
+<div class="boxother4">
+    <p style="float:right;font-weight:bold;color:black;">[타사신용등급현황 기준일 : @Session["StandardDate"]]</p><br />
+            <div id="grid_SubContractRanking" class="grid1" style="height:auto;"></div>
+</div>
+
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+
+    var code1 = "korea", code2 = "korea", code = "", ChkCnt1 = true, ChkCnt2 = true;
+
+    var subject1 = "한국신용평가", subject2 = "한국신용평가"
+
+    var Cnt1 = 0, Cnt2 = 0, Cnt = 0;
+
+    var Fiscalyear = "";
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        CreateCreditGradeChart1(Cnt1, code1);
+        CreateCreditGradeChart2(Cnt2, code2);
+        CreateCreditGradeChart3();
+        ListSubContractRanking("N", 0, 0);
+        //ApplyDisplayColor();
+    });
+
+    /*function ApplyDisplayColor() {
+
+        $("#grid_SubContractRanking tr").each(function (e) {
+            if (($(this).children().eq(1).text() == "케이씨씨건설") || ($(this).children().eq(6).text() == "케이씨씨건설") || ($(this).children().eq(11).text() == "케이씨씨건설")) {
+
+               
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+                    $(this).css("color", "black");
+
+                });
+            }           
+        });
+
+        $("#grid_SubContractRanking th, #grid_SubContractRanking td").each(function (i) {
+            $(this).css("bakgroud-color", ["red"][3]);
+        });
+
+    }*/
+
+    //신용등급현황 조회
+    function ListCreditGradeChart(gubun, Cnt, code) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListCreditGradeChart",
+            dataType: "json",
+            data: { "Cnt": Cnt },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+
+                if (gubun == "credit" && code == "nice") {
+                    if (data.length == 0) {
+                        ChkCnt1 = false;
+                    }
+                    else {
+                        ChkCnt1 = true;
+                    }
+                    for (i = 0; i < data.length; i++) {
+                        var arrData = {};
+                        arrData.y = parseInt(data[i].ChartGradeNum1);
+                        arrData.name = data[i].ChartCDate1;
+                        arrData.value = data[i].ChartGrade1;
+                        //arrData.color = data[i].VacationColor;
+                        jsonData.push(arrData);
+                    }
+                }
+                else if (gubun == "credit" && code == "korea") {
+                    if (data.length == 0) {
+                        ChkCnt1 = false;
+                    }
+                    else {
+                        ChkCnt1 = true;
+                    }
+                    for (i = 0; i < data.length; i++) {
+                        var arrData = {};
+                        arrData.y = parseInt(data[i].ChartGradeNum3);
+                        arrData.name = data[i].ChartCDate3;
+                        arrData.value = data[i].ChartGrade3;
+                        //arrData.color = data[i].VacationColor;
+                        jsonData.push(arrData);
+                    }
+                }
+                else if (gubun == "credit" && code == "corp") {
+                    if (data.length == 0) {
+                        ChkCnt1 = false;
+                    }
+                    else {
+                        ChkCnt1 = true;
+                    }
+                    for (i = 0; i < data.length; i++) {
+                        var arrData = {};
+                        arrData.y = parseInt(data[i].ChartGradeNum2);
+                        arrData.name = data[i].ChartCDate2;
+                        arrData.value = data[i].ChartGrade2;
+                        //arrData.color = data[i].VacationColor;
+                        jsonData.push(arrData);
+                    }
+                }
+                else if (gubun == "grade" && code == "nice") {
+                    if (data.length == 0) {
+                        ChkCnt2 = false;
+                    }
+                    else {
+                        ChkCnt2 = true;
+                    }
+                    for (i = 0; i < data.length; i++) {
+                        var arrData = {};
+                        arrData.y = parseInt(data[i].ChartGradeNum4);
+                        arrData.name = data[i].ChartCDate4;
+                        arrData.value = data[i].ChartGrade4;
+                        //arrData.color = data[i].VacationColor;
+                        jsonData.push(arrData);
+                    }
+                }
+                else if (gubun == "grade" && code == "corp") {
+                    if (data.length == 0) {
+                        ChkCnt2 = false;
+                    }
+                    else {
+                        ChkCnt2 = true;
+                    }
+                    for (i = 0; i < data.length; i++) {
+                        var arrData = {};
+                        arrData.y = parseInt(data[i].ChartGradeNum5);
+                        arrData.name = data[i].ChartCDate5;
+                        arrData.value = data[i].ChartGrade5;
+                        //arrData.color = data[i].VacationColor;
+                        jsonData.push(arrData);
+                    }
+                }
+                else if (gubun == "grade" && code == "korea") {
+                    if (data.length == 0) {
+                        ChkCnt2 = false;
+                    }
+                    else {
+                        ChkCnt2 = true;
+                    }
+                    for (i = 0; i < data.length; i++) {
+                        var arrData = {};
+                        arrData.y = parseInt(data[i].ChartGradeNum6);
+                        arrData.name = data[i].ChartCDate6;
+                        arrData.value = data[i].ChartGrade6;
+                        //arrData.color = data[i].VacationColor;
+                        jsonData.push(arrData);
+                    }
+                }
+
+
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    //도급순위현황 조회
+    function ListSubContractRankingChart() {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSubContractRankingChart",
+            dataType: "json",
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+
+                
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].RankingSEQ);
+                    arrData.name = data[i].CorpName;
+                    arrData.value = data[i].RankingType;
+                    arrData.color = data[i].CorpColor;
+                    Fiscalyear = data[0].Fiscalyear;   
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    //도급순위 현황 테이블
+    function ListSubContractRanking(pPagerUseYn, pCurPage, pListCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListSubContractRanking",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_SubContractRanking").empty();
+                $("#grid_SubContractRanking").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    function CreateCreditGradeChart1(Cnt1, code1) {
+        // 그래프 데이터 조회
+        code = code1;
+        Cnt = Cnt1;
+        var jsonData = ListCreditGradeChart("credit", Cnt, code);
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("신용등급현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_creditgrade_1").highcharts({
+
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: '[ 연도별 회사채 변동추이 / '+subject1+' ]',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            xAxis: {
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+            yAxis: {
+                title: {
+                    text: ''
+                },
+                labels: '',
+                tickInterval: 1
+            },
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function () {
+                            return this.point.value ;
+                        }
+
+                    },
+                    enableMouseTracking: false
+                },
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: '당사등급',
+                data: jsonData,
+                color: '#d42c2c',
+                marker: {
+                    lineWidth: 2,
+                    lineColor: '#ec4fa0',
+                    fillColor: 'white'
+
+                }
+            }]
+
+        });
+
+ }
+
+    function CreateCreditGradeChart2(Cnt2, code2) {
+        // 그래프 데이터 조회
+        code = code2;
+        Cnt = Cnt2;
+        var jsonData = ListCreditGradeChart("grade", Cnt, code);
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("신용등급현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_creditgrade_2").highcharts({
+
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: '[ 연도별 기업어음, 전단채 변동추이 / '+subject2+' ]',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+            xAxis: {
+                type: 'category',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+            yAxis: {
+                title: {
+                    text: ''
+                },
+                labels: '',
+                tickInterval: 1
+            },
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function () {
+                            return this.point.value;
+                        }
+
+                    },
+                    enableMouseTracking: false
+                },
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: '당사등급',
+                data: jsonData,
+                color: '#d42c2c',
+                marker: {
+                    lineWidth: 2,
+                    lineColor: '#ec4fa0',
+                    fillColor: 'white'
+
+                }
+            }]
+
+        });
+
+    }
+
+    function CreateCreditGradeChart3() {
+        // 그래프 데이터 조회
+        var jsonData = ListSubContractRankingChart();
+
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("도급순위현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        // 차트 생성
+        $("#chart_creditgrade_3").highcharts({
+
+
+            title: {
+                text: Fiscalyear + ' 상위 30개 건설사 도급순위 현황 [단위 : 백만원]',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            chart: {
+                type: 'column',
+                inverted: false
+            },
+
+            xAxis: {
+                type: 'category'
+            },
+
+            yAxis: {
+                title: {
+                    text: '',
+                    style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "10px",
+                    color: "#6d6d6d"
+                }
+                },
+                labels: ''
+            },
+
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{point.value}',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            },
+
+            plotOptions: {
+                column: {
+                    pointPadding: 0,
+                    borderWidth: 0
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                data: jsonData,
+                showInLegend: false,
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "13px",
+                    color: "#6d6d6d"
+                }
+            }]
+
+
+        });
+
+    }
+
+    $(document).on("click", "#btn1", function (e) {
+        code1 = "nice";
+        Cnt1 = 0;
+        subject1 = "NICE 신용평가";
+        CreateCreditGradeChart1(Cnt1, code1);
+    });
+
+    $(document).on("click", "#btn2", function (e) {
+        code1 = "korea";
+        Cnt1 = 0;
+        subject1 = "한국 신용평가";
+        CreateCreditGradeChart1(Cnt1,code1);
+    });
+
+    $(document).on("click", "#btn9", function (e) {
+        code1 = "corp";
+        Cnt1 = 0;
+        subject1 = "한국 기업평가";
+        CreateCreditGradeChart1(Cnt1, code1);
+    });
+
+    $(document).on("click", "#btn3", function (e) {
+        code2 = "nice";
+        Cnt2 = 0;
+        subject2 = "NICE 신용평가";
+        CreateCreditGradeChart2(Cnt2, code2);
+    });
+
+    $(document).on("click", "#btn4", function (e) {
+        code2 = "korea";
+        Cnt2 = 0;
+        subject2 = "한국 신용평가";
+        CreateCreditGradeChart2(Cnt2, code2);
+    });
+
+    $(document).on("click", "#btn10", function (e) {
+        code2 = "corp";
+        Cnt2 = 0;
+        subject2 = "한국 기업평가";
+        CreateCreditGradeChart2(Cnt2, code2);
+    });
+
+    $(document).on("click", "#btn5", function (e) {
+        if (ChkCnt1 == true) {
+            Cnt1 = Cnt1 - 1;
+        }
+        CreateCreditGradeChart1(Cnt1,code1);
+    });
+
+    $(document).on("click", "#btn6", function (e) {
+
+        Cnt1 = Cnt1 + 1;
+
+        if (Cnt1 > 0) {
+            Cnt1 = 0;
+        }
+
+        CreateCreditGradeChart1(Cnt1, code1);
+    });
+
+    $(document).on("click", "#btn7", function (e) {
+        if (ChkCnt2 == true) {
+            Cnt2 = Cnt2 - 1;
+        }
+        CreateCreditGradeChart2(Cnt2,code2);
+    });
+
+    $(document).on("click", "#btn8", function (e) {
+
+        Cnt2 = Cnt2 + 1;
+
+        if (Cnt2 > 0) {
+            Cnt2 = 0;
+        }
+        CreateCreditGradeChart2(Cnt2,code2);
+    });
+</script>

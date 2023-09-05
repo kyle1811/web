@@ -1,0 +1,360 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+
+    <script>
+
+    //************ 변수 ************//
+
+        var MenuCd = "@ViewBag.MenuCd";
+        var setMenuCd = "", classNm = "";
+
+
+
+    //************ 로드 ************//
+
+
+    $(document).ready(function (e) {
+        $("#AuthControl").addClass("txt_red");
+        var myDiv = $("#tree_dept_chart");
+        myDiv.animate({ scrollTop: $("#" + MenuCd).offset().top - (myDiv.offset().top + 200) }, 300);
+
+    });
+
+
+    //************ Ajax ************//
+
+
+        // 권한받은 사용자목록 그리드 조회
+        function ListAuthStatusUser(pPagerUseYn, pCurPage, pListCnt, pMenuCd, pGubun) {
+            $.ajax({
+                type: "POST",
+                url: "/Admin/ListAuthStatus",
+                dataType: "html",
+                data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pMenuCd": pMenuCd, "pGubun": pGubun},
+                async: false,   // 동기식 처리
+                success: function (data) {
+                    var data = data.split("‡");
+                    // 그리그 생성
+                    $("#gridUser").empty();
+                    $("#gridUser").html(data[0]);
+                    // 페이지 생성
+                    CreatePager("pagerUser", 10, data[1], data[2]);
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            });
+        }
+
+        // 권한받은 부서목록 그리드 조회
+        function ListAuthStatusDept(pPagerUseYn, pCurPage, pListCnt, pMenuCd, pGubun) {
+            $.ajax({
+                type: "POST",
+                url: "/Admin/ListAuthStatus",
+                dataType: "html",
+                data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pMenuCd": pMenuCd, "pGubun": pGubun },
+                async: false,   // 동기식 처리
+                success: function (data) {
+                    var data = data.split("‡");
+                    // 그리그 생성
+                    $("#gridDept").empty();
+                    $("#gridDept").html(data[0]);
+                    // 페이지 생성
+                    CreatePager("pagerDept", 10, data[1], data[2]);
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            });
+        }
+
+        // 권한받은 직책/직급 목록 그리드 조회
+        function ListAuthStatusCd(pPagerUseYn, pCurPage, pListCnt, pMenuCd, pGubun) {
+            $.ajax({
+                type: "POST",
+                url: "/Admin/ListAuthStatus",
+                dataType: "html",
+                data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pMenuCd": pMenuCd, "pGubun": pGubun },
+                async: false,   // 동기식 처리
+                success: function (data) {
+                    var data = data.split("‡");
+
+                    // 그리그 생성
+                    if (pGubun == "User") {
+                        $("#gridUser").empty();
+                        $("#gridUser").html(data[0]);
+                    }
+                    else if(pGubun == "Dept") {
+                        $("#gridDept").empty();
+                        $("#gridDept").html(data[0]);
+                    }
+                    else {
+                        $("#gridCd").empty();
+                        $("#gridCd").html(data[0]);
+                    }
+
+
+
+                    // 페이지 생성
+                    //CreatePager("pagerCd", 10, data[1], data[2]);
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            });
+        }
+
+
+
+    //************ 이벤트 ************//
+
+    // 트리뷰 클릭 이벤트
+    $(document).on("click", "#tree_dept_chart a", function (e) {
+
+        $("#tree_dept_chart a").css("color", "#5f5f5f");
+        $(this).css("color", "#d82728");
+
+       setMenuCd = this.parentNode.id;
+
+        if ($(this).attr("class") == "sub_open") {
+            $(this).attr("class", "sub_none");
+            $(this).next().css("display", "none");
+        }
+        else if ($(this).attr("class") == "sub_none") {
+            $(this).attr("class", "sub_open");
+            $(this).next().css("display", "block");
+        }
+
+        ListAuthStatusUser("N", 0, 0, this.parentNode.id, "User");
+        ListAuthStatusDept("N", 0, 0, this.parentNode.id, "Dept");
+        ListAuthStatusCd("N", 0, 0, this.parentNode.id, "Cd");
+
+        });
+
+        //권한등록 클릭 이벤트
+        $(document).on("click", "#authRegist", function (e) {
+
+            //if (setMenuCd == "") {
+            //    alert("하위 메뉴를 선택하세요");
+            //    return 0;
+            //}
+
+            var winHeight = document.body.clientHeight; //현재창의 높이
+            var winWidth = document.body.clientWidth; // 현재창의 너비
+
+            var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+            var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+            var popX = winX + (winWidth - 700) / 2;
+            var popY = winY + (winHeight - 500) / 2;
+
+            var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=700,height=500,top=" + popY + ",left=" + popX + "";
+            var location = "/PopUp/AuthRegist?pMenuCd=" + setMenuCd + "&pRegUserId=" + "@Session["EmpNo"]";
+
+            var openDialog = function (location, setting, closeCallback) {
+
+                var win = window.open(location, "권한등록", setting);
+                var interval = window.setInterval(function () {
+                    try {
+                        if (win == null || win.closed) {
+                            window.clearInterval(interval);
+                            closeCallback(win);
+                        }
+                    }
+                    catch (e) {
+                    }
+                }, 500);
+
+                return win;
+            };
+
+            openDialog(location, setting, function (win) {
+                ListAuthStatusUser("N", 0, 0, setMenuCd, "User");
+                ListAuthStatusDept("N", 0, 0, setMenuCd, "Dept");
+                ListAuthStatusCd("N", 0, 0, setMenuCd, "Cd");
+            });
+
+
+        });
+        
+
+        // 사용 권한 삭제
+        function InsertCondtional(pMenuCd, pAuthUserId, pRegUserId) {
+            $.ajax({
+                type: "POST",
+                url: "/PopUp/InsertCondtional",
+                dataType: "html",
+                data: { "pMenuCd": pMenuCd, "pAuthUserId": pAuthUserId, "pRegUserId": pRegUserId },
+                async: false,   // 동기식 처리
+                success: function (data) {
+                    alert(data);
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            });
+        }
+
+        //사용자 권한 삭제 클릭 이벤트
+        $(document).on("click", "#gridUser tr", function (e) {
+
+            if (GetGridTrValue("gridUser", "h_MenuNm", $(this).children()) != "화면명") {
+
+                $(this).css("background-color", "#eaeaea");
+                $(this).css("font-weight", "bold");
+
+                var returnVal;
+                returnVal = confirm("삭제 하시겠습니까?");
+
+                if (returnVal == true) {
+
+                    InsertCondtional(GetGridTrValue("gridUser", "h_Menu", $(this).children()), GetGridTrValue("gridUser", "h_AuthCd", $(this).children()), "Delete");
+
+                    ListAuthStatusUser("N", 0, 0, setMenuCd, "User");
+
+                    //self.close();
+                }
+                else {
+                    $(this).css("background-color", "#ffffff");
+                    $(this).css("font-weight", "normal");
+                }
+
+            }
+        });
+
+        //부서 권한 삭제 클릭 이벤트
+        $(document).on("click", "#gridDept tr", function (e) {
+
+            if (GetGridTrValue("gridDept", "h_MenuNm", $(this).children()) != "화면명") {
+
+                $(this).css("background-color", "#eaeaea");
+                $(this).css("font-weight", "bold");
+
+                var returnVal;
+                returnVal = confirm("삭제 하시겠습니까?");
+
+                if (returnVal == true) {
+
+                    InsertCondtional(GetGridTrValue("gridDept", "h_Menu", $(this).children()), GetGridTrValue("gridDept", "h_AuthCd", $(this).children()), "Delete");
+
+                    ListAuthStatusDept("N", 0, 0, setMenuCd, "Dept");
+
+                    //self.close();
+                }
+                else {
+                    $(this).css("background-color", "#ffffff");
+                    $(this).css("font-weight", "normal");
+                }
+
+            }
+        });
+
+        //직급/직책 권한 삭제 클릭 이벤트
+        $(document).on("click", "#gridCd tr", function (e) {
+
+            if (GetGridTrValue("gridCd", "h_MenuNm", $(this).children()) != "화면명") {
+
+                $(this).css("background-color", "#eaeaea");
+                $(this).css("font-weight", "bold");
+
+                var returnVal;
+                returnVal = confirm("삭제 하시겠습니까?");
+
+                if (returnVal == true) {
+
+                    InsertCondtional(GetGridTrValue("gridCd", "h_Menu", $(this).children()), GetGridTrValue("gridCd", "h_AuthCd", $(this).children()), "Delete");
+
+                    ListAuthStatusCd("N", 0, 0, setMenuCd, "Cd");
+
+                    //self.close();
+                }
+                else {
+                    $(this).css("background-color", "#ffffff");
+                    $(this).css("font-weight", "normal");
+                }
+
+            }
+        });
+
+    </script>
+
+</head>
+<body>
+    <div id="wrap">
+        <!-- 머리글 -->
+        <div id="header">
+            <div class="gnb">
+                <div class="gnb_info">
+                    <a href="/Portal/Home" class="logo"></a><a href="/Account/Logout">로그아웃</a><label>|</label><span>(@Session["DeptNm"])</span><span>@Session["DutyNm"]</span><span>@Session["UserNm"]</span><label>|</label><span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
+                </div>
+            </div>
+            <div class="lnbo">
+            </div>
+                <div id="container">
+                    <!-- 콘텐츠 -->
+                    <div id="contents">
+                        <!-- 사이드메뉴 -->
+                        <div class="contents_left1">
+                            <a href="/Admin/AuthControl" id="AuthControl">화면권환관리</a>
+                            <a href="/Admin/NoticeControl" id="NoticeControl">공지사항관리</a>
+                        </div>
+
+                        <div class="contents_right1">
+                            <div id="tree_dept_chart" class="tree_type1" style="width:200px;height:450px;float:left;">
+                                @MvcHtmlString.Create(ViewBag.TreeData)
+                            </div>
+                            <div style="overflow:hidden;float:right;position:relative;width:520px;">
+                                <div style="margin-top:15px;margin-bottom:15px;"><a id ="authRegist" class="btn1">권한 등록</a></div>
+                                <h1 class="title1">사용자</h1>
+                                <!-- 그리드 -->
+                                <div id="gridUser" class="grid4" style="height:auto;"></div>
+
+                                <h1 class="title1">부 서</h1>
+                                <!-- 그리드 -->
+                                <div id="gridDept" class="grid4" style="height:auto;"></div>
+
+                                <h1 class="title1">직 책 / 직 급</h1>
+                                <!-- 그리드 -->
+                                <div id="gridCd" class="grid4" style="height:auto;"></div>
+                            </div>
+                        </div>
+                        <!-- //콘텐츠 -->
+                    </div>
+                </div>
+            </div>
+            <!-- //본문 -->
+            <!-- 바닥글 -->
+            <div id="footer">
+                <span>COPYRIGHT(C) 2017 KCC ENGINEERING & CONSTRUCTION CO., LTD. ALL RIGHT RESERVED.</span>
+            </div>
+            <!-- //바닥글 -->
+
+        </div>
+
+</body>
+</html>

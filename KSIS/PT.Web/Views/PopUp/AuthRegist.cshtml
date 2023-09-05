@@ -1,0 +1,145 @@
+﻿@using PT.Web.WebUtil
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+
+</head>
+<body>   
+            <!-- 검색 및 버튼박스 -->
+            <div class="box_search4" style="margin-top:15px;">
+                @Html.DropDownList("SearchTypeCd", (List<SelectListItem>)ViewBag.ddlSearchTypeCd)  <input type="text" id="TxtSearchWord" name="TxtSearchWord" />
+                <a id="btn_search" class="btn1">검색</a>
+            </div>
+            <!-- //검색 및 버튼박스 -->
+            <!-- 그리드 -->
+            <div id="gridTB" class="grid2" style="height:385px;"></div>
+            <!-- //그리드 -->
+            <!-- 페이지 -->
+            <div id="pager_user" class="pager1"></div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+    // 조건부 조회
+    function ListCondtionalSearch(pPagerUseYn, pCurPage, pListCnt, pSearchTypeCd, pSearchWord) {
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/ListCondtionalSearch",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pSearchTypeCd": pSearchTypeCd, "pSearchWord": pSearchWord },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#gridTB").empty();
+                $("#gridTB").html(data[0]);
+                // 페이지 생성
+                //CreatePager("pager_user", 10, data[1], data[2]);
+                // 검색조건 저장
+                //$("#HdnTreeYn").val(data[3]);
+                //$("#HdnDeptCd").val(data[4]);
+                //$("#HdnSearchTypeCd").val(data[5]);
+                //$("#HdnSearchWord").val(data[6]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 사용 권한 등록 INSERT
+    function InsertCondtional(pMenuCd, pAuthUserId, pRegUserId) {
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/InsertCondtional",
+            dataType: "html",
+            data: { "pMenuCd": pMenuCd, "pAuthUserId": pAuthUserId, "pRegUserId": pRegUserId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                alert(data);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 검색버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+
+        if ($("#TxtSearchWord").val() == "") {
+            alert("검색 단어를 입력하지 않았습니다.");
+            $("#TxtSearchWord").focus();
+            return false;
+        }
+
+        ListCondtionalSearch("N", 0, 0, $("#SearchTypeCd").val(), $("#TxtSearchWord").val());
+    });
+
+    // 검색박스 엔터 이벤트
+    $(document).on("keypress", "#TxtSearchWord", function (e) {
+        if (e.which == 13) {
+            $("#btn_search").trigger("click");
+            return false;
+        }
+    });
+
+    //그리드 클릭 이벤트
+    $(document).on("click", "#gridTB tr", function (e) {
+        if (GetGridTrValue("gridTB", "h_GubunCd", $(this).children()) != "구분자") {
+
+            $(this).css("background-color", "#eaeaea");
+            $(this).css("font-weight", "bold");
+
+            var returnVal;
+            returnVal = confirm("등록하시겠습니까?");
+
+            if (returnVal == true) {
+
+                if ($("#SearchTypeCd").val() == "UserNm") {         
+                    InsertCondtional("@ViewBag.MenuCd", GetGridTrValue("gridTB", "h_", $(this).children()), "@ViewBag.RegUserId");
+                }
+                else if ($("#SearchTypeCd").val() == "DeptNm") {
+                    InsertCondtional("@ViewBag.MenuCd", GetGridTrValue("gridTB", "h_DeptCd", $(this).children()), "@ViewBag.RegUserId");
+                }
+                else {
+                    InsertCondtional("@ViewBag.MenuCd", GetGridTrValue("gridTB", "h_CD", $(this).children()), "@ViewBag.RegUserId");
+                }
+
+                //self.close();
+            }
+            else {
+                $(this).css("background-color", "#ffffff");
+                $(this).css("font-weight", "normal");
+
+            }
+
+        }
+    });
+
+
+</script>

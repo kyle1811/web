@@ -1,0 +1,337 @@
+﻿@model PT.BusinessLogic.Entities.Site
+@using PT.Web.WebUtil
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/flexslider.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/shCore.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/shThemeDefault.css" />
+
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/Calendar.js"></script>
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery.flexslider-min.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery.flexslider.js"></script>
+    <script src="/Contents/js/jquery.easing.js"></script>
+    <script type="text/javascript" src="/Contents/js/lazyload.min.js"></script>
+    <script type="text/javascript" src="/Contents/js/lazyload.js"></script>
+
+
+</head>
+    <body>
+        <!-- 콘텐츠 -->
+        <div id="contents">
+            
+            <!-- 폼 -->
+            @*게시판 슬라이드 통합*@
+            <div class="bn">
+                @WebUtil.MakeSitePhotoAll(ViewBag.SiteCd)
+            </div>
+
+                @*슬라이드 형태*@
+                @*<div id="main" role="main">
+        <section class="slider">
+            @WebUtil.MakeSlideSitePhotoAll(ViewBag.SiteCd)
+        </section>
+        </div>*@
+
+                @*배열형태*@
+                @*<div class="bn">@MvcHtmlString.Create(ViewBag.SitePhoto)</div>*@
+
+                <!-- //폼 -->
+            </div>
+            <!-- //콘텐츠 -->
+</body>
+</html>
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+    var SiteCd = "@ViewBag.SiteCd";
+    var i = 0, j = 0, cnt = 0, count = 0, maxNumber = 0;
+    var checkId = "", slideId = "", saveId = "", beforeChkId = "", beforeGroupNo = "";
+
+    var location;
+
+    $(window).load(function () {
+         
+        for (i = 0; i < document.body.children[9].children[0].childElementCount; i++) {
+           
+            $("#" + document.body.children[9].children[0].children[i].lastChild.id).slideUp();
+        }
+
+        maxNumber = parseInt(document.body.children[9].children[0].lastElementChild.children[document.body.children[9].children[0].lastElementChild.childElementCount - 2].id.substring(2));
+
+        $('img.lazy').lazyload();
+
+    });
+
+
+    
+
+    function getLocation() {
+
+        for (i = 0; i < document.body.children[9].children[0].childElementCount; i++) {
+
+            $("#" + document.body.children[9].children[0].children[i].lastChild.id).slideUp();
+
+            saveId = $("#" + document.body.children[9].children[0].children[i].children[0].firstChild.id);
+
+            location[i] = saveId.offset().top;
+        }
+
+    }
+    
+
+    //$(window).load(function () {
+        
+    //    $('#carousel').flexslider({
+    //        animation: "slide",
+    //        //controlNav: false,
+    //        animationLoop: false,
+    //        slideshow: false,
+    //        itemWidth: 210,
+    //        itemMargin: 5,
+    //        asNavFor: '#slider'
+    //    });
+
+    //    $('#slider').flexslider({
+    //        animation: "slide",
+    //        controlNav: false,
+    //        animationLoop: false,
+    //        slideshow: false,
+    //        sync: "#carousel",
+    //        start: function (slider) {
+    //            $('body').removeClass('loading');
+    //        }
+    //    });
+    //});
+
+    //document.oncontextmenu = function (e) {
+    //    alert("오른쪽버튼은 이용할 수 없습니다.");
+    //    return false;
+    //}
+
+    $(document).on("click", ".bn_box7", function (e) {  
+
+        if (count == 0) {
+
+            getLocation();
+            count = 1;
+        }
+
+        
+        //var id = this.lastElementChild.getAttribute('id');
+
+        //$("#bIgPhoto").offset({ top: $("#" + id).offset().top }); 
+
+       // alert(top3);
+       // alert($(this).children("img").attr("src"));
+        
+        //alert($("#" + id).data("group")); border:5px solid #d8d8d8;
+
+
+        for (i = 0; i < this.parentNode.parentNode.childElementCount; i++){
+            for (j = 0; j < this.parentNode.parentNode.children[i].childElementCount - 1; j++){
+
+                if (this.parentNode.parentNode.children[i].children[j].firstChild.id != this.firstChild.id) {
+                    $("#" + this.parentNode.parentNode.children[i].children[j].firstChild.id).css('border', '0px');
+                }
+                else {
+                    $("#" + this.firstChild.id).css('border', '5px solid #FF0000');
+                }
+
+            }
+        }
+
+        $("#" + this.parentNode.lastChild.children.item(1).getAttribute('id')).attr("src", $(this).children("img").attr("src"));
+
+        if (checkId != this.firstChild.id) {
+
+            checkId = this.firstChild.id;
+
+            if (slideId != this.parentNode.lastChild.id){
+                $("#" + slideId).slideUp();
+            }
+            
+            $("#" + this.parentNode.lastChild.id).slideDown();
+
+            slideId = this.parentNode.lastChild.id;
+   
+            cnt++;
+        }
+        else {
+            if (cnt != 0) {
+        
+                $("#" + this.firstChild.id).css('border', '0px');
+
+                $("#" + this.parentNode.lastChild.id).slideUp();
+                cnt = 0;
+                checkId = "";
+                slideId = "";
+            }
+            else {
+        
+                $("#" + this.parentNode.lastChild.id).slideDown();
+                
+            }
+        }    
+
+
+        $('html, body').animate({ scrollTop: location[$("#" + this.lastChild.id).data("group")]}, "slow");
+
+        //var img = new Image();
+        //var imgWidth = 0;
+        //var imgHeight = 0;
+
+        //img.src = $(this).children("img").attr("src");
+  
+        //imgWidth = img.width;
+        //imgHeight = img.height;
+      
+        //var maxImgWidth = 900;
+        //var maxImgHeight = 600;
+        
+        //var resizeImgWidth = 0, resizeImgHeight = 0;
+
+
+        //if (imgWidth > maxImgWidth || imgHeight > maxImgHeight) {
+        //    if (imgWidth > imgHeight) {
+        //        resizeImgWidth = maxImgWidth;
+        //        resizeImgHeight = Math.round((imgHeight * resizeImgWidth) / imgWidth);
+        //    } else {
+        //        resizeImgHeight = maxImgHeight;
+        //        resizeImgWidth = Math.round((imgWidth * resizeImgHeight) / imgHeight);
+        //    }
+        //} else {
+        //    resizeImgWidth = imgWidth;
+        //    resizeImgHeight = imgHeight;
+        //}
+        
+        //imgWidth = resizeImgWidth;
+        //imgHeight = resizeImgHeight;
+
+        //var winHeight = document.body.clientHeight; //현재창의 높이
+        //var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        //var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+        //var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        //var popX = winX + (winWidth - imgWidth) / 2;
+        //var popY = winY + (winHeight - imgHeight) / 2;
+
+        //var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=" + imgWidth + ",height=" + imgHeight + ",top=" + popY + ",left=" + popX + "";
+        //var location = "/PopUp/BlowUpPhoto?pSiteCd=" + SiteCd + "&pNumber=" + $(this).children("span").attr("id");
+        //window.open(location, "사진확대", setting);
+
+    });
+
+    $(document).on("click", "#prev", function (e) {
+
+        beforeChkId = checkId;
+
+        beforeGroupNo = $("#" + checkId).data("group");
+
+        var str = checkId.split("_");
+
+        var Number = 0;
+
+        if ((parseInt(str[1]) - 1) != -1) {
+
+            $("#" + beforeChkId).css('border', '0px');
+
+            Number = "imgId_" + String(parseInt(str[1]) - 1);
+
+            checkId = Number;
+
+            $("#" + Number).css('border', '5px solid #FF0000');
+
+            if (beforeGroupNo != $("#" + checkId).data("group")) {
+
+                $("#" + slideId).css("display","none");
+
+                slideId = "large_" + $("#" + checkId).data("group");
+
+
+                $("#" + slideId).css("display", "flex");
+
+                $("#" + slideId + " img").attr("src", $("#" + Number).data("src"));
+
+
+                $('html, body').stop().animate({ scrollTop: location[$("#" + checkId).data("group")] });
+            }
+            else {
+                $("#" + slideId + " img").attr("src", $("#" + Number).data("src"));
+            }
+            
+
+        }
+        else {
+            alert("가장 최신 사진 입니다.");
+        }
+    });
+
+    $(document).on("click", "#next", function (e) {
+
+
+        beforeChkId = checkId;
+
+        beforeGroupNo = $("#" + checkId).data("group");
+
+        var str = beforeChkId.split("_");
+
+        var Number = 0;
+
+        if ((parseInt(str[1]) + 1) <= maxNumber) {
+
+            $("#" + beforeChkId).css('border', '0px');
+
+            Number = "imgId_" + String(parseInt(str[1]) + 1);
+
+            checkId = Number;
+
+            $("#" + Number).css('border', '5px solid #FF0000');
+
+            if (beforeGroupNo != $("#" + checkId).data("group")) {
+
+                $("#" + slideId).css("display", "none");
+
+                slideId = "large_" + $("#" + checkId).data("group");
+
+
+                $("#" + slideId).css("display", "flex");
+
+                $("#" + slideId + " img").attr("src", $("#" + Number).data("src"));
+
+                $('html, body').stop().animate({ scrollTop: location[$("#" + checkId).data("group")] });
+
+            }
+            else {
+                $("#" + slideId + " img").attr("src", $("#" + Number).data("src"));
+            }
+
+        }
+        else {
+            alert("마지막 사진 입니다.");
+        }
+    });
+
+</script>

@@ -1,0 +1,632 @@
+﻿@using PT.Web.WebUtil;
+
+@model PT.BusinessLogic.Entities.Auction
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Information/Auction">진행중인경매</a>
+        <a href="/Information/AuctionComplete">완료된경매</a>
+        <a href="/Information/AuctionBidding">참여한경매</a>
+        <a href="/Information/AuctionSelling" class="txt_red" ">경매관리자</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">        
+        <!-- 폼 -->
+        <form id="frm" name="frm" enctype="multipart/form-data" action="/Information/AuctionRegistration" method="post">
+            <!-- 버튼박스 -->
+            <h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:15px;color:#121212;">물품등록</h1>
+            
+            <div class="box_btn_right">
+                <a id="btn_registration" class="btn1">저장</a>
+                <a id="btn_notice" class="btn1">입찰공고</a>
+                <a id="btn_cancel" class="btn1">취소</a>
+                <a id="btn_delete" class="btn1">삭제</a>
+                <a id="btn_BidDetail" class="btn1">투찰내역 보기</a>
+                <a id="btn_winningbid" class="btn1">낙찰</a>
+                <a href="/Information/AuctionSelling" id="btn_list" class="btn1">목록</a>
+            </div>
+            <!-- //버튼박스 -->
+            <!-- 입력박스 -->
+            <div class="box_input">
+                <table>
+                    <colgroup>
+                        <col style="width:15%" />
+                        <col style="width:35%" />
+                        <col style="width:20%" />
+                        <col />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th>경매번호</th>
+                            <td class="td_left" style="padding-left:10px; background-color:#f8e8e8">@Model.AuctionNo</td>
+                            <th>진행상태</th>
+                            <td class="td_left" style="padding-left:10px;font-weight:bold;">@Model.AuctionStatus</td>
+                        </tr>
+                        <tr>
+                            <th>물품명</th>
+                            <td colspan="3" class="td_left" style="padding-left:10px;">@Html.TextBoxFor(x => x.ItemNm, new { style = "text-align:left;" })</td>
+                        </tr>
+                        <tr>
+                            <th>현재시간</th>
+                            <td class="td_left" style="padding-left:18px;"><span id="clock"></span></td>
+                            <th>사용기간</th>
+                            <td class="td_left" style="padding-left:10px;">@Html.TextBoxFor(x => x.UsePeriod, new { @class = "input_number", style = "text-align:right;width:100px;padding-right:8px" })개월</td>
+                        </tr>
+                        <tr>
+                            <th>경매시작일시</th>
+                            <td colspan="3" class="td_left" style="padding-left:10px;">
+                                @Html.TextBoxFor(x => x.StartDateYear, new { style = "text-align:right;width:40px;padding-right:5px" })년
+                                <select id="StartDateMonth" name="StartDateMonth">
+                                    @for (int i = 1; i < 13; i++)
+                            {
+                                string month = "";
+
+                                if (i < 10)
+                                {
+                                    month = "0" + i;
+                                }
+                                else
+                                {
+                                    month = "" + i;
+                                }
+                                <option value="@month">@month</option>
+                    }
+                                </select>  월
+                                <select id="StartDateDay" name="StartDateDay">
+                                    @for (int i = 1; i < 32; i++)
+                            {
+                                string day = "";
+
+                                if (i < 10)
+                                {
+                                    day = "0" + i;
+                                }
+                                else
+                                {
+                                    day = "" + i;
+                                }
+                                <option value="@day">@day</option>
+                    }
+                                </select>  일
+                                <select id="StartDateHour" name="StartDateHour">
+                                    @for (int i = 0; i < 24; i++)
+                            {
+                                string hour = "";
+
+                                if (i < 10)
+                                {
+                                    hour = "0" + i;
+                                }
+                                else
+                                {
+                                    hour = "" + i;
+                                }
+                                <option value="@hour">@hour</option>
+                    }
+                                </select>  시
+                                <select id="StartDateMinute" name="StartDateMinute">
+                                    @for (int i = 0; i < 60; i++)
+                            {
+                                string minute = "";
+
+                                if (i < 10)
+                                {
+                                    minute = "0" + i;
+                                }
+                                else
+                                {
+                                    minute = "" + i;
+                                }
+                                <option value="@minute">@minute</option>
+                    }
+                                </select>  분
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>경매종료일시</th>
+                            <td colspan="3" class="td_left" style="padding-left:10px;">
+                                @Html.TextBoxFor(x => x.CloseDateYear, new { style = "text-align:right;width:40px;padding-right:5px" })년
+                                <select id="CloseDateMonth" name="CloseDateMonth">
+                                    @for (int i = 1; i < 13; i++)
+                            {
+                                string month = "";
+
+                                if (i < 10)
+                                {
+                                    month = "0" + i;
+                                }
+                                else
+                                {
+                                    month = "" + i;
+                                }
+                                <option value="@month">@month</option>
+                    }
+                                </select>  월
+                                <select id="CloseDateDay" name="CloseDateDay">
+                                    @for (int i = 1; i < 32; i++)
+                            {
+                                string day = "";
+
+                                if (i < 10)
+                                {
+                                    day = "0" + i;
+                                }
+                                else
+                                {
+                                    day = "" + i;
+                                }
+                                <option value="@day">@day</option>
+                    }
+                                </select>  일
+                                <select id="CloseDateHour" name="CloseDateHour">
+                                    @for (int i = 0; i < 24; i++)
+                            {
+                                string hour = "";
+
+                                if (i < 10)
+                                {
+                                    hour = "0" + i;
+                                }
+                                else
+                                {
+                                    hour = "" + i;
+                                }
+                                <option value="@hour">@hour</option>
+                    }
+                                </select>  시
+                                <select id="CloseDateMinute" name="CloseDateMinute">
+                                    @for (int i = 0; i < 60; i++)
+                            {
+                                string minute = "";
+
+                                if (i < 10)
+                                {
+                                    minute = "0" + i;
+                                }
+                                else
+                                {
+                                    minute = "" + i;
+                                }
+                                <option value="@minute">@minute</option>
+                    }
+                                </select>  분
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>운송비부담</th>
+                            <td class="td_left" style="padding-left:10px;">
+                                @Html.RadioButton("ShippingCharge", "판매자", isChecked: false)
+                            @Html.Label("판매자", new { style = "text-align:left;width:50px" })
+                            @Html.RadioButton("ShippingCharge", "구매자", isChecked: false)
+                            @Html.Label("구매자", new { style = "text-align:left;width:50px" })
+                            @Html.RadioButton("ShippingCharge", "협의", isChecked: false)
+                            @Html.Label("협의", new { style = "text-align:left;width:50px" })
+
+                        </td>
+                        <th>경매방식</th>
+                        <td class="td_left" style="padding-left:10px;">
+                            @Html.RadioButton("AuctionType", "최고가낙찰", isChecked: false)
+                        @Html.Label("최고가낙찰", new { style = "text-align:left;width:90px" })
+                        @Html.RadioButton("AuctionType", "지정근접가", isChecked: false)
+                        @Html.Label("지정근접가", new { style = "text-align:left;width:80px" })
+                    </td>
+                </tr>
+                <tr style="height:45px;">
+                    <th>판매수량</th>
+                    <td class="td_left" style="padding-left:10px;">
+                        <select id="SellQuantity" name="SellQuantity">
+                            @for (int i = 1; i < 21; i++)
+                    {
+                        <option value="@i">@i</option>
+            }
+                        </select>  개
+                    </td>
+                    <th>최고가 낙찰 시 <BR> 현재가 이상 투찰단위</th>
+                    <td class="td_left" style="padding-left:10px;">
+                        @Html.TextBoxFor(x => x.BidPriceUnit, new { @class = "input_number", style = "text-align:right;width:100px; padding-right:5px" })
+                        원 ex) 1000원
+                    </td>
+                </tr>
+                <tr style="height:45px;">
+                    <th>경매시작가</th>
+                    <td class="td_left" style="padding-left:10px;">
+                        @Html.TextBoxFor(x => x.StartPrice, new { @class = "input_number", style = "text-align:right;width:200px; padding-right:5px" })
+                        원
+                    </td>
+                    <th>모든 입찰 시 <BR> 최소입찰 금액 단위</th>
+                    <td class="td_left" style="padding-left:10px;">
+                        @Html.TextBoxFor(x => x.LowPriceUnit, new { @class = "input_number", style = "text-align:right;width:100px; padding-right:5px" })
+                        원 ex) 100원
+                    </td>
+                </tr>
+                <tr>
+                    <th>상세정보</th>
+                    <td colspan="3" class="td_left" style="height:70px;padding-left:10px;overflow:auto">@Html.TextAreaFor(x => x.DetailInfo, new { @rows = "5", style = "width:628px;" })</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+        <!-- 입력박스 -->
+        <!-- 첨부파일 -->
+        <div class="file_box">
+            @WebUtil.MakeFileControl("사진업로드", "AttId", Model.AttId, true, Position.left, "100%")
+        </div>
+        <h1 style="padding-left:5px;font-size:14px;color:orangered;">
+            * 경매물품 이미지는 3장까지 표시됩니다.
+        </h1>
+        <br />
+        <!-- //첨부파일 -->
+        <!-- 그리드 -->
+        <div class="box_input">
+            <table>
+                <tbody>
+                    <tr>
+                        <th>사진</th>
+                    </tr>
+                    <tr>
+                        <td class="td_center">
+                            <img id="img1" style="width:600px;height:400px;padding-top:10px;padding-bottom:10px;display:none;"
+                                 src="@Model.ImageFile1" />
+                            <img id="img2" style="width:600px;height:400px;padding-bottom:10px;display:none;"
+                                 src="@Model.ImageFile2" />
+                            <img id="img3" style="width:600px;height:400px;padding-bottom:10px;display:none;"
+                                 src="@Model.ImageFile3" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- //그리드 -->
+        <!-- 숨김정보 -->
+        @Html.HiddenFor(x => x.RegNo)
+        @Html.HiddenFor(x => x.AuctionNo)
+        @Html.HiddenFor(x => x.AuctionTypeCd)
+        @Html.HiddenFor(x => x.SaveMode)
+        @Html.HiddenFor(x => x.AuctionNo)
+        @Html.HiddenFor(x => x.ItemNm)
+        @Html.HiddenFor(x => x.UsePeriod)
+        @Html.HiddenFor(x => x.AuctionType, new { id = "AuctionType" })
+        @Html.HiddenFor(x => x.SellQuantity)
+        @Html.HiddenFor(x => x.BidPriceUnit)
+        @Html.HiddenFor(x => x.StartPrice)
+        @Html.HiddenFor(x => x.LowPriceUnit)
+        @Html.HiddenFor(x => x.ShippingCharge, new { id = "ShippingCharge" })
+        @Html.HiddenFor(x => x.DetailInfo)
+        <!-- //숨김정보 -->
+        </form>
+        <!-- //폼 -->
+    </div>
+    <!-- //콘텐츠(상세) -->
+
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+    //************ 변수 ************//
+    var AuctionNo = "@Model.AuctionNo";
+    var ErrorMsg = "@Model.errormsg";
+    var isChk = false;
+
+    //************ 로드 ************//
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        
+        if (ErrorMsg != "") {
+            alert(ErrorMsg);
+            SetDate();
+        }
+        else {
+            EnableControl();
+            ChangeImgSpace();
+            SetRadio();
+            SetDate();
+        }       
+    });    
+
+    //************ 함수 ************//
+    // 버튼 및 INPUTBOX 활성화.비활성화 함수
+    function EnableControl() {
+       // if (regUserId == userId) {
+            $("#btn_submit").show();
+      //  }
+    }
+
+    //************ 이미지표시 공간 할당 ************//
+    function ChangeImgSpace() {
+        
+        if ("@Model.ImageFile1" != "") {
+            $("#img1").show();
+        }
+        if ("@Model.ImageFile2" != "") {
+            $("#img2").show();
+        }
+        if ("@Model.ImageFile3" != "") {
+            $("#img3").show();
+        }
+    }
+   
+    //************ 라디오버튼, 콤보박스 체크 ************//
+    function SetRadio() {
+        $(":radio[name='ShippingCharge']:radio[value='@Model.ShippingCharge']").prop("checked", true);
+        $(":radio[name='AuctionType']:radio[value='@Model.AuctionType']").prop("checked", true);
+    }
+
+    function SetDate() {
+        $("#StartDateMonth").val("@Model.StartDateMonth");
+        $("#StartDateDay").val("@Model.StartDateDay");
+        $("#StartDateHour").val("@Model.StartDateHour");
+        $("#StartDateMinute").val("@Model.StartDateMinute");
+        $("#CloseDateMonth").val("@Model.CloseDateMonth");
+        $("#CloseDateDay").val("@Model.CloseDateDay");
+        $("#CloseDateHour").val("@Model.CloseDateHour");
+        $("#CloseDateMinute").val("@Model.CloseDateMinute");
+        $("#SellQuantity").val("@Model.SellQuantity");
+    }
+
+    $(document).ready(function() 
+    { 
+        $("input:radio[name='AuctionType']").click(function () {
+            SetLowPriceUnit();
+        }) 
+    });
+    
+    function SetLowPriceUnit()
+    {
+        var rdAuctionTypeVal = $(':radio[name="AuctionType"]:checked').val();
+
+        if (rdAuctionTypeVal == "지정근접가") {
+            //$("AuctionType").value = $(':radio[name="AuctionType"]:checked').val();
+
+            $("BidPriceUnit").value = 0;
+        }
+    }
+
+    //************ 이벤트 ************//
+    // 저장 버튼 클릭 이벤트 //
+    $(document).on("click", "#btn_registration", function (e) {
+        
+        // 저장값 체크
+        if (chk_value(this.value) == false) {
+            return false;
+        }
+
+        $("ShippingCharge").value = $(':radio[name="ShippingCharge"]:checked').val();
+
+        $("AuctionType").value = $(':radio[name="AuctionType"]:checked').val();
+
+        $("#SaveMode").val("R");
+
+        $("#frm").submit();
+    });
+
+    // 입찰공고 버튼 클릭 이벤트 //
+    $(document).on("click", "#btn_notice", function (e) {
+        
+        // 저장값 체크
+        if (AuctionNo == "" || AuctionNo == " " || AuctionNo == null || AuctionNo == undefined || (AuctionNo != null && typeof AuctionNo == "object" && !Object.keys(AuctionNo).length)) {
+            alert("저장된 경매내역이 없습니다.");
+            return false;
+        }
+        
+        $("#SaveMode").val("N");
+
+        $("#frm").submit();
+    });
+
+    // 취소 버튼 클릭 이벤트 //
+    $(document).on("click", "#btn_cancel", function (e) {
+
+        // 저장값 체크
+        if (AuctionNo == "" || AuctionNo == " " || AuctionNo == null || AuctionNo == undefined || (AuctionNo != null && typeof AuctionNo == "object" && !Object.keys(AuctionNo).length)) {
+            alert("저장된 경매내역이 없습니다.");
+            return false;
+        }
+
+        $("#SaveMode").val("C");
+
+        $("#frm").submit();
+    });
+
+    // 삭제 버튼 클릭 이벤트 //
+    $(document).on("click", "#btn_delete", function (e) {
+
+        // 저장값 체크
+        if (AuctionNo == "" || AuctionNo == " " || AuctionNo == null || AuctionNo == undefined || (AuctionNo != null && typeof AuctionNo == "object" && !Object.keys(AuctionNo).length)) {
+            alert("저장된 경매내역이 없습니다.");
+            return false;
+        }
+
+        $("#SaveMode").val("D");
+
+        $("#frm").submit();
+    });
+
+    // 투찰내역 보기 클릭 이벤트
+    $(document).on("click", "#btn_BidDetail", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; // 현재창의 x좌표
+        var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 960) / 2;
+        var popY = winY + (winHeight - 700) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=470,height=620,top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/ListBidDetailPopUP?pAuctionNo=" + AuctionNo + "&pListType=P";
+        window.open(location, "ListBidDetailPopUP", setting);
+    });
+
+    // 낙찰 버튼 클릭 이벤트 //
+    $(document).on("click", "#btn_winningbid", function (e) {
+
+        // 저장값 체크
+        if (AuctionNo == "" || AuctionNo == " " || AuctionNo == null || AuctionNo == undefined || (AuctionNo != null && typeof AuctionNo == "object" && !Object.keys(AuctionNo).length)) {
+            alert("저장된 경매내역이 없습니다.");
+            return false;
+        }
+
+        $("#SaveMode").val("W");
+
+        $("#frm").submit();
+    });
+
+    function chk_value() {
+
+        if ($("#ItemNm").val() == "") {
+            alert("물품명을 입력하시기 바랍니다.");
+            $("#ItemNm").focus();
+            return false;
+        }
+
+        if ($("#UsePeriod").val() == "") {
+            alert("사용기간을 입력하시기 바랍니다.");
+            $("#UsePeriod").focus();
+            return false;
+        }
+
+        var rdShippingCharge = $(':radio[name="ShippingCharge"]:checked').val();
+
+        if (rdShippingCharge == "" || rdShippingCharge == " " || rdShippingCharge == null || rdShippingCharge == undefined || (rdShippingCharge != null && typeof rdShippingCharge == "object" && !Object.keys(rdShippingCharge).length)) {
+            alert("운송비부담 방법을 선택하시기 바랍니다.");
+            return false;
+        }
+
+        var rdAuctionType = $(':radio[name="AuctionType"]:checked').val();
+
+        if (rdAuctionType == "" || rdAuctionType == " " || rdAuctionType == null || rdAuctionType == undefined || (rdAuctionType != null && typeof rdAuctionType == "object" && !Object.keys(rdAuctionType).length)) {
+            alert("경매방식을 선택하시기 바랍니다.");
+            return false;
+        }
+
+        if ($("#SellQuantity").val() == "") {
+            alert("판매수량을 입력하시기 바랍니다.");
+            $("#SellQuantity").focus();
+            return false;
+        }
+
+        if ($("#BidPriceUnit").val() == "") {
+            alert("현재가 이상 투찰 단위를 입력하시기 바랍니다.");
+            $("#BidPriceUnit").focus();
+            return false;
+        }       
+
+        if ($("#StartPrice").val() == "") {
+            alert("경매시작가를 입력하시기 바랍니다.");
+            $("#StartPrice").focus();
+            return false;
+        }
+
+        if ($("#LowPriceUnit").val() == "") {
+            alert("최소입찰 금액 단위를 입력하시기 바랍니다.");
+            $("#LowPriceUnit").focus();
+            return false;
+        }        
+
+        return true;
+    }
+
+    // 숫자를 입력받아 천단위 표시 넣어주는 함수
+    function price_format(price) {
+        // 입력받은 숫자에서 ,제거
+        price = price.replace(/,/g, "");
+
+        //    if (String(price).length > 8) {
+        //        price = price.substring(0, 7);
+        //    }
+
+        if (String(price).length > 3) {
+            // 3자리가 넘는 경우 문자열 사이에 ,를 넣어 배열을 생성한다.
+            var nArr = String(price).split('').join(',').split('');
+
+            // 천단위 위치가 아닌 , 배열을 제거한다.
+            for (var i = nArr.length - 1, j = 1; i >= 0; i--, j++)
+                if (j % 6 != 0 && j % 2 == 0)
+                    nArr[i] = '';
+
+            // 배열을 다시 문자열로 연결해서 반환한다.
+            return nArr.join('');
+        }
+        else return price;
+    }
+
+    var isFisrt = true;
+
+    // 숫자만 입력해야하는 텍스트 박스 처리
+    $('.input_number').bind('keydown', function (event) {
+
+        if (isFisrt) {
+            isFisrt = false;
+        }
+        else {
+            return false;
+        }
+
+        // the keycode for the key pressed
+        var keyCode = event.which;
+
+        // 48-57 Standard Keyboard prices
+        var isStandard = (keyCode > 47 && keyCode < 58);
+
+        // 96-105 Extended Keyboard prices (aka Keypad)
+        var isExtended = (keyCode > 95 && keyCode < 106);
+
+        // 8 Backspace, 46 Forward Delete
+        // 37 Left Arrow, 38 Up Arrow, 39 Right Arrow, 40 Down Arrow
+        var validKeyCodes = ',8,37,38,39,40,46,';
+        var isOther = (validKeyCodes.indexOf(',' + keyCode + ',') > -1);
+
+        if (isStandard || isExtended || isOther) {
+            return true;
+        } else {
+            return false;
+        }
+
+    })
+    .bind("keyup", function (event) { isFisrt = true; this.value = price_format(this.value) });  // keyup 이벤트에 천단위 표시
+    
+    // 현재 시간
+    function printTime() {
+
+        var clock = document.getElementById("clock");   // 출력할 장소 선택
+        var year = document.getElementById("year");     // 출력할 장소 선택
+        var month = document.getElementById("month");   // 출력할 장소 선택
+        var date = document.getElementById("date");     // 출력할 장소 선택
+        var hour = document.getElementById("hour");     // 출력할 장소 선택
+        var minute = document.getElementById("minute"); // 출력할 장소 선택
+
+        var now = new Date();                           // 현재시간
+        
+        var nowyear = now.getFullYear();
+        var nowmonth = now.getMonth() + 1
+        var nowdate = now.getDate();
+        var nowhour = now.getHours();
+        var nowminute = now.getMinutes();
+
+        var nowTime = now.getFullYear() + " 년 " + (now.getMonth() + 1) + " 월 " + now.getDate() + " 일 " + now.getHours() + " 시 " + now.getMinutes() + " 분";// + now.getSeconds() + "초";
+
+        clock.innerHTML = nowTime;                      // 현재시간을 출력
+        /*
+        year.innerHTML = nowyear;
+        month.innerHTML = nowmonth;
+        date.innerHTML = nowdate;
+        hour.innerHTML = nowhour;
+        minute.innerHTML = nowminute;
+        */
+
+        setTimeout("printTime()", 1000);                 // setTimeout(“실행할함수”,시간) 시간은1초의 경우 1000     
+    }
+
+    window.onload = function() {                        // 페이지가 로딩되면 실행
+        printTime();
+    }
+
+</script>

@@ -1,0 +1,117 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>@ViewBag.Title</title>
+        <!-- 인코딩 -->
+        <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+        <!-- 문서모드 -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <!-- 파비콘 -->
+        <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+        <!-- css -->
+        <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+        <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+        <!-- script -->
+        <script type="text/javascript" src="/Contents/js/common.js"></script>
+        <script type="text/javascript" src="/Contents/js/component.js"></script>
+        <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/highcharts-3d.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/highcharts-more.js"></script>
+        <script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script type="text/javascript" src="/Contents/js/Calendar.js"></script>
+        <script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=ee5ff7fbe4e7440d4b41218a63a67322&libraries=services,clusterer"></script>
+        <script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=ea7c9a7ef3f337e79d81eb7f08580ccd&libraries=services,clusterer"></script>
+        <script type="text/javascript" src="//apis.daum.net/maps/maps3.js?apikey=bda71b57ed89173491b079fadd1388e4&libraries=services,clusterer"></script>
+    </head>
+    <body>
+
+<!-- 콘텐츠 -->
+<div id="contents">
+        <!-- 검색 및 버튼박스 -->
+        <br>
+        <div class="box_search">
+            <div class="box_search_left">
+                    <span>업체명</span><input type="text" id="TxtSubject" name="TxtSubject" />
+                <a id="btn_search" class="btn1">검색</a>
+            </div>
+        </div>
+        <!-- //검색 및 버튼박스 -->
+
+        <!-- 그리드 -->
+        <div id="grid_search_vendor" class="grid2" style="height:385px;"></div>
+        <!-- //그리드 -->
+</div>
+<!-- //콘텐츠 -->
+
+            <script type="text/javascript">
+
+                $(document).ready(function (e) {
+                    //ListSearchVendor("N", 0, 0, $("#TxtSubject").val());
+                });
+
+
+                //************ Ajax ************//
+
+                // 현장(실행율) 상위3개 현장 조회
+                function ListSearchVendor(pPagerUseYn, pCurPage, pListCnt, pVendornm) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/PopUp/ListSearchVendor",
+                        dataType: "html",
+                        data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pVendornm": pVendornm },
+                        async: false,   // 동기식 처리 
+                        success: function (data) {
+                            var data = data.split("‡");
+                            // 그리그 생성
+                            $("#grid_search_vendor").empty();
+                            $("#grid_search_vendor").html(data[0]);
+                        },
+                        error: function (e) {
+                                alert("에러 발생.");
+                                return false;
+                        }
+                    });
+                }
+
+                //************ 이벤트 ************//
+
+                // 검색버튼 클릭 이벤트
+                $(document).on("click", "#btn_search", function (e) {
+                    if ($("#TxtSubject").val() == "") {
+                        alert("검색어를 입력하세요");
+                        $("#TxtSubject").focus();
+                        return false;
+                    }
+
+                    ListSearchVendor("N", 0, 0, $("#TxtSubject").val());
+                });
+
+                // 제목박스 엔터 이벤트
+                $(document).on("keypress", "#TxtSubject", function (e) {
+                    if (e.which == 13) {
+                        ListSearchVendor("N", 0, 0, $("#TxtSubject").val());
+                        return false;
+                    }
+                });
+
+                // 그리드 TR 클릭 이벤트
+                $(document).on("click", "#grid_search_vendor tr", function (e) {
+                   
+                    Value1 = GetGridTrValue("grid_search_vendor", "h_VendorNm", $(this).children())
+                    Value2 = GetGridTrValue("grid_search_vendor", "h_VendorCd", $(this).children())
+                    opener.document.getElementById("TxtSubject").value = Value1;
+                    opener.document.getElementById("VendorCd").value = Value2;
+                    self.close();
+                });
+   
+
+            </script>
+    </body>
+</html>

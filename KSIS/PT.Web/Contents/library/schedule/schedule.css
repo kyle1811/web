@@ -1,0 +1,30 @@
+﻿@charset "utf-8";
+
+.sd_box{overflow:hidden;width:960px;}
+.sd_box .sd_control{overflow:hidden;width:960px;margin-top:10px;padding-left:385px;text-align:center;border-top:1px solid #cdcecf;border-bottom:1px solid #cdcecf;}
+.sd_box .sd_control .sd_prev_btn{float:left;display:inline-block;width:30px;height:40px;line-height:40px;background:url(images/sd_btn_prev.gif) no-repeat center center;cursor:pointer;}
+.sd_box .sd_control .sd_date_btn{float:left;display:inline-block;width:120px;height:40px;line-height:37px;font-family:'Malgun Gothic',Dotum,Arial,Tahoma;font-size:20px;color:#222222;cursor:pointer;}
+.sd_box .sd_control .sd_next_btn{float:left;display:inline-block;width:30px;height:40px;line-height:40px;background:url(images/sd_btn_next.gif) no-repeat center center;cursor:pointer;}
+
+.sd_box .sd_calendar{overflow:hidden;width:960px;margin:10px 0;}
+.sd_box .sd_calendar .sd_tbl{table-layout:fixed;margin:0 auto;border-collapse:collapse;border-spacing:0;}
+.sd_box .sd_calendar .sd_tbl .sd_th{height:35px;border:1px solid #cdcecf;background-color:#f8f8f8;font-family:Dotum,'Malgun Gothic',Arial,Tahoma;font-size:12px;font-weight:bold;}
+.sd_box .sd_calendar .sd_tbl .sd_td{height:110px;border:1px solid #cdcecf;vertical-align:top;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_header{overflow:hidden;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_header .sd_date_no{float:left;width:17%;height:21px;line-height:21px;padding-left:4px;font-family:Dotum,'Malgun Gothic',Arial,Tahoma;font-size:12px;font-weight:bold;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_header .sd_date_nm{overflow:hidden;float:right;width:76%;height:21px;line-height:21px;padding-right:4px;font-family:Dotum,'Malgun Gothic',Arial,Tahoma;font-size:12px;text-align:right;text-overflow:ellipsis;white-space:nowrap;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_body{overflow:hidden;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_body .sd_show_view{overflow:hidden;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_body .sd_hide_view{overflow:hidden;display:none;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_body .sd_content{overflow:hidden;height:21px;line-height:21px;margin-top:1px;padding:0 4px;background-color:#6999D2;font-family:Dotum,'Malgun Gothic',Arial,Tahoma;font-size:11px;color:#ffffff;text-overflow:ellipsis;white-space:nowrap;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_footer{overflow:hidden;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_footer .sd_plus_btn{height:21px;margin-top:1px;background:url(images/sd_btn_plus.png) no-repeat 95% center;cursor:pointer;}
+.sd_box .sd_calendar .sd_tbl .sd_td .sd_footer .sd_minus_btn{height:21px;margin-top:1px;background:url(images/sd_btn_minus.png) no-repeat 95% center;cursor:pointer;}
+
+.sd_black{color:#484848;}
+.sd_red{color:#ff4848;}
+.sd_blue{color:#4848ff;}
+.sd_black_blur{color:#909090;}
+.sd_red_blur{color:#ff9090;}
+.sd_blue_blur{color:#9090ff;}
+.sd_background_yellow{background-color:#ffffc6;}

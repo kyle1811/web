@@ -1,0 +1,108 @@
+﻿@using PT.Web.WebUtil
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+    <div id="container">
+
+        <!-- 콘텐츠 -->
+        <div id="contents">
+
+            <!-- 콘텐츠(상세) -->
+            @*<h1 class="title1"> <span id="VendorNm"> 업체명 </span> 미처리건 상세 - @ViewBag.pDFJOBTYPENM</h1>*@
+            <h1 class="title1">@ViewBag.pTRADENM</h1>
+            <div class="box_titlebottom">
+                <h1>(미처리건)</h1>
+            </div>
+            <div id="As_Vendor_Detail" class="grid1"></div>
+
+
+            <!-- //콘텐츠(상세) -->
+        </div>
+        <!-- //콘텐츠 -->
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+    var PJTCD = "@ViewBag.pPJTCD";
+    var CONSTRADEID = "@ViewBag.pCONSTRADEID";
+    var DFJOBTYPENM = "@ViewBag.pDFJOBTYPENM";    
+    var PROGSTEP = "@ViewBag.pPROGSTEP";
+
+    $(document).ready(function (e) {     
+
+        ListAsVendorDetail(PJTCD, CONSTRADEID, DFJOBTYPENM, PROGSTEP);
+
+        //ListVendorNm();
+     
+    });
+
+    // 단계별 현황
+    function ListAsVendorDetail(pPJTCD, pCONSTRADEID, pDFJOBTYPENM, pPROGSTEP) {
+
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/ListAsVendorDetail",
+            dataType: "html",
+            data: { "pPJTCD": pPJTCD, "pCONSTRADEID": pCONSTRADEID, "pDFJOBTYPENM": pDFJOBTYPENM, "pPROGSTEP": pPROGSTEP },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                $("#As_Vendor_Detail").empty();
+                $("#As_Vendor_Detail").append(data);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }   
+
+    function ListVendorNm() {
+
+        $.ajax({
+            type: "POST",
+            url: "/Site/ListCompletionSiteInfoDetail",
+            dataType: "html",
+            data: { "pSiteCd": pSiteCd, "pSelect": pSelect, "pBizpartCd": pBizpartCd },
+            async: false,   // 동기식 처리
+            success: function (data) {
+
+
+                $("#VendorNm").empty();
+                $("#VendorNm").append(data);
+                
+
+            },
+            error: function (e) {
+                alert("에러 발생1.");
+                return false;
+            }
+        });
+    }
+
+
+</script>
+

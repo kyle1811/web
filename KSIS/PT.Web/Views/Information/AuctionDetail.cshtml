@@ -1,0 +1,460 @@
+﻿@using PT.Web.WebUtil;
+@model PT.BusinessLogic.Entities.Auction
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Information/Auction" id="A">진행중인경매</a>
+        <a href="/Information/AuctionComplete" id="C">완료된경매</a>
+        <a href="/Information/AuctionBidding" id="B">참여한경매</a>
+        <a href="/Information/AuctionSelling">경매관리자</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <!-- 폼 -->
+        <form id="frm" name="frm" enctype="multipart/form-data" action="/Information/AuctionDetail" method="post">
+            <!-- 버튼박스 -->
+            <h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:15px;color:#121212;">경매상세정보</h1>
+            <div class="box_btn_right">
+                <a id="btn_list" class="btn1">목록</a>
+            </div>
+            <!-- //버튼박스 -->
+            <!-- 입력박스 -->
+            <div class="box_input">
+                <table>
+                    <colgroup>
+                        <col style="width:12%" />
+                        <col style="width:23%" />
+                        <col style="width:13%" />
+                        <col style="width:23%" />
+                        <col style="width:12%" />
+                        <col style="width:17%" />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th>경매번호</th>
+                            <td class="td_left" style="padding-left:10px;">@Model.AuctionNo</td>
+                            <th>입찰금액</th>
+                            <td colspan="3" class="td_left" style="padding-left:10px;">
+                                @Html.TextBoxFor(x => x.BidPrice, new { @class = "input_number", style = "width:155px;height:24px;text-align:right;color:darkblue; background-color:#f8e8e8;padding-right:5px;" })
+                                원
+                                <a id="btn_submit" class="btn1">입찰금액 제출</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>물품명</th>
+                            <td colspan="3" class="td_left" style="padding-left:10px;">@Model.ItemNm</td>
+                            <th>사용기간</th>
+                            <td class="td_center">@Model.UsePeriod</td>
+                        </tr>
+                        <tr>
+                            <th>마감시간</th>
+                            <td class="td_center" id="BidCloseTime" style="color: red;">@Model.CloseDate</td>
+                            <th>판매담당자</th>
+                            <td class="td_left" colspan="3" style="padding-left:10px;">@Model.AuctionRegUserNm</td>
+                        </tr>
+                        <tr>
+                            <th>서버시간</th>
+                            <td class="td_center" id="ServerTime" style="color: blue;">@Model.ServerTime</td>
+                            <th>입찰방식</th>
+                            <td class="td_center">@Model.AuctionType</td>
+                            <th>운송비부담</th>
+                            <td class="td_center">@Model.ShippingCharge</td>
+                        </tr>
+                        <tr>
+                            <th>시작가</th>
+                            <td class="td_center">@Model.StartPrice</td>
+
+                            <th>입찰단위</th>
+                            <td class="td_center">@Model.LowPriceUnit</td>
+
+                            <th id="th_MinBidAmt">최소입찰액</th>
+                            <td id="td_MinBidAmt" class="td_center">@Model.BidPriceUnit</td>
+                        </tr>
+                        <tr>
+                            <th id="CurPriceNm">현재가</th>
+                            <td class="td_center" id="CurPrice" style="color: blue;">@Model.CurPrice</td>
+                            <th>입찰건수</th>
+                            <td class="td_center" id="CurBidCnt" style="color: blue; border:0px;"> @Model.BidCnt </td>
+                            <td colspan="2" class="td_left" style="border-left:0px;"> <a id="btn_BidDetail" class="btn2">입찰내역 보기</a>  </td>
+                        </tr>
+                        <tr>
+                            <th>사진</th>
+                            <td colspan="5" class="td_center">
+                                <img id="img1" style="width:600px;height:400px;padding-top:10px;padding-bottom:10px;display:none;"
+                                     src="@Model.ImageFile1" />
+                                <img id="img2" style="width:600px;height:400px;padding-bottom:10px;display:none;"
+                                     src="@Model.ImageFile2" />
+                                <img id="img3" style="width:600px;height:400px;padding-bottom:10px;display:none;"
+                                     src="@Model.ImageFile3" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>상세정보</th>
+                            <td colspan="5" class="td_left" style="height:200px;padding-top:5px;vertical-align:top;overflow:auto;">@MvcHtmlString.Create(Model.HtmlContent)</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <br />
+            <!-- 그리드 -->
+            <div id="grid_Auction" class="grid1" style="height:200px; border:1px solid #d8d8d8; "></div>
+
+            <div class="box_input">
+                <table>
+                    <colgroup>
+                        <col style="width:15%" />
+                        <col style="width:65%" />
+                        <col style="width:10%" />
+                        <col style="width:10%" />
+                        <col />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th>댓글작성</th>
+                            <!--<td class="td_left" style="height:100px;vertical-align:top;">@MvcHtmlString.Create(Model.HtmlComment)</td>-->
+                            <td>@Html.TextAreaFor(x => x.Content, new { @rows = "5", style = "width:638px;" })</td>
+                            <td class="td_center"><a id="btn_enroll" class="btn1">등록</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- //그리드 -->
+            <!-- //입력박스 -->
+            <!-- 숨김정보 -->
+            @Html.HiddenFor(x => x.RegNo)
+            @Html.HiddenFor(x => x.AuctionTypeCd)
+            @Html.HiddenFor(x => x.SaveMode)
+            @Html.HiddenFor(x => x.AuctionNo)
+            <!-- //숨김정보 -->
+        </form>
+        <!-- //폼 -->
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+
+<script type="text/javascript">
+    //************ 변수 ************//
+    var AuctionTypeCd = "@Model.AuctionTypeCd";
+    var regNo         = "@Model.RegNo";
+    var regUserId     = "@Model.RegUserId";
+    var AuctionNo     = "@Model.AuctionNo";
+    var saveMode      = "@Model.SaveMode";
+    var number = "@Model.BidPrice";
+    var CloseDate = "@Model.CloseDate";
+
+
+    //************ 로드 ************//
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+
+        GetComment(AuctionTypeCd, AuctionNo);
+        EnableControl();
+        ChangeImgSpace();
+        ChangeMenuList();
+
+        if ("@Model.AuctionType" == "지정근접가") {
+            $("#th_MinBidAmt").empty();
+            $("#td_MinBidAmt").empty();
+        }
+
+        var now = new Date();
+        var cDate = new Date(parseInt(CloseDate.substring(0, 4)), parseInt(CloseDate.substring(5, 7)) - 1, parseInt(CloseDate.substring(8, 10)), parseInt(CloseDate.substring(11, 13)), parseInt(CloseDate.substring(14, 16)), parseInt(CloseDate.substring(17, 19)));
+        var checkTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
+
+        if (cDate < checkTime) {
+            $("#btn_submit").css("display", "none");
+        }
+        
+        ApplyDisplayTable();
+        
+    });
+
+    // 현재 페이지 왼쪽메뉴 선택처리
+    function ChangeMenuList() {
+        $("#" + AuctionTypeCd).addClass("txt_red");
+    }
+
+    //************ 최고가갱신 ************//
+    function fn_change_CurPrice() {
+        GetCurPrice(AuctionNo);
+
+        $("#CurPrice").fadeOut(200, function () {
+             $("#CurPrice").fadeIn(200);
+        });
+
+        $("#CurBidCnt").fadeOut(200, function () {
+            $("#CurBidCnt").fadeIn(200);
+        });
+
+    }
+    window.setInterval("fn_change_CurPrice()", 6000);
+
+
+    //************ 서버시간 ************//
+    var server_time = new Date("@Model.ServerTime");
+
+    function fn_pad_left(num) {
+        if (num < 10) {
+            return "0" + num.toString();
+        }
+        return num.toString();
+    }
+
+    function fn_change_time() {
+        server_time.setSeconds(server_time.getSeconds() + 1);
+
+        var year = server_time.getFullYear();
+        var month = fn_pad_left(server_time.getMonth() + 1); //달은 0부터 시작 +1 필요
+        var day = fn_pad_left(server_time.getDate());
+
+        $("#ServerTime").html(year + "/" + month + "/" + day
+            + " " + server_time.toTimeString().substring(0, 8)
+        );
+    }
+    window.setInterval("fn_change_time()", 1000);
+
+
+    //************ 이미지표시 공간 할당 ************//
+    function ChangeImgSpace() {
+
+        if ("@Model.ImageFile1" != "") {
+            $("#img1").show();
+            /*
+            $("#img1").fadeOut(500, function () {
+                $("#img1").fadeIn(3000);
+            });
+            */
+        }
+        if ("@Model.ImageFile2" != "") {
+            $("#img2").show();
+            /*
+            $("#img2").fadeOut(500, function () {
+                $("#img2").fadeIn(3000);
+            });
+            */
+        }
+        if ("@Model.ImageFile3" != "") {
+            $("#img3").show();
+            /*
+            $("#img3").fadeOut(500, function () {
+                $("#img3").fadeIn(3000);
+            });
+            */
+        }
+    }
+
+    //************ 함수 ************//
+    // 버튼 및 INPUTBOX 활성화.비활성화 함수
+    function EnableControl() {
+            $("#btn_submit").show();
+    }
+
+
+    //************ 이벤트 ************//
+    // 입찰금액 제출 버튼 클릭 이벤트 //
+    $(document).on("click", "#btn_submit", function (e) {
+        //location.href = "/Information/AuctionEdit?pAuctionTypeCd=" + AuctionTypeCd + "&pSaveMode=U&pRegNo=" + regNo;
+
+        if ($("#BidPrice").val() == "") {
+            alert("금액을 입력해 주세요.");
+            $("#BidPrice").focus();
+            return false;
+        }
+
+
+        //var now = new Date();
+        //var cDate = new Date(parseInt(CloseDate.substring(0, 4)), parseInt(CloseDate.substring(5, 7)) - 1, parseInt(CloseDate.substring(8, 10)), parseInt(CloseDate.substring(11, 13)), parseInt(CloseDate.substring(14, 16)), parseInt(CloseDate.substring(17, 19)));
+        //var checkTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
+
+        //if (cDate > checkTime) {
+        //    alert("입찰가능시간이 지났습니다.");
+        //}
+        //else {
+            $("#SaveMode").val("P");
+
+            $("#frm").submit();
+        //}
+
+    });
+
+    // 댓글등록 버튼 클릭 이벤트
+    $(document).on("click", "#btn_enroll", function (e) {
+        if ($("#Content").val() == "") {
+            alert("내용을 입력해 주세요.");
+            $("#Content").focus();
+            return false;
+        }
+        $("#SaveMode").val("C");
+
+        $("#frm").submit();
+    });
+
+    // 삭제버튼 클릭 이벤트
+    $(document).on("click", "#btn_delete", function (e) {
+        // 저장방식 설정
+        $("#SaveMode").val("D");
+
+        $("#frm").submit();
+    });
+
+    // 목록버튼 클릭 이벤트
+    $(document).on("click", "#btn_list", function (e) {
+        if (AuctionTypeCd == "A") {
+            location.href = "/Information/Auction";
+        }
+	else if(AuctionTypeCd == "C") {
+            location.href = "/Information/AuctionComplete";
+        }
+        else {
+            location.href = "/Information/AuctionBidding";
+        }
+    });
+
+
+    // 입찰내역 보기 클릭 이벤트
+    $(document).on("click", "#btn_BidDetail", function (e) {
+        var winHeight = document.body.clientHeight; //현재창의 높이
+        var winWidth  = document.body.clientWidth; // 현재창의 너비
+
+        var winX = window.screenX || window.screenLeft || 0; // 현재창의 x좌표
+        var winY = window.screenY || window.screenTop  || 0; // 현재창의 y좌표
+
+        var popX = winX + (winWidth - 960) / 2;
+        var popY = winY + (winHeight - 700) / 2;
+
+        var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=470,height=620,top=" + popY + ",left=" + popX + "";
+        var location = "/PopUp/ListBidDetailPopUP?pAuctionNo=" + AuctionNo + "&pListType=A";
+        window.open(location, "ListBidDetailPopUP", setting);
+    });
+
+
+    //************ Ajax ************//
+    //************ 댓글 ************//
+    function GetComment(pAuctionTypeCd, pAuctionNo) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/GetComment",
+            dataType: "html",
+            data: { "pAuctionTypeCd": pAuctionTypeCd, "pAuctionNo": pAuctionNo },
+            //data: { "pItemNm": pItemNm },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_Auction").empty();
+                $("#grid_Auction").html(data[0]);
+            },
+            error: function (e) {
+                // alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+    //************ 댓글 ************//
+    //************ 현재최고가 ************//
+    function GetCurPrice(pAuctionNo) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/GetCurPrice",
+            dataType: "html",
+            data: { "pAuctionNo": pAuctionNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+
+                $("#CurPrice").html(data[0]);
+                $("#CurBidCnt").html(data[1]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+    //************ 현재최고가 ************//
+    //************ Ajax ************//
+
+    // 숫자를 입력받아 천단위 표시 넣어주는 함수
+    function number_format(number) {
+        // 입력받은 숫자에서 ,제거
+        number = number.replace(/,/g, "");
+
+        //    if (String(number).length > 8) {
+        //        number = number.substring(0, 7);
+        //    }
+
+        if (String(number).length > 3) {
+            // 3자리가 넘는 경우 문자열 사이에 ,를 넣어 배열을 생성한다.
+            var nArr = String(number).split('').join(',').split('');
+
+            // 천단위 위치가 아닌 , 배열을 제거한다.
+            for (var i = nArr.length - 1, j = 1; i >= 0; i--, j++)
+                if (j % 6 != 0 && j % 2 == 0)
+                    nArr[i] = '';
+
+            // 배열을 다시 문자열로 연결해서 반환한다.
+            return nArr.join('');
+        }
+        else return number;
+    }
+
+    var isFisrt = true;
+
+    // 숫자만 입력해야하는 텍스트 박스 처리
+    $('.input_number').bind('keydown', function (event) {
+
+        if (isFisrt) {
+            isFisrt = false;
+        }
+        else {
+            return false;
+        }
+
+        // the keycode for the key pressed
+        var keyCode = event.which;
+
+        // 48-57 Standard Keyboard Numbers
+        var isStandard = (keyCode > 47 && keyCode < 58);
+
+        // 96-105 Extended Keyboard Numbers (aka Keypad)
+        var isExtended = (keyCode > 95 && keyCode < 106);
+
+        // 8 Backspace, 46 Forward Delete
+        // 37 Left Arrow, 38 Up Arrow, 39 Right Arrow, 40 Down Arrow
+        var validKeyCodes = ',8,37,38,39,40,46,';
+        var isOther = (validKeyCodes.indexOf(',' + keyCode + ',') > -1);
+
+        if (isStandard || isExtended || isOther) {
+            return true;
+        } else {
+            return false;
+        }
+
+    })
+    .bind("keyup", function (event) { isFisrt = true; this.value = number_format(this.value) });  // keyup 이벤트에 천단위 표시
+
+    function ApplyDisplayTable() {
+
+        
+        if (AuctionTypeCd == "C") {              
+            
+            document.getElementById("CurPriceNm").innerHTML="낙찰가";
+            
+        }
+    
+        
+    }
+
+</script>

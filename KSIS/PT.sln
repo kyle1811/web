@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2003
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PT.Web", "PT.Web\PT.Web.csproj", "{5FFB8D52-147F-4586-9296-612806F15FD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PT.BusinessLogic", "PT.BusinessLogic\PT.BusinessLogic.csproj", "{5EECDDA0-08E0-4640-849A-268DE1AA3A63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PT.Service", "PT.Service\PT.Service.csproj", "{96874B52-8F54-48EF-8539-220A21C96CA6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5FFB8D52-147F-4586-9296-612806F15FD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FFB8D52-147F-4586-9296-612806F15FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FFB8D52-147F-4586-9296-612806F15FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FFB8D52-147F-4586-9296-612806F15FD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EECDDA0-08E0-4640-849A-268DE1AA3A63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EECDDA0-08E0-4640-849A-268DE1AA3A63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EECDDA0-08E0-4640-849A-268DE1AA3A63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EECDDA0-08E0-4640-849A-268DE1AA3A63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96874B52-8F54-48EF-8539-220A21C96CA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96874B52-8F54-48EF-8539-220A21C96CA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96874B52-8F54-48EF-8539-220A21C96CA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96874B52-8F54-48EF-8539-220A21C96CA6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5E882275-BA5D-48A7-A68E-017AD1FC7DF8}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://70.71.19.53:8080/tfs/ksis
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = PT.BusinessLogic\\PT.BusinessLogic.csproj
+		SccProjectName1 = PT.BusinessLogic
+		SccLocalPath1 = PT.BusinessLogic
+		SccProjectUniqueName2 = PT.Service\\PT.Service.csproj
+		SccProjectName2 = PT.Service
+		SccLocalPath2 = PT.Service
+		SccProjectUniqueName3 = PT.Web\\PT.Web.csproj
+		SccProjectName3 = PT.Web
+		SccLocalPath3 = PT.Web
+	EndGlobalSection
+EndGlobal

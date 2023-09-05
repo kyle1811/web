@@ -1,0 +1,234 @@
+﻿@using PT.Web.WebUtil
+@model PT.BusinessLogic.Entities.Meeting
+
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/Contents/smarteditor2-master/dist/js/service/HuskyEZCreator.js" charset="utf-8"></script>
+
+
+
+
+
+
+    <script>
+        var meetTypeCd = "NoticeControl";
+        var saveMode = "@Model.SaveMode";
+        var oEditors = [];
+
+        $(document).ready(function (e) {
+            $("#NoticeControl").addClass("txt_red");
+            EnableControl();
+        });
+
+        //에디터 스킨 선언
+        $(function () {
+
+            nhn.husky.EZCreator.createInIFrame({
+
+                oAppRef: oEditors,
+
+                elPlaceHolder: "Content",
+
+                sSkinURI: "/Contents/smarteditor2-master/dist/SmartEditor2Skin.html",
+
+                htParams: {
+                    // 툴바 사용 여부 (true:사용/ false:사용하지 않음)
+                    bUseToolbar: true,
+                    // 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)
+                    bUseVerticalResizer: true,
+                    // 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)
+                    bUseModeChanger: true,
+                    //메시지 변경여부에 따른 팝업창 제어부분
+                    fOnBeforeUnload: false
+                },
+
+                fCreator: "createSEditor2"
+
+            });
+
+        });
+
+
+        // 파일변환 Url 조회
+        function GetSnyNapViewer(pAttId) {
+            $.ajax({
+                type: "POST",
+                url: "/AjaxAuth/GetSnyNapViewer",
+                dataType: "text",
+                data: { "pAttId": pAttId },
+                async: false,   // 동기식 처리
+                success: function (data) {
+                    if (data == "Error") {
+                        alert("파일변환 에러 발생.");
+                        return false;
+                    }
+                    else if (data == "NotConvertContent") {
+                        alert("변환 불가능한 확장자.");
+                        return false;
+                    }
+                    else {
+                        window.open(data, "_Blank");
+                    }
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            });
+        }
+
+        // 버튼 및 INPUTBOX 활성화.비활성화 함수
+        function EnableControl() {
+            if (saveMode == "U") {
+                $("#btn_delete").show();
+            }
+        }
+
+
+        //************ 이벤트 ************//
+
+        // 저장버튼 클릭 이벤트
+        $(document).on("click", "#btn_save", function (e) {
+
+            if ($("#Subject").val() == "") {
+                alert("제목을 입력해 주세요.");
+                $("#Subject").focus();
+                return false;
+            }
+
+            oEditors.getById["Content"].exec("UPDATE_CONTENTS_FIELD", []);
+
+            if ($("#Content").val() == "") {
+                alert("내용을 입력해 주세요.");
+                $("#Content").focus();
+                return false;
+            }
+
+
+
+            $("#frm").submit();
+        });
+
+        // 삭제버튼 클릭 이벤트
+        $(document).on("click", "#btn_delete", function (e) {
+            // 저장방식 설정
+            $("#SaveMode").val("D");
+
+            $("#frm").submit();
+        });
+
+        // 첨부파일 클릭 이벤트
+        $(document).on("click", "#tbody_attid td:first-child a", function (e) {
+            GetSnyNapViewer($(this).attr("id"));
+        });
+
+    </script>
+
+</head>
+<body>
+    <div id="wrap">
+        <!-- 머리글 -->
+        <div id="header">
+            <div class="gnb">
+                <div class="gnb_info">
+                    <a href="/Portal/Home" class="logo"></a><a href="/Account/Logout">로그아웃</a><label>|</label><span>(@Session["DeptNm"])</span><span>@Session["DutyNm"]</span><span>@Session["UserNm"]</span><label>|</label><span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
+                </div>
+            </div>
+            <div class="lnbo">
+            </div>
+            <div id="container">
+                <!-- 콘텐츠 -->
+                <div id="contents">
+                    <!-- 사이드메뉴 -->
+                    <div class="contents_left1">
+                        <a href="/Admin/AuthControl" id="AuthControl">화면권환관리</a>
+                        <a href="/Admin/NoticeControl" id="NoticeControl">공지사항관리</a>
+                    </div>
+
+                    <div class="contents_right1">
+
+                        <!-- 폼 -->
+                        <form id="frm" name="frm" enctype="multipart/form-data" action="/Admin/NoticeControlEdit" method="post" accept-charset="UTF-8">
+                            <!-- 버튼박스 -->
+                            <div class="box_btn_right">
+                                <a href="/Admin/NoticeControl?pMeetTypeCd=@Model.MeetTypeCd" id="btn_list" class="btn1">목록</a><a id="btn_save" class="btn1">저장</a><a id="btn_delete" class="btn1" style="display:none;">삭제</a>
+                            </div>
+                            <!-- //버튼박스 -->
+                            <!-- 입력박스 -->
+                            <div class="box_input">
+                                <table>
+                                    <colgroup>
+                                        <col style="width:15%" />
+                                        <col style="width:35%" />
+                                        <col style="width:15%" />
+                                        <col />
+                                    </colgroup>
+                                    <tbody>
+                                        <tr>
+                                            <th>작성자</th>
+                                            <td class="td_center">@Model.RegUserNm</td>
+                                            <th>작성일자</th>
+                                            <td class="td_center">@Model.RegDate</td>
+                                        </tr>
+                                        <tr>
+                                            <th>제목</th>
+                                            <td colspan="3">@Html.TextBoxFor(x => x.Subject)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>내용</th>
+                                            <td colspan="3">@Html.TextAreaFor(x => x.Content, new { @type = "text" , @rows = "20", style = "width:638px;" })</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- //입력박스 -->
+                            <!-- 첨부파일 -->
+                            <div class="file_box">
+                                @WebUtil.MakeFileControl("첨부파일", "AttId", Model.AttId, true, Position.left, "100%")
+                            </div>
+                            <!-- //첨부파일 -->
+                            <!-- 숨김정보 -->
+                            @Html.HiddenFor(x => x.SaveMode)
+                            @Html.HiddenFor(x => x.RegNo)
+                            @Html.HiddenFor(x => x.MeetTypeCd)
+                            <!-- //숨김정보 -->
+                        </form>
+                        <!-- //폼 -->
+
+                    </div>
+                    <!-- //콘텐츠 -->
+                </div>
+            </div>
+        </div>
+        <!-- //본문 -->
+        <!-- 바닥글 -->
+        <div id="footer">
+            <span>COPYRIGHT(C) 2017 KCC ENGINEERING & CONSTRUCTION CO., LTD. ALL RIGHT RESERVED.</span>
+        </div>
+        <!-- //바닥글 -->
+
+    </div>
+
+</body>
+</html>

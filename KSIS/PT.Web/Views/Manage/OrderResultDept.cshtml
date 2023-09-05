@@ -1,0 +1,650 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+     <div class="contents_left1">
+        <a href="/Manage/OrderResult?pSujuTypeCd=PT00104" id="PT00104">수주실적(전체)</a>
+        <a href="/Manage/OrderResultDept?pSujuDeptTypeCd=PT00105" id="PT00105" class="txt_red">수주실적(부서)</a>
+        <a href="/Manage/OrderState?pOrderStateTypeCd=PT00106" id="PT00106">신규수주현황</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+     <div class="contents_right1">
+
+         <div id="chart_Acc_SUJU" class="chart" style="height:auto;"></div>
+
+         <div class="box_titletop">
+             <h1 class="title7">공공사업부</h1>
+         </div>
+         <div class="box_titlebottom">
+             <h1 style="font-family:NanumGothic; font-size:12px;">(단위:백만)</h1>
+         </div>
+         <div id="grid_OrderResult_Dept1" class="grid5" style="height:auto;"></div>
+         <div class="box_titletop">
+             <h1 class="title7">토목영업부</h1>
+         </div>
+         <div class="box_titlebottom">
+             <h1 style="font-family:NanumGothic; font-size:12px;">(단위:백만)</h1>
+         </div>
+         <div id="grid_OrderResult_Dept2" class="grid5" style="height:auto;"></div>
+         <div class="box_titletop">
+             <h1 class="title7">건축영업부</h1>
+         </div>
+         <div class="box_titlebottom">
+             <h1 style="font-family:NanumGothic; font-size:12px;">(단위:백만)</h1>
+         </div>
+         <div id="grid_OrderResult_Dept3" class="grid5" style="height:auto;"></div>
+         <div class="box_titletop">
+             <h1 class="title7">개발부</h1>
+         </div>
+         <div class="box_titlebottom">
+             <h1 style="font-family:NanumGothic; font-size:12px;">(단위:백만)</h1>
+         </div>
+         <div id="grid_OrderResult_Dept4" class="grid5" style="height:auto;"></div>
+         <div class="box_titletop">
+             <h1 class="title7">주택영업부</h1>
+         </div>
+         <div class="box_titlebottom">
+             <h1 style="font-family:NanumGothic; font-size:12px;">(단위:백만)</h1>
+         </div>
+         <div id="grid_OrderResult_Dept5" class="grid5" style="height:auto;"></div>
+         <div class="box_titletop">
+             <h1 class="title7">총 합</h1>
+         </div>
+         <div class="box_titlebottom">
+             <h1 style="font-family:NanumGothic; font-size:12px;">(단위:백만)</h1>
+         </div>
+         <div id="grid_OrderResult_Dept6" class="grid5" style="height:auto;"></div>
+         <!-- 숨김정보 -->
+         <input type="hidden" id="HdnSujuDeptTypeCd" name="HdnSujuDeptTypeCd" />
+         <input type="hidden" id="HdnSubject" name="HdnSubject" />
+         <!-- //숨김정보 -->
+
+     </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+    
+    var OrderResultTypeCd = "@ViewBag.SujuDeptTypeCd";
+    var sign = "";
+    var lange = 0, area = 10, compare = 0;
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        var nowYear = new Date();
+
+        var yearMon = nowYear.getFullYear();
+
+        yearMon = yearMon + "13";
+
+        ChangeMenuList(OrderResultTypeCd);
+
+        CreateChartAccSUJU();
+        ListOrderResultDeptGrid1("N", 0, 0, "1");
+        ListOrderResultDeptGrid2("N", 0, 0, "2");
+        ListOrderResultDeptGrid3("N", 0, 0, "3");
+        ListOrderResultDeptGrid4("N", 0, 0, "4");
+        ListOrderResultDeptGrid5("N", 0, 0, "5");
+        ListOrderResultAllGrid("N", 0, 0, yearMon);
+        ApplyDisplayColor();      
+       
+    });
+
+    // 수주실적현황 조회
+    function ListChartAccSUJU(pYEARMON) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/Manage/ListChartAccSUJU",
+            dataType: "json",            
+            data: { "pYEARMON": pYEARMON },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    
+                    arrData.y = parseInt(data[i].YearPlan);
+                    arrData.value = data[i].YearPlanAmt;
+                    arrData.name = data[i].Gubun;
+                    arrData.color = data[i].BarColor;   
+
+                    if (lange <= parseInt(data[i].YearPlan)) {
+                        lange = data[i].YearPlan;                        
+                    }
+                    jsonData.push(arrData);                  
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    //************ Ajax ************//
+
+    // 부서별 수주실적 조회
+    function ListOrderResultDeptGrid1(pPagerUseYn, pCurPage, pListCnt, pCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListOrderResultDeptGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pCnt": pCnt},
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                
+                $("#grid_OrderResult_Dept1").empty();
+                $("#grid_OrderResult_Dept1").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    function ListOrderResultDeptGrid2(pPagerUseYn, pCurPage, pListCnt, pCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListOrderResultDeptGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pCnt": pCnt },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept2").empty();
+                $("#grid_OrderResult_Dept2").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false; 
+            }
+        });
+    }
+
+    function ListOrderResultDeptGrid3(pPagerUseYn, pCurPage, pListCnt, pCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListOrderResultDeptGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pCnt": pCnt },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept3").empty();
+                $("#grid_OrderResult_Dept3").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    function ListOrderResultDeptGrid4(pPagerUseYn, pCurPage, pListCnt, pCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListOrderResultDeptGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pCnt": pCnt },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept4").empty();
+                $("#grid_OrderResult_Dept4").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    function ListOrderResultDeptGrid5(pPagerUseYn, pCurPage, pListCnt, pCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListOrderResultDeptGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pCnt": pCnt },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+
+                $("#grid_OrderResult_Dept5").empty();
+                $("#grid_OrderResult_Dept5").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    // 수주실적(전체) 조회 테이블
+    function ListOrderResultAllGrid(pPagerUseYn, pCurPage, pListCnt, pDate) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListOrderResultAllGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pDate": pDate },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_OrderResult_Dept6").empty();
+                $("#grid_OrderResult_Dept6").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    //************ 함수 ************//
+    // 현재 페이지 왼쪽메뉴 선택처리
+    function ChangeMenuList(OrderResultTypeCd) {
+        $("#" + OrderResultTypeCd).addClass("txt_red");
+    }
+
+    function ListGetRegNo(pOrderStateTypeCd, pSubject, pProjectId) {
+
+        var jsonData = [];
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListGetRegNo",
+            dataType: "json",
+            data: { "pOrderStateTypeCd": pOrderStateTypeCd, "pSubject": pSubject, "pProjectId": pProjectId  },
+            async: false,   // 동기식 처리
+            success: function (data) {
+      
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+ 
+                    arrData.RegNo = data[i].RegNo;
+                    arrData.Subject = data[i].Subject;
+                    arrData.CNT = parseInt(data[i].CNT);
+                    arrData.ProjectFullNm = data[i].ProjectFullNm;
+                    arrData.VendorNm = data[i].VendorNm;
+                    arrData.FixAmt = data[i].FixAmt;                    
+                  
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+
+    $(document).on("click", "#grid_OrderResult_Dept1 tr", function (e) {
+
+        if (GetGridTrValue("grid_OrderResult_Dept1", "h_ProjectNm", $(this).children()) != "공사명" && GetGridTrValue("grid_OrderResult_Dept1", "h_ProjectNm", $(this).children()) != "소 계") {
+
+            var json = ListGetRegNo("PT999999", GetGridTrValue("grid_OrderResult_Dept1", "h_ProjectNm", $(this).children()), GetGridTrValue("grid_OrderResult_Dept1", "h_ProjectId", $(this).children()));
+         
+            if (json[0].CNT > 0) {
+
+                window.location.href = "/Manage/OrderStateDetail?pOrderStateTypeCd=PT00106&pRegNo=" + json[0].RegNo;
+            }
+            else {
+                var winHeight = document.body.clientHeight; //현재창의 높이
+                var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                var popX = winX + (winWidth - 600) / 2;
+                var popY = winY + (winHeight - 200) / 2;
+
+                var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=600,height=200,top=" + popY + ",left=" + popX + "";
+                var location = "/PopUp/ProjectDetail?pOrderStateTypeCd=PT999999&pSubject=" + GetGridTrValue("grid_OrderResult_Dept1", "h_ProjectNm", $(this).children()) + "&pProjectId=" + GetGridTrValue("grid_OrderResult_Dept1", "h_ProjectId", $(this).children());
+                window.open(location, "수주정보", setting);
+            }
+
+            
+
+        }       
+
+    });
+
+    $(document).on("click", "#grid_OrderResult_Dept2 tr", function (e) {
+
+
+        if (GetGridTrValue("grid_OrderResult_Dept2", "h_ProjectNm", $(this).children()) != "공사명" && GetGridTrValue("grid_OrderResult_Dept2", "h_ProjectNm", $(this).children()) != "소 계") {
+
+            var json = ListGetRegNo("PT999999", GetGridTrValue("grid_OrderResult_Dept2", "h_ProjectNm", $(this).children()), GetGridTrValue("grid_OrderResult_Dept2", "h_ProjectId", $(this).children()));
+
+            if (json[0].CNT > 0) {
+                window.location.href = "/Manage/OrderStateDetail?pOrderStateTypeCd=PT00106&pRegNo=" + json[0].RegNo;
+            }
+            else {
+                var winHeight = document.body.clientHeight; //현재창의 높이
+                var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                var popX = winX + (winWidth - 600) / 2;
+                var popY = winY + (winHeight - 200) / 2;
+
+                var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=600,height=200,top=" + popY + ",left=" + popX + "";
+                var location = "/PopUp/ProjectDetail?pOrderStateTypeCd=PT999999&pSubject=" + GetGridTrValue("grid_OrderResult_Dept2", "h_ProjectNm", $(this).children()) + "&pProjectId=" + GetGridTrValue("grid_OrderResult_Dept2", "h_ProjectId", $(this).children());
+                window.open(location, "수주정보", setting);
+            }
+
+
+
+        }        
+
+    });
+
+    $(document).on("click", "#grid_OrderResult_Dept3 tr", function (e) {
+
+
+        if (GetGridTrValue("grid_OrderResult_Dept3", "h_ProjectNm", $(this).children()) != "공사명" && GetGridTrValue("grid_OrderResult_Dept3", "h_ProjectNm", $(this).children()) != "소 계") {
+
+            var json = ListGetRegNo("PT999999", GetGridTrValue("grid_OrderResult_Dept3", "h_ProjectNm", $(this).children()), GetGridTrValue("grid_OrderResult_Dept3", "h_ProjectId", $(this).children()));
+
+            if (json[0].CNT > 0) {
+                window.location.href = "/Manage/OrderStateDetail?pOrderStateTypeCd=PT00106&pRegNo=" + json[0].RegNo;
+            }
+            else {
+                var winHeight = document.body.clientHeight; //현재창의 높이
+                var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                var popX = winX + (winWidth - 600) / 2;
+                var popY = winY + (winHeight - 200) / 2;
+
+                var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=600,height=200,top=" + popY + ",left=" + popX + "";
+                var location = "/PopUp/ProjectDetail?pOrderStateTypeCd=PT999999&pSubject=" + GetGridTrValue("grid_OrderResult_Dept3", "h_ProjectNm", $(this).children()) + "&pProjectId=" + GetGridTrValue("grid_OrderResult_Dept3", "h_ProjectId", $(this).children());
+                window.open(location, "수주정보", setting);
+            }
+
+
+
+        }       
+
+
+    });
+
+    $(document).on("click", "#grid_OrderResult_Dept4 tr", function (e) {
+
+
+        if (GetGridTrValue("grid_OrderResult_Dept4", "h_ProjectNm", $(this).children()) != "공사명" && GetGridTrValue("grid_OrderResult_Dept4", "h_ProjectNm", $(this).children()) != "소 계") {
+
+            var json = ListGetRegNo("PT999999", GetGridTrValue("grid_OrderResult_Dept4", "h_ProjectNm", $(this).children()), GetGridTrValue("grid_OrderResult_Dept4", "h_ProjectId", $(this).children()));
+
+            if (json[0].CNT > 0) {
+                window.location.href = "/Manage/OrderStateDetail?pOrderStateTypeCd=PT00106&pRegNo=" + json[0].RegNo;
+            }
+            else {
+                var winHeight = document.body.clientHeight; //현재창의 높이
+                var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                var popX = winX + (winWidth - 600) / 2;
+                var popY = winY + (winHeight - 200) / 2;
+
+                var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=600,height=200,top=" + popY + ",left=" + popX + "";
+                var location = "/PopUp/ProjectDetail?pOrderStateTypeCd=PT999999&pSubject=" + GetGridTrValue("grid_OrderResult_Dept4", "h_ProjectNm", $(this).children()) + "&pProjectId=" + GetGridTrValue("grid_OrderResult_Dept4", "h_ProjectId", $(this).children());
+                window.open(location, "수주정보", setting);
+            }
+
+
+
+        }         
+
+
+    });
+
+    $(document).on("click", "#grid_OrderResult_Dept5 tr", function (e) {
+        
+
+        if (GetGridTrValue("grid_OrderResult_Dept5", "h_ProjectNm", $(this).children()) != "공사명" && GetGridTrValue("grid_OrderResult_Dept5", "h_ProjectNm", $(this).children()) != "소 계") {
+
+            var json = ListGetRegNo("PT999999", GetGridTrValue("grid_OrderResult_Dept5", "h_ProjectNm", $(this).children()), GetGridTrValue("grid_OrderResult_Dept5", "h_ProjectId", $(this).children()));
+
+            if (json[0].CNT > 0) {
+                window.location.href = "/Manage/OrderStateDetail?pOrderStateTypeCd=PT00106&pRegNo=" + json[0].RegNo;
+            }
+            else {
+                var winHeight = document.body.clientHeight; //현재창의 높이
+                var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                var popX = winX + (winWidth - 600) / 2;
+                var popY = winY + (winHeight - 200) / 2;
+
+                var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=600,height=200,top=" + popY + ",left=" + popX + "";
+                var location = "/PopUp/ProjectDetail?pOrderStateTypeCd=PT999999&pSubject=" + GetGridTrValue("grid_OrderResult_Dept5", "h_ProjectNm", $(this).children()) + "&pProjectId=" + GetGridTrValue("grid_OrderResult_Dept5", "h_ProjectId", $(this).children());
+                window.open(location, "수주정보", setting);
+            }
+        }        
+
+    });
+
+    // 차트 현장현황 계획, 실적 금액
+    function CreateChartAccSUJU() {
+
+        var YearData = ListChartAccSUJU("SUJUDP");        
+  
+        // 그래프 데이터가 없는 경우
+        if (YearData == null) {
+            
+            alert("데이터가 없습니다.");
+            return false;
+        }
+
+        for (j = 1; j < lange.length - 2; j++) {
+            area = area * 10;
+        }
+ 
+        compare = lange;
+        lange = lange * 1.6;
+        lange = parseInt(lange.toString().substr(0, 1));
+
+        if (area * lange < compare) {
+            area = area * 10;
+        }
+
+        $("#chart_Acc_SUJU").highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: '수주실적현황',
+                style: {
+                    fontfamily: "NanumGothic",
+                    fontSize: "17px",
+                    color: "#6d6d6d"
+                }
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                categories: ["년계획", "누계계획", "누계실적"],
+                labels: {
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "13px",
+                        color: "#6d6d6d"
+                    }
+                },
+            },
+            yAxis: {
+                title: {
+                    text: '단위(백만)'
+                },
+                labels: {
+                    format: "{value}",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },
+                max: area * lange,
+                //tickInterval: lange,
+                gridLineWidth: 1,
+                gridLineColor: "#d8d8d8"
+            },
+            plotOptions: {
+                series: {
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.value}',
+                        style: {
+                            fontSize: "10px",
+                            //color: "#ffffff"
+                        }
+                    }
+                },
+                bar: {
+                    pointWidth: 30,
+                    pointPadding: 0.1,
+                    enableMouseTracking: false
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            series: [
+                {
+                    name: '',
+                    data: YearData,
+                    showInLegend: false,
+                    color: "#6d6d6d",
+                    style: {
+                        fontfamily: "NanumGothic",
+                        fontSize: "10px",
+                        color: "#6d6d6d"
+                    }
+                },          
+            ]
+
+        });
+
+    }
+
+    function ApplyDisplayColor() {
+
+        for (k = 1; k <= 5; k++){
+
+            $("#grid_OrderResult_Dept"+k+" tr").each(function (e) {
+
+                
+                if ($(this).children().eq(2).text() == "Z999999") {
+                    $(this).css("background-color", "#BDBDBD");
+
+                    $(this).children().each(function (e) {
+                        $(this).css("font-weight", "bold");
+
+                    });
+
+                    $(this).children().each(function (e) {
+                        $(this).css("color", "#191919");
+
+                    });
+
+                    $(this).children().each(function (e) {
+                        $(this).css("cursor", "default");
+
+                    });
+                }
+            });
+        }
+
+        $("#grid_OrderResult_Dept6 tr").each(function (e) {
+            
+            if ($(this).children().eq(1).text() == "총    합") {
+                $(this).css("background-color", "#BDBDBD");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+
+                $(this).children().each(function (e) {
+                    $(this).css("color", "#191919");
+
+                });
+
+            }
+
+            document.getElementById("h_DeptNm").innerHTML = "부문";
+
+            $(this).children().each(function (e) {
+                $(this).css("cursor", "default");
+
+            });
+        });
+
+         $("#grid_OrderResult_Dept6 tr").each(function (e) {
+            
+            if ($(this).children().eq(1).text() == "총    합") {
+                $(this).css("background-color", "#BDBDBD");
+
+                $(this).children().each(function (e) {
+                    $(this).css("font-weight", "bold");
+
+                });
+
+                $(this).children().each(function (e) {
+                    $(this).css("color", "#191919");
+
+                });
+
+            }            
+
+            $(this).children().each(function (e) {
+                $(this).css("cursor", "default");
+
+            });
+        });
+
+         $("#grid_OrderResult_Dept6 th").each(function (e) {            
+
+             this.parentNode.children[3].innerHTML = "부문";
+           
+         });
+
+    }
+
+</script>

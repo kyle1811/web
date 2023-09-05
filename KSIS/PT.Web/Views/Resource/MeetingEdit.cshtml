@@ -1,0 +1,250 @@
+﻿@using PT.Web.WebUtil
+@model PT.BusinessLogic.Entities.Meeting
+
+@{
+                /**/
+
+                ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <div id="RE02000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE020000" id="RE02000001">주간업무회의</a>
+        </div>
+        <div id="RE14000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE140000" id="RE14000001">주간업무회의<br />(관리)</a>
+        </div>
+        <div id="RE03000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE030000" id="RE03000001">자금회의</a>
+        </div>
+        <div id="RE04000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE040000" id="RE04000001">영업회의</a>
+        </div>
+        <div id="RE05000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE050000" id="RE05000001">관리회의</a>
+        </div>
+        <div id="RE06000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE060000" id="RE06000001">건축회의</a>
+        </div>
+        <div id="RE07000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE070000" id="RE07000001">손익회의</a>
+        </div>
+        <div id="RE15000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE150000" id="RE15000001">손익회의(관리)</a>
+        </div>
+        <div id="RE08000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE080000" id="RE08000001">전사운영회의</a>
+        </div>
+        <div id="RE09000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE090000" id="RE09000001">주간보고(법무)</a>
+        </div>
+        <div id="RE10000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE100000" id="RE10000001">주간보고(경정)</a>
+        </div>
+        <div id="RE11000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE110000" id="RE11000001">준공보고</a>
+        </div>
+        <div id="RE12000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE120000" id="RE12000001">수주심의</a>
+        </div>
+        @*<div id="RE13000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE130000" id="RE13000001">수주심의(임원)</a>
+        </div>*@
+        <div id="RE16000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE160000" id="RE16000001">인사관련회의</a>
+        </div>
+        <div id="RE18000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE180000" id="RE18000001">안전보건경영<br> 운영위원회</a>
+        </div>
+        @*<div id="RE17000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE170000" id="RE17000001">디자인매뉴얼</a>
+        </div>*@
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <!-- 폼 -->
+        <form id="frm" name="frm" enctype="multipart/form-data" action="/Resource/MeetingEdit" method="post">
+            <!-- 버튼박스 -->
+            <div class="box_btn_right">
+                <a href="/Resource/Meeting?pMeetTypeCd=@Model.MeetTypeCd" id="btn_list" class="btn1">목록</a><a id="btn_save" class="btn1">저장</a><a id="btn_delete" class="btn1" style="display:none;">삭제</a>
+            </div>
+            <!-- //버튼박스 -->
+            <!-- 입력박스 -->
+            <div class="box_input">
+                <table>
+                    <colgroup>
+                        <col style="width:15%" />
+                        <col style="width:35%" />
+                        <col style="width:15%" />
+                        <col />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th>작성자</th>
+                            <td class="td_center">@Model.RegUserNm</td>
+                            <th>작성일자</th>
+                            <td class="td_center">@Model.RegDate</td>
+                        </tr>
+                        <tr>
+                            <th>제목</th>
+                            <td colspan="3">@Html.TextBoxFor(x => x.Subject)</td>
+                        </tr>
+                        <tr>
+                            <th>내용</th>
+                            <td colspan="3">@Html.TextAreaFor(x => x.Content, new { @rows = "20", style = "width:638px;" })</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- //입력박스 -->
+            <!-- 첨부파일 -->
+            <div class="file_box">
+                @WebUtil.MakeFileControl("첨부파일", "AttId", Model.AttId, true, Position.left, "100%")
+            </div>
+            <!-- //첨부파일 -->
+            <!-- 숨김정보 -->
+            @Html.HiddenFor(x => x.SaveMode)
+            @Html.HiddenFor(x => x.RegNo)
+            @Html.HiddenFor(x => x.MeetTypeCd)
+            <!-- //숨김정보 -->
+        </form>
+        <!-- //폼 -->
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var meetType = "@ViewBag.MeetTypeCd" + "01";
+    var meetTypeCd = "@ViewBag.MeetTypeCd";
+    var saveMode = "@Model.SaveMode";
+
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        var jsonData = ListChkAuth("Meeting", "@Session["EmpNo"]");
+
+        for (var i = 0; i < jsonData.length; i++) {
+                $("#"+jsonData[i].AuthType+"02").toggle();
+        }
+        ChangeMenuList(meetType);
+        EnableControl();
+    });
+
+
+    //************ Ajax ************//
+    function ListChkAuth(pMeetTypeCd, pEmpNo) {
+
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListChkAuth",
+            dataType: "json",
+            data: { "pMeetTypeCd": pMeetTypeCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                for (i = 0; i < data.length; i++) {
+
+                    var arrData = {};
+                    arrData.AuthType = data[i].AuthType;
+
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    // 파일변환 Url 조회
+    function GetSnyNapViewer(pAttId) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/GetSnyNapViewer",
+            dataType: "text",
+            data: { "pAttId": pAttId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                if (data == "Error") {
+                    alert("파일변환 에러 발생.");
+                    return false;
+                }
+                else if (data == "NotConvertContent") {
+                    alert("변환 불가능한 확장자.");
+                    return false;
+                }
+                else {
+                    window.open(data, "_Blank");
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 현재 페이지 왼쪽메뉴 선택처리
+    function ChangeMenuList(meetType) {
+        $("#" + meetType).addClass("txt_red");
+    }
+
+    // 버튼 및 INPUTBOX 활성화.비활성화 함수
+    function EnableControl() {
+        if (saveMode == "U") {
+            $("#btn_delete").show();
+        }
+    }
+
+
+    //************ 이벤트 ************//
+
+    // 저장버튼 클릭 이벤트
+    $(document).on("click", "#btn_save", function (e) {
+        if ($("#Subject").val() == "") {
+            alert("제목을 입력해 주세요.");
+            $("#Subject").focus();
+            return false;
+        }
+
+        if ($("#Content").val() == "") {
+            alert("내용을 입력해 주세요.");
+            $("#Content").focus();
+            return false;
+        }
+
+        $("#frm").submit();
+    });
+
+    // 삭제버튼 클릭 이벤트
+    $(document).on("click", "#btn_delete", function (e) {
+        // 저장방식 설정
+        $("#SaveMode").val("D");
+
+        $("#frm").submit();
+    });
+
+    // 첨부파일 클릭 이벤트
+    $(document).on("click", "#tbody_attid td:first-child a", function (e) {
+        GetSnyNapViewer($(this).attr("id"));
+    });
+
+
+</script>

@@ -1,0 +1,346 @@
+﻿@using PT.Web.WebUtil;
+@model PT.BusinessLogic.Entities.Meeting
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <div id="RE02000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE020000" id="RE02000001">주간업무회의</a>
+        </div>
+        <div id="RE14000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE140000" id="RE14000001">주간업무회의<br />(관리)</a>
+        </div>
+        <div id="RE03000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE030000" id="RE03000001">자금회의</a>
+        </div>
+        <div id="RE04000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE040000" id="RE04000001">영업회의</a>
+        </div>
+        <div id="RE05000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE050000" id="RE05000001">관리회의</a>
+        </div>
+        <div id="RE06000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE060000" id="RE06000001">건축회의</a>
+        </div>
+        <div id="RE07000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE070000" id="RE07000001">손익회의</a>
+        </div>
+        <div id="RE15000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE150000" id="RE15000001">손익회의(관리)</a>
+        </div>
+        <div id="RE08000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE080000" id="RE08000001">전사운영회의</a>
+        </div>
+        <div id="RE09000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE090000" id="RE09000001">주간보고(법무)</a>
+        </div>
+        <div id="RE10000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE100000" id="RE10000001">주간보고(경정)</a>
+        </div>
+        <div id="RE11000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE110000" id="RE11000001">준공보고</a>
+        </div>
+        <div id="RE12000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE120000" id="RE12000001">수주심의</a>
+        </div>
+        @*<div id="RE13000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE130000" id="RE13000001">수주심의(임원)</a>
+        </div>*@
+        <div id="RE16000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE160000" id="RE16000001">인사관련회의</a>
+        </div>
+        <div id="RE18000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE180000" id="RE18000001">안전보건경영<br> 운영위원회</a>
+        </div>
+        @*<div id="RE17000002" style="display:none">
+            <a href="/Resource/Meeting?pMeetTypeCd=RE170000" id="RE17000001">디자인매뉴얼</a>
+        </div>*@
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <!-- 폼 -->
+        <form id="frm" name="frm" enctype="multipart/form-data" action="/Resource/MeetingDetail" method="post">
+            <!-- 버튼박스 -->
+            <div class="box_btn_right">
+                <a href="/Resource/Meeting?pMeetTypeCd=@Model.MeetTypeCd" id="btn_list" class="btn1">목록</a><a id="btn_modify" class="btn1" style="display:none;">수정</a>
+                <a id="authRegistSuju" class="btn1" style="display:none;">공개대상설정</a>
+            </div>            
+
+            <!-- //버튼박스 -->
+            <!-- 입력박스 -->
+            <div class="box_input">
+                <table>
+                    <colgroup>
+                        <col style="width:15%" />
+                        <col style="width:35%" />
+                        <col style="width:15%" />
+                        <col />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th>작성자</th>
+                            <td class="td_center">@Model.RegUserNm</td>
+                            <th>작성일자</th>
+                            <td class="td_center">@Model.RegDate</td>
+                        </tr>
+                        <tr>
+                            <th>제목</th>
+                            <td colspan="3" class="td_left">@Model.Subject</td>
+                        </tr>
+                        <tr>
+                            <th>내용</th>
+                            <td colspan="3" class="td_left" style="height:310px;padding-top:5px;vertical-align:top;">@MvcHtmlString.Create(Model.HtmlContent)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- //입력박스 -->
+            <!-- 첨부파일 -->
+            <div id="mobile" class="file_box">
+                @WebUtil.MakeFileControl("첨부파일", "AttId", Model.AttId, false, Position.left, "100%")
+            </div>
+            <div id="pc" class="file_box" style="display:none;">
+                @WebUtil.MakeFileControlForMeet("첨부파일", "AttId", Model.AttId, false, Position.left, "100%")
+            </div>
+            <!-- //첨부파일 -->
+            <!-- 숨김정보 -->
+            @Html.HiddenFor(x => x.RegNo)
+            @Html.HiddenFor(x => x.MeetTypeCd)
+            <!-- //숨김정보 -->
+        </form>
+        <!-- //폼 -->
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+    //************ 변수 ************//
+
+    var meetType = "@ViewBag.MeetTypeCd" + "01";
+    var meetTypeCd = "@ViewBag.MeetTypeCd";
+    var regNo = "@Model.RegNo";
+    var regUserId = "@Model.RegUserId";
+    var userId = "@Session["UserId"]", temp = ""
+    var EmpNo = "@Session["EmpNo"]";
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        var jsonData = ListChkAuth("Meeting", "@Session["EmpNo"]");
+
+        for (var i = 0; i < jsonData.length; i++) {
+                $("#"+jsonData[i].AuthType+"02").toggle();
+        }
+        checkClientEM();
+        ChangeMenuList(meetType);
+        EnableControl();
+    });
+
+    function checkClientEM() {
+
+        if ("@Session["device"]" == "PC") {
+            $("#pc").css("display", "block");
+            $("#mobile").css("display", "none");
+        }
+        else {
+            $("#pc").css("display", "none");
+            $("#mobile").css("display", "block");
+        }
+
+        if (EmpNo == "18902060") {
+                $("#pc").css("display", "block");
+                $("#mobile").css("display", "none");
+            }
+
+        //var filter = "win16|win32|win64|mac|macIntel";
+
+        //if (navigator.platform) {
+
+        //    if (filter.indexOf(navigator.platform.toLowerCase()) < 0) {
+        //        $("#pc").css("display", "none");
+        //        $("#mobile").css("display", "block");
+        //    } else {
+        //        $("#pc").css("display", "block");
+        //        $("#mobile").css("display", "none");
+        //    }
+
+        //    if (EmpNo == "18902060" || EmpNo == "21305123" || EmpNo == "21102055" || EmpNo == "19906299" || EmpNo == "19800768" || EmpNo == "18900507" || EmpNo == "20006900") {
+        //        $("#pc").css("display", "block");
+        //        $("#mobile").css("display", "none");
+        //    }
+
+        //}
+
+    }
+
+
+    //************ Ajax ************//
+    function ListChkAuth(pMeetTypeCd, pEmpNo) {
+
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListChkAuth",
+            dataType: "json",
+            data: { "pMeetTypeCd": pMeetTypeCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                for (i = 0; i < data.length; i++) {
+
+                    var arrData = {};
+                    arrData.AuthType = data[i].AuthType;
+
+                    jsonData.push(arrData);
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+    // 파일변환 Url 조회
+    function GetSnyNapViewer(pAttId, pConfirm) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/GetSnyNapViewer",
+            dataType: "text",
+            data: { "pAttId": pAttId, "pConfirm": pConfirm },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                if (data == "Error") {
+                    alert("파일변환 에러 발생.");
+                    return false;
+                }
+                else if (data == "NotConvertContent") {
+                    alert("변환 불가능한 확장자.");
+                    return false;
+                }
+                else if (temp == true) {
+
+                    var winHeight = document.body.clientHeight; //현재창의 높이
+                    var winWidth = document.body.clientWidth; // 현재창의 너비
+
+                    var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+                    var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+                    var popX = winX + (winWidth - 1280) / 2;
+                    var popY = winY + (winHeight - 720) / 2;
+
+                    var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=yes,screenX=0,screenY=0,width=1280,height=720,top=" + popY + ",left=" + popX + "";
+
+                    window.open(data, "원본보기", setting);
+                }
+                else {
+                    window.open(data, "");
+                }
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 현재 페이지 왼쪽메뉴 선택처리
+    function ChangeMenuList(meetType) {
+        $("#" + meetType).addClass("txt_red");
+    }
+
+    // 버튼 및 INPUTBOX 활성화.비활성화 함수
+    function EnableControl() {
+        if (meetTypeCd != 'PT001011') {
+            if (regUserId == userId) {
+                $("#btn_modify").show();
+            }
+        }        
+        else { $("#btn_modify").show(); }
+
+        if (meetTypeCd == 'RE120000') {
+            if (regUserId == userId) {
+                $("#authRegistSuju").show();
+            }
+        }
+    }
+
+
+    //************ 이벤트 ************//
+
+    // 수정버튼 클릭 이벤트
+    $(document).on("click", "#btn_modify", function (e) {
+        location.href = "/Resource/MeetingEdit?pMeetTypeCd=" + meetTypeCd + "&pSaveMode=U&pRegNo=" + regNo;
+    });
+
+    // 첨부파일 클릭 이벤트
+    $(document).on("click", "#tbody_attid td:nth-child(1) a", function (e) {
+
+        GetSnyNapViewer($(this).attr("id"), "N");
+    });
+    // 원본보기 클릭 이벤트
+    $(document).on("click", "#tbody_attid td:nth-child(2) a", function (e) {
+
+        GetSnyNapViewer($(this).attr("id"), "Y");
+    });
+
+    //공개대상설정 클릭 이벤트
+        $(document).on("click", "#authRegistSuju", function (e) {
+
+            //if (setMenuCd == "") {
+            //    alert("하위 메뉴를 선택하세요");
+            //    return 0;
+            //}
+
+            var winHeight = document.body.clientHeight; //현재창의 높이
+            var winWidth = document.body.clientWidth; // 현재창의 너비
+
+            var winX = window.screenX || window.screenLeft || 0; //현재창의 x좌표
+            var winY = window.screenY || window.screenTop || 0; // 현재창의 y좌표
+
+            var popX = winX + (winWidth - 700) / 2;
+            var popY = winY + (winHeight - 500) / 2;
+
+            var setting = "toolbar=no,directories=no,status=no,location=no,menubar=no,scrollbars=yes,resizable=no,screenX=0,screenY=0,width=700,height=500,top=" + popY + ",left=" + popX + "";
+            var location = "/PopUp/AuthRegistSuju?pMeetTypeCd=" + meetTypeCd + "&pRegNo=" +regNo+ "&pRegUserId=" + "@Session["EmpNo"]";
+
+            var openDialog = function (location, setting, closeCallback) {
+
+                var win = window.open(location, "공개대상설정", setting);
+                var interval = window.setInterval(function () {
+                    try {
+                        if (win == null || win.closed) {
+                            window.clearInterval(interval);
+                            closeCallback(win);
+                        }
+                    }
+                    catch (e) {
+                    }
+                }, 500);
+
+                return win;
+            };
+
+            openDialog(location, setting, function (win) {
+                ListAuthStatusUser("N", 0, 0, setMenuCd, "User");
+                ListAuthStatusDept("N", 0, 0, setMenuCd, "Dept");
+                ListAuthStatusCd("N", 0, 0, setMenuCd, "Cd");
+            });
+
+
+        });
+
+
+</script>

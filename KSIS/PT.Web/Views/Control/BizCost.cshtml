@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+
+    <h1 class="title1">업무추진비 신청현황</h1>
+    <div id="grid_bizcost" class="grid2" style="height:auto;"></div>
+    <br />
+    
+</div>
+<!-- 콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        ListBizCostGrid("N", 10, 10, "@Session["DeptCd"]", "@Session["EmpNo"]");
+    });
+
+
+    // 업무추진비 신청현황 조회 테이블
+    function ListBizCostGrid(pPagerUseYn, pCurPage, pListCnt, pDeptCd, pEmpNo) {
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListBizCostGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_bizcost").empty();
+                $("#grid_bizcost").html(data[0]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    // 그리드 TR 클릭 이벤트
+    $(document).on("click", "#grid_bizcost tr", function (e) {
+        if (GetGridTrValue("grid_bizcost", "h_CostSeq", $(this).children()) != "요청번호") {
+            location.href = "/Control/BizCostDetail?pCostSeq=" + GetGridTrValue("grid_bizcost", "h_CostSeq", $(this).children());
+        }
+    });
+
+</script>

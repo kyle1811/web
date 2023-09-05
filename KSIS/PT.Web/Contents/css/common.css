@@ -1,0 +1,24 @@
+﻿@charset "utf-8";
+
+/* margin */
+.margin_top10{margin-top:10px;}
+.margin_right40{margin-right:40px;}
+.margin_left120{margin-left:120px;}
+.margin_tb20{margin:20px 0;}
+
+/* padding */
+.padding_top20{padding-top:20px;}
+
+/* td align */
+.td_left{padding-left:3px;text-align:left;}
+.td_center{text-align:center;}
+.td_right{padding-right:3px;text-align:right;}
+
+/* text-decoration */
+.under_line{text-decoration:underline;}
+
+
+
+
+
+

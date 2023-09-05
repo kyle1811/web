@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+
+    <h1 class="title1">일일입금현황</h1>
+
+    <div class="box_search3">
+
+        <label>시작일</label>
+        <input type="text" id="date1" class="box_dateinput">
+
+        <label>~</label>
+
+        <label>종료일</label>
+        <input type="text" id="date2" class="box_dateinput">
+
+
+        <a id="btn_search" class="btn1">조회</a>
+
+    </div>
+
+    <div id="grid_controlDailyDeposit_state" class="grid3" style="height:600px;"></div>
+    <br>
+
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+    var time = new Date();
+    var Month = "", Day = "";
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        $("#date1").datepicker({
+            showOn: "both",
+            buttonImage: "/Contents/images/button/icon_calender.gif",
+            buttonImageOnly: true,
+            changeMonth: true,
+            changeYear: true,
+            nextText: '다음 달',
+            prevText: '이전 달',
+            showButtonPanel: true,
+            currentText: '오늘 날짜',
+            closeText: '닫기',
+            dateFormat: "yy-mm-dd",
+            changeMonth: true,
+            dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
+            dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+            monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            showMonthAfterYear: true     
+        });
+
+        $("#date2").datepicker({
+            showOn: "both",
+            buttonImage: "/Contents/images/button/icon_calender.gif",
+            buttonImageOnly: true,
+            changeMonth: true,
+            changeYear: true,
+            nextText: '다음 달',
+            prevText: '이전 달',
+            showButtonPanel: true,
+            currentText: '오늘 날짜',
+            closeText: '닫기',
+            dateFormat: "yy-mm-dd",
+            changeMonth: true,
+            dayNames: ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'],
+            dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+            monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            showMonthAfterYear: true
+        });
+
+        Month = (time.getMonth() + 1);
+        Day = time.getDate();
+
+        if (Month < 10) {
+            Month = '0' + (time.getMonth() + 1);
+        }
+        if (Day < 10) {
+            Day = '0' + time.getDate();
+        }
+
+        document.getElementById("date1").value = time.getFullYear() + '-' + Month + '-' + Day;
+        document.getElementById("date2").value = time.getFullYear() + '-' + Month + '-' + Day;
+        ListControlDailyDepositGrid("N", 0, 0, $("#date1").val(), $("#date2").val());
+    });
+    //************ Ajax ************//
+
+    // 일일입금현황 조회 테이블
+    function ListControlDailyDepositGrid(pPagerUseYn, pCurPage, pListCnt, pDatePick1, pDatePick2) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListControlDailyDepositGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pDatePick1": pDatePick1, "pDatePick2": pDatePick2 },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_controlDailyDeposit_state").empty();
+                $("#grid_controlDailyDeposit_state").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 조회버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        if ($("#date1").val() == "") {
+            alert("시작일을 선택하세요");
+            $("#date1").focus();
+            return false;
+        }
+
+        if ($("#date2").val() == "") {
+            alert("종료일을 선택하세요");
+            $("#date2").focus();
+            return false;
+        }
+
+        ListControlDailyDepositGrid("N", 0, 0, $("#date1").val(), $("#date2").val());
+    });
+
+</script>

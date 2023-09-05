@@ -1,0 +1,119 @@
+﻿@model PT.BusinessLogic.Entities.User
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 버튼박스 -->
+    <div class="box_btn_right margin_top10">
+        <a id="btn_list" class="btn1">목록</a>
+    </div>
+    
+    <!-- //버튼박스 -->
+    <!-- 입력박스 -->
+    <div class="box_input">
+        <table>
+            <colgroup>
+                <col style="width:12%" />
+                <col style="width:15%" />
+                <col style="width:29%" />
+                <col style="width:15%" />
+                <col />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td id="userImg" rowspan="4"><img src="@ViewBag.ImageData" style="width:114px;height:135px;" /></td>
+                    <th>성명</th>
+                    <td class="td_center">@Model.UserNm</td>
+                    <th>이메일</th>
+                    <td class="td_center">@Model.Email</td>
+                </tr>
+                <tr>
+                    <th>직급</th>
+                    <td class="td_center">@Model.DutyNm</td>
+                    <th>사번</th>
+                    <td class="td_center">@Model.EmpNo</td>
+                </tr>
+                <tr>
+                    <th>회사전화</th>
+                    <td class="td_center">@Model.CompTel</td>
+                    <th>휴대폰</th>
+                    <td class="td_center">@Model.Mobile</td>
+                </tr>
+                <tr>
+                    <th>부서</th>
+                    <td colspan="3" class="td_left">@Model.DeptNm</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- //입력박스 -->
+    <!-- 입력박스 -->
+    <div class="box_input margin_tb20">
+        <table>
+            <colgroup>
+                <col style="width:27%" />
+                <col style="width:35%" />
+                <col style="width:15%" />
+                <col />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <th>회사주소</th>
+                    <td colspan="3" class="td_left">@Model.CompAddress</td>
+                </tr>
+                <tr>
+                    <th>자택주소</th>
+                    <td colspan="3" class="td_left">@Model.Address</td>
+                </tr>
+                <tr>
+                    <th>자택전화</th>
+                    <td colspan="3" class="td_left">@Model.Tel</td>
+                </tr>
+                <tr>
+                    <th>담당업무</th>
+                    <td colspan="3" class="td_left">@Model.JobNm</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- //입력박스 -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+    
+    var DeptCd = "@Model.DeptCd";
+    var SEQ = "@Model.SEQ", ImageData = "@ViewBag.ImageData";
+
+   /*$(document).ready(function (e) {
+        if(SEQ == 2){
+            ListUserPicChk(ImageData);
+        }
+    });*/
+
+
+    function ListUserPicChk(pImageData) {
+        $.ajax({
+            url: '/Contents/images/icon/icon_sky1.png',
+            type: 'HEAD',
+            success: function () {
+                alert("성공");
+            },
+            error: function (e) {
+                $("#userImg img").attr("src", 'https://ksis.kccworld.net/Contents/images/CO/silhouette.jpg');
+            }
+        });
+    }
+
+// 그리드 TR 클릭 이벤트
+    $(document).on("click", "#btn_list", function (e) { 
+
+        location.href = "/Person/OrganizeChart";
+        //location.href = "/Person/OrganizeChart?pDeptCd=" + DeptCd;
+           
+    });
+
+</script>

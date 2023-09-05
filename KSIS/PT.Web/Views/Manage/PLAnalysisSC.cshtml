@@ -1,0 +1,597 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Manage/PLAnalysis">현장별</a>
+        <a href="/Manage/PLAnalysisSC" class="txt_red">외주</a>
+        <a href="/Manage/PLAnalysisPR">자재</a>
+        <a href="/Manage/PLAnalysisTerm">기간별</a>
+        <a href="/Manage/PLAnalysisMember" >인원별</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <div id="GW00001" class="boxother8">
+            <h1 class="title1">차트#1 예제</h1>
+            <div id="chart_ex1" class="chart" style="height:400px;width:auto;"></div>
+        </div>
+
+        <div id="GW00002" class="boxother8">
+            <h1 class="title1">차트#2 예제</h1>
+            <div id="chart_ex2" class="chart" style="height:400px;width:auto;"></div>
+        </div>
+
+        <div id="GW00003" class="boxother8">
+            <h1 class="title1">차트#3 예제</h1>
+            <div id="chart_ex3" class="chart" style="height:400px;width:auto"></div>
+        </div>
+        <div id="GW00003" class="boxother8">
+            <h1 class="title1">차트#4 예제</h1>
+            <div id="chart_ex4" class="chart" style="height:400px;width:auto"></div>
+        </div>
+    </div>
+
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 로드 ************//
+    var text1 = "", text2 = "", text3 = "", text4 = "";
+    var DeptCd = ""
+    var BizPartCd = "KCCENC"
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        chart_ex1("", "");
+        chart_ex2("", "");
+        chart_ex3("", "");
+        chart_ex4("", "");
+    });
+
+    //************ Ajax ************//
+
+    function Listchart_ex1(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListPLAnalysis",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].TOTAMT);
+                    arrData.name = data[i].NUM;
+                    //arrData.color = data[i].Color;
+                    arrData.value = data[i].AVRTIMEP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    function Listchart_ex2(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListPLAnalysis",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].TOTAMT);
+                    arrData.name = data[i].NUM;
+                    //arrData.color = data[i].Color;
+                    arrData.value = data[i].AVRTIMEP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    function Listchart_ex3(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListPLAnalysis",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].TOTAMT);
+                    arrData.name = data[i].NUM;
+                    //arrData.color = data[i].Color;
+                    arrData.value = data[i].AVRTIMEP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+    function Listchart_ex4(pDeptCd, pEmpNo) {
+        // 그래프 키값 숫자형 처리된 데이터를 담기위한 변수
+        var jsonData = [];
+
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListPLAnalysis",
+            dataType: "json",
+            data: { "pDeptCd": pDeptCd, "pEmpNo": pEmpNo },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                // Json 데이터 y축 그래프 값 숫자형 처리
+                for (i = 0; i < data.length; i++) {
+                    var arrData = {};
+                    arrData.y = parseFloat(data[i].TOTAMT);
+                    arrData.name = data[i].NUM;
+                    //arrData.color = data[i].Color;
+                    arrData.value = data[i].AVRTIMEP;
+
+                    jsonData.push(arrData);
+
+                }
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+
+        return jsonData;
+    }
+
+
+    //************ 함수 ************//
+
+    function chart_ex1(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = Listchart_ex1("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_ex1").highcharts({
+
+
+            chart: {
+                type: 'area'
+            },
+            title: {
+                text: 'US and USSR nuclear stockpiles'
+            },
+            subtitle: {
+                text: 'Sources: <a href="https://thebulletin.org/2006/july/global-nuclear-stockpiles-1945-2006">' +
+                'thebulletin.org</a> &amp; <a href="https://www.armscontrol.org/factsheets/Nuclearweaponswhohaswhat">' +
+                'armscontrol.org</a>'
+            },
+            xAxis: {
+                allowDecimals: false,
+                labels: {
+                    formatter: function () {
+                        return this.value; // clean, unformatted number for year
+                    }
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Nuclear weapon states'
+                },
+                labels: {
+                    formatter: function () {
+                        return this.value / 1000 + 'k';
+                    }
+                }
+            },
+            tooltip: {
+                pointFormat: '{series.name} had stockpiled <b>{point.y:,.0f}</b><br/>warheads in {point.x}'
+            },
+            plotOptions: {
+                area: {
+                    pointStart: 1940,
+                    marker: {
+                        enabled: false,
+                        symbol: 'circle',
+                        radius: 2,
+                        states: {
+                            hover: {
+                                enabled: true
+                            }
+                        }
+                    }
+                }
+            },
+
+
+            credits: {
+                enabled: false
+            },
+
+
+            series: [{
+                name: 'USA',
+                data: [
+                    null, null, null, null, null, 6, 11, 32, 110, 235,
+                    369, 640, 1005, 1436, 2063, 3057, 4618, 6444, 9822, 15468,
+                    20434, 24126, 27387, 29459, 31056, 31982, 32040, 31233, 29224, 27342,
+                    26662, 26956, 27912, 28999, 28965, 27826, 25579, 25722, 24826, 24605,
+                    24304, 23464, 23708, 24099, 24357, 24237, 24401, 24344, 23586, 22380,
+                    21004, 17287, 14747, 13076, 12555, 12144, 11009, 10950, 10871, 10824,
+                    10577, 10527, 10475, 10421, 10358, 10295, 10104, 9914, 9620, 9326,
+                    5113, 5113, 4954, 4804, 4761, 4717, 4368, 4018
+                ]
+            }, {
+                name: 'USSR/Russia',
+                data: [null, null, null, null, null, null, null, null, null, null,
+                    5, 25, 50, 120, 150, 200, 426, 660, 869, 1060,
+                    1605, 2471, 3322, 4238, 5221, 6129, 7089, 8339, 9399, 10538,
+                    11643, 13092, 14478, 15915, 17385, 19055, 21205, 23044, 25393, 27935,
+                    30062, 32049, 33952, 35804, 37431, 39197, 45000, 43000, 41000, 39000,
+                    37000, 35000, 33000, 31000, 29000, 27000, 25000, 24000, 23000, 22000,
+                    21000, 20000, 19000, 18000, 18000, 17000, 16000, 15537, 14162, 12787,
+                    12600, 11400, 5500, 4512, 4502, 4502, 4500, 4500
+                ]
+            }]
+
+
+        });
+
+    }
+
+
+
+    function chart_ex2(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = Listchart_ex2("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_ex2").highcharts({
+
+
+            chart: {
+                type: 'areaspline'
+            },
+            title: {
+                text: 'Average fruit consumption during one week'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'top',
+                x: 150,
+                y: 100,
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            },
+            xAxis: {
+                categories: [
+                    'Monday',
+                    'Tuesday',
+                    'Wednesday',
+                    'Thursday',
+                    'Friday',
+                    'Saturday',
+                    'Sunday'
+                ],
+                plotBands: [{ // visualize the weekend
+                    from: 4.5,
+                    to: 6.5,
+                    color: 'rgba(68, 170, 213, .2)'
+                }]
+            },
+            yAxis: {
+                title: {
+                    text: 'Fruit units'
+                }
+            },
+            tooltip: {
+                shared: true,
+                valueSuffix: ' units'
+            },
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                areaspline: {
+                    fillOpacity: 0.5
+                }
+            },
+            series: [{
+                name: 'John',
+                data: [3, 4, 3, 5, 4, 10, 12]
+            }, {
+                name: 'Jane',
+                data: [1, 3, 4, 3, 3, 5, 4]
+            }]
+
+
+        });
+
+    }
+
+
+
+
+
+    function chart_ex3(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = Listchart_ex3("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_ex3").highcharts({
+
+
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: 'Historic World Population by Region'
+            },
+            subtitle: {
+                text: 'Source: <a href="https://en.wikipedia.org/wiki/World_population">Wikipedia.org</a>'
+            },
+            xAxis: {
+                categories: ['Africa', 'America', 'Asia', 'Europe', 'Oceania'],
+                title: {
+                    text: null
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Population (millions)',
+                    align: 'high'
+                },
+                labels: {
+                    overflow: 'justify'
+                }
+            },
+            tooltip: {
+                valueSuffix: ' millions'
+            },
+            plotOptions: {
+                bar: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'top',
+                x: -40,
+                y: 80,
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                shadow: true
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: 'Year 1800',
+                data: [107, 31, 635, 203, 2]
+            }, {
+                name: 'Year 1900',
+                data: [133, 156, 947, 408, 6]
+            }, {
+                name: 'Year 2000',
+                data: [814, 841, 3714, 727, 31]
+            }, {
+                name: 'Year 2016',
+                data: [1216, 1001, 4436, 738, 40]
+            }]
+
+
+        });
+
+    }
+
+    function chart_ex4(pDeptCd, pEmpNo) {
+        // 그래프 데이터 조회
+        var jsonData = Listchart_ex4("@Session["DeptCd"]", "@Session["EmpNo"]");
+        text4 = jsonData[0].name;
+        // 그래프 데이터가 없는 경우
+        if (jsonData == null) {
+            alert("퇴근시간현황 데이터를 조회하지 못했습니다.");
+            return false;
+        }
+
+        if (text2 == "") {
+            text2 = jsonData[0].name;
+        }
+
+        // 차트 생성
+        $("#chart_ex4").highcharts({
+
+
+            chart: {
+                type: 'bubble',
+                plotBorderWidth: 1,
+                zoomType: 'xy'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            title: {
+                text: 'Sugar and fat intake per country'
+            },
+
+            subtitle: {
+                text: 'Source: <a href="http://www.euromonitor.com/">Euromonitor</a> and <a href="https://data.oecd.org/">OECD</a>'
+            },
+
+            xAxis: {
+                gridLineWidth: 1,
+                title: {
+                    text: 'Daily fat intake'
+                },
+                labels: {
+                    format: '{value} gr'
+                },
+                plotLines: [{
+                    color: 'black',
+                    dashStyle: 'dot',
+                    width: 2,
+                    value: 65,
+                    label: {
+                        rotation: 0,
+                        y: 15,
+                        style: {
+                            fontStyle: 'italic'
+                        },
+                        text: 'Safe fat intake 65g/day'
+                    },
+                    zIndex: 3
+                }]
+            },
+
+            yAxis: {
+                startOnTick: false,
+                endOnTick: false,
+                title: {
+                    text: 'Daily sugar intake'
+                },
+                labels: {
+                    format: '{value} gr'
+                },
+                maxPadding: 0.2,
+                plotLines: [{
+                    color: 'black',
+                    dashStyle: 'dot',
+                    width: 2,
+                    value: 50,
+                    label: {
+                        align: 'right',
+                        style: {
+                            fontStyle: 'italic'
+                        },
+                        text: 'Safe sugar intake 50g/day',
+                        x: -10
+                    },
+                    zIndex: 3
+                }]
+            },
+
+            tooltip: {
+                useHTML: true,
+                headerFormat: '<table>',
+                pointFormat: '<tr><th colspan="2"><h3>{point.country}</h3></th></tr>' +
+                '<tr><th>Fat intake:</th><td>{point.x}g</td></tr>' +
+                '<tr><th>Sugar intake:</th><td>{point.y}g</td></tr>' +
+                '<tr><th>Obesity (adults):</th><td>{point.z}%</td></tr>',
+                footerFormat: '</table>',
+                followPointer: true
+            },
+
+            plotOptions: {
+                series: {
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.name}'
+                    }
+                }
+            },
+
+            series: [{
+                data: [
+                    { x: 95, y: 95, z: 13.8, name: 'BE', country: 'Belgium' },
+                    { x: 86.5, y: 102.9, z: 14.7, name: 'DE', country: 'Germany' },
+                    { x: 80.8, y: 91.5, z: 15.8, name: 'FI', country: 'Finland' },
+                    { x: 80.4, y: 102.5, z: 12, name: 'NL', country: 'Netherlands' },
+                    { x: 80.3, y: 86.1, z: 11.8, name: 'SE', country: 'Sweden' },
+                    { x: 78.4, y: 70.1, z: 16.6, name: 'ES', country: 'Spain' },
+                    { x: 74.2, y: 68.5, z: 14.5, name: 'FR', country: 'France' },
+                    { x: 73.5, y: 83.1, z: 10, name: 'NO', country: 'Norway' },
+                    { x: 71, y: 93.2, z: 24.7, name: 'UK', country: 'United Kingdom' },
+                    { x: 69.2, y: 57.6, z: 10.4, name: 'IT', country: 'Italy' },
+                    { x: 68.6, y: 20, z: 16, name: 'RU', country: 'Russia' },
+                    { x: 65.5, y: 126.4, z: 35.3, name: 'US', country: 'United States' },
+                    { x: 65.4, y: 50.8, z: 28.5, name: 'HU', country: 'Hungary' },
+                    { x: 63.4, y: 51.8, z: 15.4, name: 'PT', country: 'Portugal' },
+                    { x: 64, y: 82.9, z: 31.3, name: 'NZ', country: 'New Zealand' }
+                ]
+            }]
+
+
+        });
+
+    }
+
+
+
+</script>

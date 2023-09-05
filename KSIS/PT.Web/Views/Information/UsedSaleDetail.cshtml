@@ -1,0 +1,392 @@
+﻿@using PT.Web.WebUtil;
+@model PT.BusinessLogic.Entities.UsedSale
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Information/UsedSale" id="ProcessItem">진행중인나눔</a>
+        <a href="/Information/UsedSaleCompleted" id="CompleteItem">완료된나눔</a>
+        <a href="/Information/UsedSaleRegistration?pSaveMode=I">물품등록하기</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:15px;color:#121212;">@Model.SharingType - 물품상세정보</h1>
+        <div class="box_btn_right">
+            <a id="btn_complete" class="btn1" style="visibility:hidden;">판매완료</a>
+            <a id="btn_cancle" class="btn1" style="visibility:hidden;">판매취소</a>
+            <a id="btn_update" class="btn1" style="visibility:hidden;">수정</a>
+            <a id="btn_delete" class="btn1" style="visibility:hidden;">삭제</a>
+            <a id="btn_list" class="btn1">목록</a>
+        </div>
+        <div class="box_input">
+            <table>
+                <colgroup>
+                    <col style="width:15%" />
+                    <col style="width:35%" />
+                    <col style="width:15%" />
+                    <col style="width:35%" />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th>물품명</th>
+                        <td class="td_left" style="padding-left:10px;" colspan="3">@Model.ItemNm</td>                                          
+                    </tr>
+                    <tr>
+                        <th>판매가격</th>
+                        <td class="td_center">@Model.Price 원</td>
+                        <th>배송방법</th>
+                        <td class="td_center">@Model.ShippingMethod</td>
+                    </tr>
+                    <tr>
+                        <th>판매자</th>
+                        <td class="td_center">@Model.RegUserNm</td>
+                        <th>연락처</th>
+                        <td class="td_center">@Model.TelNo</td>
+                    </tr>                                                                 
+                    <tr>
+                        <th>사진</th>
+                        <td colspan="3" class="td_center" style="padding-top:10px;">
+                            <img id="img1" style="width:auto;height:auto;max-width:600px; padding-bottom:10px;"
+                                 src="@Model.ImgSrc1" />
+                            <img id="img2" style="width:auto;height:auto;max-width:600px;padding-bottom:10px;"
+                                 src="@Model.ImgSrc2" />
+                            <img id="img3" style="width:auto;height:auto;max-width:600px;padding-bottom:10px;"
+                                 src="@Model.ImgSrc3" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>상세정보</th>
+                        <td colspan="3" class="td_left" style="height:200px;padding-top:5px;vertical-align:top;overflow:auto;">@MvcHtmlString.Create(Model.MoreInfo)</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <!-- 그리드 -->
+        <div id="grid_UsedSale" class="grid1" style="height:200px; border:1px solid #d8d8d8; "></div>
+        <div id="grid_Comment" class="box_input">
+            <table>
+                <colgroup>
+                    <col style="width:15%" />
+                    <col style="width:65%" />
+                    <col style="width:10%" />
+                    <col style="width:10%" />
+                    <col />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <th>댓글작성</th>
+                        <td>@Html.TextAreaFor(x => x.CommentText, new { @rows = "5", style = "width:638px;" })</td>
+                        <td class="td_center"><a id="btn_enroll" class="btn1">등록</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- //콘텐츠(상세) -->
+    <!-- 숨김정보 -->
+    @Html.HiddenFor(x => x.AttId)
+    <!-- 숨김정보 -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    var UsedSaleNo = "@ViewBag.UsedSaleNo";
+    var RegUser = "@ViewBag.RegUser";
+    var Status = "@ViewBag.Status";
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+
+        ChangeMenuList(Status);
+
+        if (("@Session["EmpNo"]" == RegUser) && (Status == "P")) {
+            $("#btn_complete").css("visibility", "visible");
+            $("#btn_update").css("visibility", "visible");
+            $("#btn_delete").css("visibility", "visible");
+            $("#btn_cancle").css("display", "none");
+        }
+        else if (("@Session["EmpNo"]" != RegUser) && (Status == "P")) {
+            $("#btn_complete").css("display", "none");
+            $("#btn_update").css("display", "none");
+            $("#btn_delete").css("display", "none");
+            $("#btn_cancle").css("display", "none");
+        }
+        else if (("@Session["EmpNo"]" == RegUser) && (Status == "C")) {
+            $("#btn_cancle").css("visibility", "visible");
+            $("#btn_update").css("display", "none");
+            $("#btn_delete").css("display", "none");
+        }
+        else if (("@Session["EmpNo"]" != RegUser) && (Status == "C")) {
+            $("#btn_cancle").css("display", "none");
+            $("#btn_update").css("display", "none");
+            $("#btn_delete").css("display", "none");
+        }
+
+
+        //ListUsedSaleComment(UsedSaleNo);
+
+        ListUsedSaleCommentOther(UsedSaleNo, "@Session["EmpNo"]", Status);
+
+        if (Status == "C") {
+
+            $("#grid_Comment").css("display", "none");
+        }
+
+        ImgSet();
+    });
+
+    // 함수 유동적 화면 조회
+    //function ListUsedSaleDetail(pUsedSaleNo, pGubun, pStatus) {
+
+    //    $.ajax({
+    //        type: "POST",
+    //        url: "/Information/ListUsedSaleDetail",
+    //        dataType: "html",
+    //        data: { "pUsedSaleNo": pUsedSaleNo, "pGubun": pGubun, "pStatus": pStatus },
+    //        async: false,   // 동기식 처리
+    //        success: function (data) {
+
+    //            if (pGubun == "detail") {
+    //                $("#info").append(data);
+    //            }
+    //            else {
+
+    //                $("#comment").empty();
+    //                $("#comment").append(data);
+    //            }
+
+    //        },
+    //        error: function (e) {
+    //            alert("에러 발생.");
+    //            return false;
+    //        }
+    //    });
+    //}
+
+    function ImgSet() {
+
+        if ("@Model.ImgSrc1" == "") {
+            $("#img1").css("display","none");
+        }
+         if ("@Model.ImgSrc2" == "") {
+            $("#img2").css("display","none");
+        }
+        if ("@Model.ImgSrc3" == "") {
+            $("#img3").css("display","none");
+        }
+    }
+
+
+    function ListUsedSaleComment(pUsedSaleNo) {
+        $.ajax({
+            type: "POST",
+            url: "/Information/ListUsedSaleComment",
+            dataType: "html",
+            data: { "pUsedSaleNo": pUsedSaleNo},
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_UsedSale").empty();
+                $("#grid_UsedSale").append(data[0]);
+            },
+            error: function (e) {
+                 alert("댓글 조회에 실패했습니다.");
+                return false;
+            }
+        });
+    }
+
+    // 함수 유동적 화면 조회
+    function ListUsedSaleCommentOther(pUsedSaleNo, pUserId, pStatus) {
+
+        $.ajax({
+            type: "POST",
+            url: "/Information/ListUsedSaleCommentOther",
+            dataType: "html",
+            data: { "pUsedSaleNo": pUsedSaleNo, "pUserId": pUserId, "pStatus": pStatus },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                    $("#grid_UsedSale").empty();
+                    $("#grid_UsedSale").append(data);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 함수
+    function SaveUsedSaleComment(pUsedSaleNo, pCommentText, pUserId) {
+
+        $.ajax({
+            type: "POST",
+            url: "/Information/SaveUsedSaleComment",
+            dataType: "text",
+            data: { "pUsedSaleNo": pUsedSaleNo, "pCommentText": pCommentText, "pUserId": pUserId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                alert(data);
+            },
+            error: function (e) {
+                alert("댓글 등록에 실패하였습니다.");
+                return false;
+            }
+        });
+    }
+
+    function DeleteUsedSaleComment(pUsedSaleNo, pCommentSeq, pUserId) {
+
+        $.ajax({
+            type: "POST",
+            url: "/Information/DeleteUsedSaleComment",
+            dataType: "text",
+            data: { "pUsedSaleNo": pUsedSaleNo, "pCommentSeq": pCommentSeq, "pUserId": pUserId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                alert(data);
+            },
+            error: function (e) {
+                alert("댓글 삭제에 실패하였습니다.");
+                return false;
+            }
+        });
+    }
+
+    function DeleteUsedSaleItem(pUsedSaleNo, pAttId) {
+
+        $.ajax({
+            type: "POST",
+            url: "/Information/DeleteUsedSaleItem",
+            dataType: "text",
+            data: { "pUsedSaleNo": pUsedSaleNo, "pAttId": pAttId },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                alert(data);
+            },
+            error: function (e) {
+                alert("삭제에 실패하였습니다.");
+                return false;
+            }
+        });
+    }
+    //판매완료
+    function SaveUsedSaleComplete(pUsedSaleNo, pUserId, pStatus) {
+
+        $.ajax({
+            type: "POST",
+            url: "/Information/SaveUsedSaleComplete",
+            dataType: "text",
+            data: { "pUsedSaleNo": pUsedSaleNo, "pUserId": pUserId, "pStatus": pStatus },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                alert(data);
+            },
+            error: function (e) {
+                alert("완료 처리에 실패하였습니다.");
+                return false;
+            }
+        });
+    }
+
+    //네이게이션 처리
+    function ChangeMenuList(Status) {
+        if (Status == "P") {
+            $("#ProcessItem").addClass("txt_red");
+        }
+        else {
+            $("#CompleteItem").addClass("txt_red");
+        }
+    }
+
+    //목록버튼 이벤트 처리
+    $(document).on("click", "#btn_list", function (e) {
+        if (Status == "P") {
+            location.href = "/Information/UsedSale";
+        }
+        else {
+            location.href = "/Information/UsedSaleCompleted";
+        }
+    });
+
+    // 댓글등록 버튼 클릭 이벤트
+    $(document).on("click", "#btn_enroll", function (e) {
+
+        if ($("#CommentText").val() == "") {
+            alert("내용을 입력해 주세요.");
+            $("#CommentText").focus();
+            return false;
+        }
+
+            SaveUsedSaleComment(UsedSaleNo, $("#CommentText").val(), "@Session["EmpNo"]");
+
+            document.getElementById("CommentText").value = "";
+            //ListUsedSaleComment(UsedSaleNo);
+            ListUsedSaleCommentOther(UsedSaleNo, "@Session["EmpNo"]", Status);
+
+    });
+
+    // 삭제 버튼 클릭 이벤트
+    $(document).on("click", "#btn_delete", function (e) {
+
+        DeleteUsedSaleItem(UsedSaleNo, "@Model.AttId");
+        location.href = "/Information/UsedSale";
+
+    });
+
+    // 수정버튼 클릭 이벤트
+    $(document).on("click", "#btn_update", function (e) {
+        location.href = "/Information/UsedSaleRegistration?pSaveMode=U&pUsedSaleNo=" + UsedSaleNo + "&pUserId="+"@Session["EmpNo"]";
+    });
+
+    // 판매완료 버튼 클릭 이벤트
+    $(document).on("click", "#btn_complete", function (e) {
+
+        var retVal = confirm("판매완료 처리하시겠습니까?");
+
+        if (retVal == true) {
+            SaveUsedSaleComplete(UsedSaleNo, RegUser, "C");
+            location.href = "/Information/UsedSaleCompleted";
+        }
+
+    });
+
+    // 판매취소 버튼 클릭 이벤트
+    $(document).on("click", "#btn_cancle", function (e) {
+
+        var retVal = confirm("판매취소 처리하시겠습니까?");
+
+        if (retVal == true) {
+            SaveUsedSaleComplete(UsedSaleNo, RegUser, "P");
+            location.href = "/Information/UsedSale";
+        }
+
+    });
+
+    // 댓글 삭제 버튼 클릭 이벤트
+    $(document).on("click", "#btn_CommentDel", function (e) {
+
+        if (Status == "C") {
+            alert("완료된 물품의 댓글은 삭제 할 수 없습니다.");
+            return false;
+        }
+
+        var CommentSeq = this.parentNode.parentNode.firstElementChild.textContent;
+        var CommentUserId = this.parentNode.parentNode.childNodes[2].textContent;
+
+        DeleteUsedSaleComment(UsedSaleNo, CommentSeq, CommentUserId);
+        ListUsedSaleCommentOther(UsedSaleNo, "@Session["EmpNo"]", Status);
+
+    });
+</script>

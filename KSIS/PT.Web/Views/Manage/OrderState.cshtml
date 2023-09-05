@@ -1,0 +1,130 @@
+﻿@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Manage/OrderResult?pSujuTypeCd=PT00104" id="PT00104">수주실적(전체)</a>
+        <a href="/Manage/OrderResultDept?pSujuDeptTypeCd=PT00105" id="PT00105">수주실적(부서)</a>
+        <a href="/Manage/OrderState?pOrderStateTypeCd=PT00106" id="PT00106" class="txt_red">신규수주현황</a>
+    </div>
+    <!-- //사이드메뉴 -->
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        <!-- 검색 및 버튼박스 -->
+        <div class="box_search4">
+                <span>제목</span> <input type="text" id="TxtSubject" name="TxtSubject" />
+                <a id="btn_search" class="btn1">검색</a>
+                <!--<a id="btn_edit" class="btn1">작성</a>-->
+        </div>
+        <!-- //검색 및 버튼박스 -->
+        <!-- 그리드 -->
+        <div id="grid_meeting" class="grid2" style="height:385px;"></div>
+        <!-- //그리드 -->
+        <!-- 페이지 -->
+        <div id="pager_meeting" class="pager1"></div>
+        <!-- //페이지 -->
+        <!-- 숨김정보 -->
+        <input type="hidden" id="HdnMeetTypeCd" name="HdnMeetTypeCd" />
+        <input type="hidden" id="HdnSubject" name="HdnSubject" />
+        <!-- //숨김정보 -->
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+
+    var OrderStateTypeCd = "@ViewBag.OrderStateTypeCd";
+
+
+    //************ 로드 ************//
+
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        ChangeMenuList(OrderStateTypeCd);
+        ListOrderStateGrid("Y", 1, 10, OrderStateTypeCd, $("#TxtSubject").val());
+    });
+
+
+    //************ Ajax ************//
+
+    // 현장(실행율) 상위3개 현장 조회
+    function ListOrderStateGrid(pPagerUseYn, pCurPage, pListCnt, pOrderStateTypeCd, pSubject) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/ListOrderStateGrid",
+            dataType: "html",
+            data: { "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt, "pOrderStateTypeCd": pOrderStateTypeCd, "pSubject": pSubject },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_meeting").empty();
+                $("#grid_meeting").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_meeting", 10, data[1], data[2]);
+                // 검색조건 저장
+                $("#HdnMeetTypeCd").val(data[3]);
+                $("#HdnSubject").val(data[4]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+
+    //************ 함수 ************//
+
+    // 현재 페이지 왼쪽메뉴 선택처리
+    function ChangeMenuList(OrderStateTypeCd) {
+        $("#" + OrderStateTypeCd).addClass("txt_red");
+    }
+
+
+    //************ 이벤트 ************//
+
+    // 조회버튼 클릭 이벤트
+    $(document).on("click", "#btn_search", function (e) {
+        if ($("#TxtSubject").val() == "") {
+            alert("검색어를 입력하세요");
+            $("#TxtSubject").focus();
+            return false;
+        }
+
+        ListOrderStateGrid("Y", 1, 10, OrderStateTypeCd, $("#TxtSubject").val());
+    });
+
+    // 제목박스 엔터 이벤트
+    $(document).on("keypress", "#TxtSubject", function (e) {
+        if (e.which == 13) {
+            ListOrderStateGrid("Y", 1, 10, OrderStateTypeCd, $("#TxtSubject").val());
+            return false;
+        }
+    });
+
+    // 페이지 번호 클릭 이벤트
+    $(document).on("click", "#pager_meeting a", function (e) {
+        ListOrderStateGrid("Y", GetPagerValue($(this).attr("id"), $(this).text()), 10, $("#HdnMeetTypeCd").val(), $("#HdnSubject").val());
+    });
+
+    // 작성버튼 클릭 이벤트
+    $(document).on("click", "#btn_edit", function (e) {
+        location.href = "/Manage/OrderStateEdit?pOrderStateTypeCd=" + OrderStateTypeCd + "&pSaveMode=C&pRegNo=";
+    });
+
+    // 그리드 TR 클릭 이벤트
+    $(document).on("click", "#grid_meeting tr", function (e) {
+
+        if (GetGridTrValue("grid_meeting", "h_RegNo", $(this).children()) != "등록번호") {
+            location.href = "/Manage/OrderStateDetail?pOrderStateTypeCd=" + OrderStateTypeCd + "&pRegNo=" + GetGridTrValue("grid_meeting", "h_RegNo", $(this).children());
+        }
+    });
+
+</script>

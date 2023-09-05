@@ -1,0 +1,193 @@
+﻿@using PT.Web.WebUtil
+@model PT.BusinessLogic.Entities.Meeting
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+
+</head>
+<body>
+    <!-- 검색 및 버튼박스 -->
+    <div>
+        <h1 class="title1">공개대상</h1>
+        <div class="box_btn_right">
+            <a id="btn_delete" class="btn1">삭제</a>
+        </div>
+        <!-- 그리드 -->
+        <div id="gridTB" class="grid2" style="height:385px;"></div>
+    </div>
+    <!-- //그리드 -->
+    <div>    
+            <h1 class="title1">공개대상선택</h1>
+            <div class="box_btn_right">
+                <a id="btn_save" class="btn1">저장</a>
+            </div>
+            <div id="gridSelect" class="grid2" style="height:385px;"></div>
+                <!-- 숨김정보 -->
+                @Html.HiddenFor(x => x.SaveMode)
+                @Html.HiddenFor(x => x.RegNo)
+                @Html.HiddenFor(x => x.MeetTypeCd)
+                <!-- //숨김정보 -->
+    </div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+
+    var meetTypeCd = "@ViewBag.MeetTypeCd";
+    var regNo = "@ViewBag.RegNo";
+    var regUserId = "@ViewBag.RegUserId";
+
+    $(document).ready(function (e) {
+
+         ListMeetingExecutives(meetTypeCd, regNo, 'List');
+         ListAuthMeetingExecutives(meetTypeCd, regNo, 'Auth');
+    });
+
+    // 임원 리스트 조회
+     function ListMeetingExecutives(pMeetTypeCd, pRegNo, pSelectGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/ListMeetingExecutives",
+            dataType: "html",
+            data: { "pMeetTypeCd": pMeetTypeCd, "pRegNo": pRegNo, "pSelectGubun": pSelectGubun },
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#gridSelect").empty();
+                $("#gridSelect").html(data[0]);
+
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 자료 공개대상 임원 리스트 조회
+     function ListAuthMeetingExecutives(pMeetTypeCd, pRegNo, pSelectGubun) {
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/ListMeetingExecutives",
+            data: { "pMeetTypeCd": pMeetTypeCd, "pRegNo": pRegNo, "pSelectGubun": pSelectGubun },
+            dataType: "html",
+            async: false,   // 동기식 처리
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#gridTB").empty();
+                $("#gridTB").html(data[0]);
+
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 사용 권한 등록 INSERT
+     function AuthRegistSuju(ptdArr, pMeetTypeCd, pRegNo, pRegUserId, pGubun) {
+
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/AuthRegistSuju",
+            data: JSON.stringify({ 'Arr': ptdArr, "pMeetTypeCd": pMeetTypeCd, "pRegNo": pRegNo, "pRegUserId": pRegUserId, "pGubun": pGubun }),
+            contentType: 'application/json; charset=utf-8',
+            async: false,   // 동기식 처리
+            success: function (data) {
+                alert(data);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 저장버튼 클릭 이벤트
+    $(document).on("click", "#btn_save", function (e) {
+
+        var rowData = new Array();
+        var tdArr = new Array();
+        var checkBox = $("input[name=checkList]:checked");
+
+        checkBox.each(function (i) {
+            var tr = checkBox.parent().parent().eq(i);
+            var td = tr.children();
+
+            rowData.push(tr.text());
+
+            var UserId = td.eq(1).text();
+
+            tdArr.push(UserId);
+
+
+        });
+
+        if (tdArr.length > 0) {
+            AuthRegistSuju(tdArr, meetTypeCd, regNo, regUserId, "s");
+        }
+        else {
+            alert("선택항목이 없습니다.");
+        }    
+     
+        location.reload(true);
+
+    });
+
+    // 삭제버튼 클릭 이벤트
+    $(document).on("click", "#btn_delete", function (e) {
+
+        var rowData = new Array();
+        var tdArr = new Array();
+        var checkBox = $("input[name=checkAuth]:checked");
+ 
+        checkBox.each(function (i) {
+            var tr = checkBox.parent().parent().eq(i);
+            var td = tr.children();
+
+            rowData.push(tr.text());
+
+            var UserId = td.eq(1).text();
+
+            tdArr.push(UserId);
+
+        });
+
+        if (tdArr.length > 0) {
+            AuthRegistSuju(tdArr, meetTypeCd, regNo, regUserId, "d");
+        }
+        else {
+            alert("선택항목이 없습니다.");
+        }    
+
+        location.reload(true);
+
+    });
+
+
+</script>

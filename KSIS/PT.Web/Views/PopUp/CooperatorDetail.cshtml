@@ -1,0 +1,166 @@
+﻿@model PT.BusinessLogic.Entities.PopUp
+
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+    <head>
+         <title>@ViewBag.Title</title>
+        <!-- 인코딩 -->
+        <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+        <!-- 문서모드 -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+            <!-- 파비콘 -->
+        <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+        <!-- css -->
+        <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+        <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+        <!-- script -->
+        <script type="text/javascript" src="/Contents/js/common.js"></script>
+        <script type="text/javascript" src="/Contents/js/component.js"></script>
+        <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+    </head>
+    <body>
+
+        <div id="container">    
+        <!-- 콘텐츠 -->
+        <div id="contents">              
+        <h1 class="title1">협력업체상세</h1>
+            <div class ="box_input">
+                <table>
+                    <colgroup>
+                        <col style="width:12.5%" />
+                        <col style="width:12.5%" />
+                        <col style="width:12.5%" />
+                        <col style="width:12.5%" />
+                        <col style="width:12.5%" />
+                        <col style="width:12.5%" />
+                        <col style="width:12.5%" />
+                        <col style="width:12.5%" />
+                        <col />
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th>회사명</th>
+                            <td colspan="3" class="td_center">@Model.VendorNm</td>
+                            <th>대표자명</th>
+                            <td colspan="3" class="td_center">@Model.RepNm</td>
+                        </tr>
+                        <tr>
+                            <th>사업자구분</th>
+                            <td colspan="3" class="td_center">@Model.VendorTypeCd</td>
+                            <th>법인등록번호</th>
+                            <td colspan="3" class="td_center">@Model.CorpNo</td>
+                        </tr>
+                        <tr>
+                            <th>사업자등록번호</th>
+                            <td colspan="3" class="td_center">@Model.BizNo</td>
+                            <th>회사규모</th>
+                            <td colspan="3" class="td_center">@Model.ComScaleCD</td>
+                        </tr>
+                        <tr>
+                            <th>업종</th>
+                            <td colspan="3" class="td_center">@Model.BizKind</td>
+                            <th>업태</th>
+                            <td colspan="3" class="td_center">@Model.BizType</td>
+                        </tr>
+                        <tr>
+                            <th>회사주소</th>
+                            <td colspan="7" class="td_left">@Model.Addr</td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">대표연락처</th>
+                            <th>전화번호</th>
+                            <td colspan="2" class="td_center">@Model.TelNo</td>
+                            <th>FAX</th>
+                            <td colspan="3" class="td_center">@Model.FaxNo</td>
+                        </tr>
+                        <tr>
+                            <th>홈페이지</th>
+                            <td colspan="2" class="td_center">@Model.Homepage</td>
+                            <th>E-Mail</th>
+                            <td colspan="3" class="td_center">@Model.RepEMail</td>
+                        </tr>
+                        <tr>
+                            <th>구분</th>
+                            <th>성명/직위</th>
+                            <th colspan="2">전화번호</th>
+                            <th colspan="2">이동전화</th>
+                            <th colspan="2">E-Mail</th>
+                        </tr>
+                        <tr>
+                            <th>입찰담당자</th>
+                            <td class="td_center">@Model.BidChargeNm</td>
+                            <td colspan="2" class="td_center">@Model.BidChargeTelNo</td>
+                            <td colspan="2" class="td_center">@Model.BidChargeMobileNo</td>
+                            <td colspan="2" class="td_center">@Model.BidChargeEmail</td>
+                        </tr>
+                         <tr>
+                            <th>계약담당자</th>
+                            <td class="td_center">@Model.ContractChargeNm</td>
+                            <td colspan="2" class="td_center">@Model.ContractChargeTelNo</td>
+                            <td colspan="2" class="td_center">@Model.ContractChargeMobileNo</td>
+                            <td colspan="2" class="td_center">@Model.ContractChargeEmail</td>
+                        </tr>
+                         <tr>
+                            <th>기성담당자</th>
+                            <td class="td_center">@Model.EstChargeNm</td>
+                            <td colspan="2" class="td_center">@Model.EstChargeTelNo</td>
+                            <td colspan="2" class="td_center">@Model.EstChargeMobileNo</td>
+                            <td colspan="2" class="td_center">@Model.EstChargeEmail</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
+            </div>
+
+        <h1 class="title1" style="display:none">기타항목</h1>
+            <div class ="grid1" id="grid_Classification" style="display:none">        
+            </div>
+
+            <div class="box_Close">
+                <div class="box_Close_Center">
+                        <a id="btn_list" class="btn">닫 기</a>
+                </div>     
+            </div> 
+        </div>
+
+        </div>
+
+    </body>
+</html>
+
+<script type="text/javascript">
+
+    $(document).ready(function (e) {
+        ListVendorClassification("@Model.VendorCd");
+    });
+
+    $(document).on("click", "#btn_list", function (e) {
+        self.close();
+    });
+
+    function ListVendorClassification(pVendorCd) {
+        $.ajax({
+            type: "POST",
+            url: "/PopUp/ListVendorClassification",
+            dataType: "html",
+            data: { "pVendorCd": pVendorCd},
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리그 생성
+                $("#grid_Classification").empty();
+                $("#grid_Classification").html(data[0]);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+</script>

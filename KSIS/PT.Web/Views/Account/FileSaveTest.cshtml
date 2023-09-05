@@ -1,0 +1,30 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>FileSaveTest</title>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+    <div>
+        <form id="frm" name="frm" enctype="multipart/form-data" action="/Account/FileSaveTest" method="post">
+            <input type="file" id="pFile" name="pFile" /><br /><br />
+            <a id="btn">버튼</a>
+        </form>
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+    // 버튼 클릭 이벤트
+    $(document).on("click", "#btn", function (e) {
+        $("#frm").submit();
+    });
+
+</script>

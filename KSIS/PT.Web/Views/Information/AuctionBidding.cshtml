@@ -1,0 +1,104 @@
+﻿@using PT.Web.WebUtil;
+@model PT.BusinessLogic.Entities.Auction
+
+@{
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!-- 콘텐츠 -->
+<div id="contents">
+    <!-- 사이드메뉴 -->
+    <div class="contents_left1">
+        <a href="/Information/Auction">진행중인경매</a>
+        <a href="/Information/AuctionComplete">완료된경매</a>
+        <a href="/Information/AuctionBidding" class="txt_red">참여한경매</a>
+        <a href="/Information/AuctionSelling">경매관리자</a>
+    </div>
+    <!-- //사이드메뉴 -->
+
+    <!-- 콘텐츠(상세) -->
+    <div class="contents_right1">
+        
+        <!-- 폼 -->
+        <form id="frm" name="frm" enctype="multipart/form-data" action="/Information/AuctionBidding" method="post">
+            
+            <!-- 버튼박스 -->
+            <!--<h1 style="padding-left:15px;background:url(/Contents/images/icon/icon_title1.png) no-repeat left center;font-size:15px;color:#121212;">참여한경매</h1>
+            <br />-->
+            <!-- 그리드 -->
+            <div id="grid_AuctionBidding" class="grid2" style="height:385px;"></div>
+            <!-- //그리드 -->
+            <!-- 페이지 -->
+            <div id="pager_AuctionBidding" class="pager1"></div>
+            <!-- //페이지 -->           
+            <input type="hidden" id="HdnAuctionTypeCd" name="HdnAuctionTypeCd" />
+            <input type="hidden" id="HdnSubject" name="HdnSubject" />
+        </form>
+        <!-- //폼 -->
+    </div>
+    <!-- //콘텐츠(상세) -->
+</div>
+<!-- //콘텐츠 -->
+
+
+<script type="text/javascript">
+
+    //************ 변수 ************//
+    var userId = "@Session["UserId"]";
+    var AuctionTypeCd = "@ViewBag.AuctionTypeCd";
+
+
+    //************ 로드 ************//
+    // 페이지 로드 시
+    $(document).ready(function (e) {
+        GetAuctionBiddingInfo('Y', userId, 1, 10);
+        //EnableControl();
+    });
+    
+    //************ Ajax ************//
+
+    function GetAuctionBiddingInfo(pPagerUseYn, userId, pCurPage, pListCnt) {
+        $.ajax({
+            type: "POST",
+            url: "/AjaxAuth/GetAuctionBiddingInfo",
+            dataType: "html",
+            data: { "pUserId": userId, "pPagerUseYn": pPagerUseYn, "pCurPage": pCurPage, "pListCnt": pListCnt },
+            async: false,   // 동기식 처리 
+            success: function (data) {
+                var data = data.split("‡");
+                // 그리드 생성
+                $("#grid_AuctionBidding").empty();
+                $("#grid_AuctionBidding").html(data[0]);
+                // 페이지 생성
+                CreatePager("pager_AuctionBidding", pListCnt, data[1], data[2]);
+
+                // 검색조건 저장
+                $("#HdnAuctionTypeCd").val(data[3]);
+                $("#HdnSubject").val(data[4]);
+            },
+            error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+            }
+        });
+    }
+
+    //************ 함수 ************//
+    // 버튼 및 INPUTBOX 활성화.비활성화 함수
+    function EnableControl() {
+            $("#btn_submit").show();
+    }
+
+    // 그리드 TR 클릭 이벤트
+    $(document).on("click", "#grid_AuctionBidding tr", function (e) {
+        if (GetGridTrValue("grid_AuctionBidding", "h_ItemNm", $(this).children()) != "물품명") {
+            location.href = "/Information/AuctionDetail?pAuctionNo=" + GetGridTrValue("grid_AuctionBidding", "AuctionNo", $(this).children()) + "&pAuctionTypeCd=" + "B";
+        }
+    });
+
+    // 페이지 번호 클릭 이벤트
+    $(document).on("click", "#pager_AuctionBidding a", function (e) {
+        GetAuctionBiddingInfo('Y', userId, GetPagerValue($(this).attr("id"), $(this).text()), 10);
+    });
+
+</script>

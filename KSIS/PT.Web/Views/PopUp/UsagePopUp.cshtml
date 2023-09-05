@@ -1,0 +1,81 @@
+﻿@model PT.BusinessLogic.Entities.Site
+
+@{
+    Layout = null;
+    ViewBag.Title = "KSIS(KCC E&C SMART INFORMATION SYSTEM)";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <!-- 인코딩 -->
+    <meta http-equiv="Contents-Type" content="text/html" charset="utf-8" />
+    <!-- 문서모드 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!-- 파비콘 -->
+    <link rel="shortcut icon" type="image/x-icon" href="/Contents/images/favicon.ico" />
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/Contents/css/common.css" />
+    <link rel="stylesheet" type="text/css" href="/Contents/css/portal.css" />
+
+    <!-- script -->
+    <script type="text/javascript" src="/Contents/js/common.js"></script>
+    <script type="text/javascript" src="/Contents/js/component.js"></script>
+    <script type="text/javascript" src="/Contents/js/jquery-1.9.1.min.js"></script>
+
+    <script>
+
+        $(document).ready(function (e) {
+            ListUsagePopUp("@ViewBag.ScreenCd", "@ViewBag.GUBUN", "@ViewBag.DutyCd", "@ViewBag.Term");
+            ApplyDisplayColorTB();
+        });
+
+        // 사용자 이력 조회
+        function ListUsagePopUp(pScreenCd, pGUBUN, pDutyCd, pTerm) {
+            $.ajax({
+                type: "POST",
+                url: "/PopUp/ListUsagePopUp",
+                dataType: "html",
+                data: { "pScreenCd": pScreenCd, "pGUBUN": pGUBUN, "pDutyCd": pDutyCd, "pTerm": pTerm },
+                async: false,   // 동기식 처리
+                success: function (data) {
+                    $("#gridUser").append(data)
+                },
+                error: function (e) {
+                    alert("에러 발생.");
+                    return false;
+                }
+            });
+        }
+
+        function ApplyDisplayColorTB() {
+            $("#gridUser tr").each(function (e) {
+
+                if ($(this).children().eq(0).text() == "합 계") {
+                    $(this).css("background-color", "#eaeaea");
+
+                    $(this).children().each(function (e) {
+                        $(this).css("font-weight", "bold");
+
+                    });
+                }
+            });
+        }
+
+    </script>
+
+</head>
+<body>
+    <div id="container">
+        <!-- 콘텐츠 -->
+        <h1 class="title1">@ViewBag.GUBUN 년 @ViewBag.Term 분기 사용자별 집계</h1>
+        <div id="contents">
+            <div id="gridUser" class="grid3">
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

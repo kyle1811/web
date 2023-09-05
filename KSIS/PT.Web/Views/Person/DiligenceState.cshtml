@@ -1,0 +1,93 @@
+﻿@{
+    ViewBag.Title = "DiligenceState";
+}
+
+<div id="wrap">
+    <div class="sd_box">
+        <div class="sd_control">
+            <a id="btn_prev" class="sd_prev_btn"></a>
+            <a id="btn_yearmonth" class="sd_date_btn"></a>
+            <a id="btn_next" class="sd_next_btn"></a>
+        </div>
+        <div id="target" class="sd_calendar"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    // 전역 변수
+    var toYearMonDayServer = "@ViewBag.ToYearMonDay";
+    var toYearMon = "";
+    var toYearMonDay = "";
+
+    // 객체 생성
+    var schedule = new Schedule();
+    schedule.setConfig({
+        dsTargetNode: document.getElementById("target"),
+        dsTdWidth: "136"
+    });
+
+    //  현재 년월 변경
+    function setElmtYearMon(pDate) {
+        $("#btn_yearmonth").text(schedule.getDateTimeTypeReturn("yyyy-MM", pDate));
+    }
+
+    // 조직도 부서 목록 조회
+    function getDiligenceCalendarAndState(pYearMon, pYearMonDay) {
+        $.ajax({
+            type: "POST",
+            url: "/Person/GetDiligenceCalendarAndState",
+            dataType: "json",
+            data: { "pYearMon": pYearMon },
+            async: false,   // 동기식 처리
+            success: function (datas) {
+                schedule.makeSchedule(schedule, pYearMon, pYearMonDay, datas);
+            },
+            error: function (e) {
+                alert("에러 발생.");
+                return false;
+            }
+        });
+    }
+
+    // 페이지 로드
+    $(document).ready(function (e) {
+        toYearMon = schedule.getDateTimeTypeReturn("yyyyMM", toYearMonDayServer);
+        toYearMonDay = schedule.getDateTimeTypeReturn("yyyyMMdd", toYearMonDayServer);
+        setElmtYearMon(toYearMonDayServer);
+        getDiligenceCalendarAndState(toYearMon, toYearMonDay);
+    });
+
+    // 이전 버튼 클릭 이벤트
+    $(document).on("click", "#btn_prev", function (e) {
+        var curYearMon = schedule.getYearMonthCalcReturn("prev", $("#btn_yearmonth").text());
+        setElmtYearMon(curYearMon[1]);
+        getDiligenceCalendarAndState(curYearMon[0], toYearMonDay);
+    });
+
+    // 년월 버튼 클릭 이벤트
+    $(document).on("click", "#btn_yearmonth", function (e) {
+        setElmtYearMon(schedule.getDateTimeTypeReturn("yyyy-MM", toYearMonDayServer));
+        getDiligenceCalendarAndState(toYearMon, toYearMonDay);
+    });
+
+    // 다음 버튼 클릭 이벤트
+    $(document).on("click", "#btn_next", function (e) {
+        var curYearMon = schedule.getYearMonthCalcReturn("next", $("#btn_yearmonth").text());
+        setElmtYearMon(curYearMon[1]);
+        getDiligenceCalendarAndState(curYearMon[0], toYearMonDay);
+    });
+
+    // 펼치기, 닫기 버튼 클릭 이벤트
+    $(document).on("click", ".sd_plus_btn, .sd_minus_btn", function (e) {
+        if (this.className == "sd_plus_btn") {
+            this.className = "sd_minus_btn";
+            this.parentNode.parentNode.querySelector(".sd_hide_view").style.display = "block";
+        }
+        else {
+            this.className = "sd_plus_btn";
+            this.parentNode.parentNode.querySelector(".sd_hide_view").style.display = "none";
+        }
+    });
+
+</script>
